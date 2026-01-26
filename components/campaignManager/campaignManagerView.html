@@ -1,0 +1,192 @@
+﻿<div class="dashbwrapper">
+  <div class="allscrll chat-bottom-spacer" id="scrollBox">
+    <div class="row pt-3 pl-3 title-divider">
+      <div class="d-flex align-items-center">
+        <a ng-click="toggleBookmark('Campaign Manager','#/campaignManager')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Campaign Manager') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+        &nbsp;<h3>{{Translate('Campaign Manager')}}</h3>
+      </div>
+    </div>
+
+    <div class="data-filters hidden-print">
+      <div class="row" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+        <div class="col-xs-12">
+          <form class="form-inline">
+            <div class="form-group">
+              <div class="no-padding">
+                <label for="agentsnList">{{Translate('Choose an account:')}}</label>
+                <div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+                     ng-model="$root.selectedAgent" ng-change="agentChanged()"
+                     id="agentsnList">
+                  <div>
+                    <span>{{ t.AgentBind }}</span>
+                  </div>
+                  <div class="clearfix"></div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <form ng-show="!newCampaign.completed">
+
+
+        <div class="row" ng-if="newCampaign.CampaignId">
+          <div class="col-sm-2">
+            <b ng-bind="Translate('Status')"></b>
+          </div>
+          <div class="col-sm-6 col-sm-offset-2">
+            <div class="checkbox ml-3">
+              <label>
+                <input type="checkbox" ng-model="newCampaign.Status">{{Translate('Active')}}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12 col-lg-2">
+            <div class="form-group">
+              <label for="desc"><b ng-bind="Translate('Description')"></b></label>
+              <input type="text" class="form-control" id="desc" ng-model="newCampaign.description" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-sm-2">
+            <b ng-bind="Translate('Choose an Payout plan')"></b>
+          </div>
+          <div class="col-sm-4">
+            <div class="checkbox ml-3">
+              <label><input type="checkbox" ng-model="newCampaign.IsCPA" ng-change="newCampaign.IsRevShare = false" ng-disabled="newCampaign.IsRevShare == false && newCampaign.IsCPA == true">{{Translate('CPA')}}</label>
+            </div>
+            <div class="checkbox ml-3">
+              <label><input type="checkbox" ng-model="newCampaign.IsRevShare" ng-change="newCampaign.IsCPA = false" ng-disabled="newCampaign.IsRevShare == true && newCampaign.IsCPA == false">{{Translate('RevShare')}}</label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-2">
+            <b ng-bind="Translate('Commission Variable')"></b>
+          </div>
+          <div class="col-sm-2">
+            <div class="checkbox ml-3">
+              <label>
+                <input type="checkbox" ng-model="newCampaign.FTD" ng-change="newCampaign.isPayoutBoth = false; newCampaign.NGR = false; newCampaign.isPayoutPercentage = false"
+                       ng-disabled="newCampaign.isPayoutPercentage == newCampaign.NGR == newCampaign.isPayoutBoth == false && newCampaign.FTD == true">{{Translate('FTD')}}
+              </label>
+            </div>
+            <div class="checkbox ml-3">
+              <label>
+                <input type="checkbox" ng-model="newCampaign.NGR" ng-change="newCampaign.isPayoutBoth = false; newCampaign.FTD = false; newCampaign.isPayoutPercentage = false"
+                       ng-disabled="newCampaign.isPayoutPercentage == newCampaign.FTD == newCampaign.isPayoutBoth == false && newCampaign.NGR == true">{{Translate('NGR')}}
+              </label>
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="checkbox ml-3">
+              <label>
+                <input type="checkbox" ng-model="newCampaign.isPayoutPercentage" ng-change="newCampaign.isPayoutBoth = false; newCampaign.NGR = false; newCampaign.FTD = false"
+                       ng-disabled="newCampaign.FTD == newCampaign.NGR == newCampaign.isPayoutBoth == false && newCampaign.isPayoutPercentage == true">{{Translate('Percentage')}}
+              </label>
+            </div>
+            <div class="checkbox ml-3">
+              <label>
+                <input type="checkbox" ng-model="newCampaign.isPayoutBoth" ng-change="newCampaign.isPayoutPercentage = newCampaign.isPayoutBoth ? false : true; newCampaign.NGR = false; newCampaign.FTD = false"
+                       ng-disabled="newCampaign.isPayoutPercentage == newCampaign.FTD == newCampaign.NGR == false && newCampaign.isPayoutBoth == true">{{Translate('Percentage + Fixed Payout')}}
+              </label>
+            </div>
+          </div>
+          <div class="col-sm-6 col-sm-offset-2">
+            <small class="text-muted">{{Translate('The percentage of selected commission variables (FTD, NGR) will be considered.')}}</small>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12 col-lg-2">
+            <div class="form-group">
+              <label for="desc"><b ng-bind="Translate('Payout %')"></b></label>
+              <input type="text" class="form-control" id="desc" ng-model="newCampaign.payoutPercentage" max="100" min="0" only-digits>
+              <small id="errorMsg1" ng-show="newCampaign.showErrorMsg1 == true" class="text-danger" ng-bind="Translate('You can give numbers between 0 to 100 only')"></small>
+            </div>
+          </div>
+          <div class="col-xs-12 col-lg-2" ng-show="newCampaign.isPayoutBoth">
+            <div class="form-group">
+              <label for="desc"><b ng-bind="Translate('Payout')"></b></label>
+              <input type="text" class="form-control" id="desc" ng-model="newCampaign.payoutAmount" max="100000" min="0" only-digits>
+              <small id="errorMsg2" ng-show="newCampaign.showErrorMsg2 == true" class="text-danger" ng-bind="Translate('You can give numbers between 0 to 100000 only')"></small>
+            </div>
+          </div>
+          <div class="col-xs-12" ng-show="newCampaign.CampaignId">
+            <h2 ng-bind="Translate('Campaign ready!')"></h2>
+            <span class="border-2 p-3 mt-3" ng-bind="affiliateUrl"></span>
+          </div>
+          <div class="col-xs-12 mt-4" ng-show="newCampaign.CampaignId">
+            <button type="submit" class="btn btn-success" ng-bind="Translate('Copy link')" ng-click="copyUrl()"></button>
+          </div>
+          <div class="col-xs-12 mt-4" ng-show="!newCampaign.CampaignId">
+            <button type="submit" class="btn btn-success" ng-click="insertCampaign()" ng-bind="Translate('Submit')"></button>
+          </div>
+          <div class="col-xs-12 mt-4" ng-show="newCampaign.CampaignId">
+            <button type="submit" class="btn btn-success" ng-click="updateCampaign()" ng-bind="Translate('Update campaign')"></button>
+          </div>
+          <div class="col-xs-12 mt-4" ng-show="newCampaign.CampaignId">
+            <button type="submit" class="btn btn-default" ng-submit="clearCampaign()" ng-bind="Translate('New campaign')"></button>
+          </div>
+        </div>
+      </form>
+
+
+      <div class="row" ng-show="newCampaign.completed == true">
+        <div class="col-xs-4 border-2 bg-light-gray ml-3">
+          <div class="my-3">
+            <b ng-bind="Translate('ID Campaign')"></b>
+            <p ng-bind="newCampaign.CampaignId"></p>
+          </div>
+          <div class="my-3">
+            <b ng-bind="Translate('Description')"></b>
+            <p ng-bind="newCampaign.Description || newCampaign.description"></p>
+          </div>
+          <div class="my-3">
+            <b ng-bind="Translate('Parent Agent')"></b>
+            <p ng-bind="newCampaign.CreatedBy"></p>
+          </div>
+        </div>
+
+        <div class="col-xs-12">
+          <h2 ng-bind="Translate('Campaign ready!')"></h2>
+          <span class="border-2 p-3 mt-3" ng-bind="affiliateUrl"></span>
+        </div>
+        <div class="col-xs-12 mt-4">
+          <button type="submit" class="btn btn-success" ng-bind="Translate('Copy link')" ng-click="copyUrl()"></button>
+        </div>
+        <div class="col-xs-12 mt-4" ng-if="newCampaign.CampaignId">
+          <button type="submit" class="btn btn-default" ng-click="clearCampaign()" ng-bind="Translate('New campaign')"></button>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="panel-group" id="accordion">
+          <div class="panel panel-default">
+            <div class="panel-heading bg-white">
+              <h4 class="panel-title cursor-pointer">
+                <a data-toggle="collapse" data-parent="#accordion" data-target="#collapse1"><i class="fa fa-angle-right mr-3"></i><b ng-bind="Translate('All campaigns')"></b></a>
+              </h4>
+            </div>
+            <div id="collapse1" class="panel-collapse collapse in">
+              <div class="panel-body">
+                <div class="row">
+                  <div class="col-xs-12">
+                    <div class="table-wrapper table-responsive">
+                      <table datatable dt-instance="vm.dtInstance" dt-options="vm.dtOptions" dt-column-defs="vm.dtColumnDefs" class="custom-datatable">
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

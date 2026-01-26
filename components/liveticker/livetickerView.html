@@ -1,0 +1,167 @@
+﻿<div ng-if="showModal" class="modal-dialog">
+
+				<div class="modal-content">
+
+					<!-- Modal DISABLE ALL -->
+					<div class="modal-header">
+						
+						<h1 class="modal-title">{{Translate('Enable Sound')}}</h1>
+					</div>
+					<div ng-if="ReportFilters.CustomerStatus != 'X'">
+						<div class="modal-body">
+							<br />
+							<p>{{Translate('Enable Sound to receive alert sounds')}}</p>
+						</div>
+
+						<div class="modal-footer">
+							<button type="button" class="btn btn-warning" ng-click="closeModal()">
+								{{Translate('Cancel')}}
+							</button>
+							<button type="button" class="btn btn-success" ng-click="enableSoundModal()">
+								{{Translate('Enable')}}
+							</button>
+						</div>
+					</div>
+					</div>
+
+			</div>
+<div class="data-filters">
+  <div class="row pt-3 pl-3 title-divider">
+    <div class="d-flex align-items-center">
+      <a ng-click="toggleBookmark('Live Bet Ticker','#/liveticker')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Live Bet Ticker') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+      &nbsp;<h3>{{Translate('Live Bet Ticker')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 col-sm-3 col-xs-12">
+    </div>
+<div class="col-md-6 col-sm-9 col-xs-12 text-right">
+
+    <form class="form-inline">
+        <div class="form-group">
+            <label>
+                {{Translate('Wager Type:')}}
+                <select class="form-control custom-dropdown" ng-model="ReportFilters.WagerType" ng-change="changeFilter()" ng-options="wT.WagerType for wT in WagerTypes"></select>
+            </label>
+            <label>
+                {{Translate('Wager Amount:')}}
+                <select class="form-control color-ranges custom-dropdown" ng-model="ReportFilters.WagerAmount" ng-change="changeFilter()" ng-options="wT.WagerAmount for wT in WagerAmounts"></select>
+            </label>
+            <label>
+                {{Translate('Sport Type:')}}
+                <select class="form-control custom-dropdown" ng-model="ReportFilters.SportType" ng-change="changeFilter()" ng-options="wT for wT in SportTypes">
+                    <option value="" selected>All Sports</option>
+                </select>
+            </label>
+            <div>
+                <label>
+                    {{Translate('From:')}}
+                    <select class="form-control custom-dropdown" ng-model="ReportFilters.minutesAgo" ng-change="changeFilter()" ng-options="wT.name for wT in minutesAgo">
+                    </select>
+                </label>
+                <label> 
+                    {{Translate('Font Size:')}}
+                    <select class="form-control custom-dropdown" ng-model="fontSize" ng-change="saveSettings()" ng-options="wT.name for wT in fontSizes">
+                    </select>
+                </label>
+                <div ng-repeat="input in inputs">
+                    <input type="color" style="width: 75px; height: 30px;" class="m-auto form-control form-control-color" name="favcolor" ng-change="saveSettings()" list="presetColors" ng-model="input.color">
+                    <datalist id="presetColors">
+                        <option>#ABDEE6</option>
+                        <option>#CBAACB</option>
+                        <option>#FFFFB5</option>
+                        <option>#FFCCB6</option>
+                        <option>#F3B0C3</option>
+                        <option>#C6DBDA</option>
+                        <option>#FEE1E8</option>
+                        <option>#FED7C3</option>
+                        <option>#F6EAC2</option>
+                        <option>#ECD5E3</option>
+                        <option>#FF968A</option>
+                        <option>#FFAEA5</option>
+                        <option>#FFC5BF</option>
+                        <option>#FFD8BE</option>
+                        <option>#FFC8A2</option>
+                        <option>#D4FOFO</option>
+                        <option>#8FCACA</option>
+                        <option>#CCE2CB</option>
+                        <option>#B6CFB6</option>
+                        <option>#97C1A9</option>
+                        <option>#FCB9AA</option>
+                        <option>#FFDBCC</option>
+                        <option>#ECEAE4</option>
+                        <option>#A2E1DB</option>
+                        <option>#55CBCD</option>
+                    </datalist>
+                    <input style="height: 30px;" class="form-control" ng-readonly="$index > 0" type="text" ng-change="updateColor()" ng-model="input.initRange">
+                    <input style="height: 30px;" class="form-control" type="text" ng-change="updateColor()" ng-model="input.endRange">
+                    <button ng-show="$index > 0" class="mt-2" style="width: 25px" ng-click="removeRange($index)">X</button>
+                    <label style="width: 25px" ng-show="$index <= 0">  </label>
+
+                </div>
+                <button ng-disabled="addDisabled()" class="mt-2" ng-click="add()">Add a value in order to add other range</button>
+				<button  class="mt-2" name="enableSounds" ng-click="requestSound()" id="enableSounds">Enable Alert Sounds</button>
+            </div>
+
+        </div>
+        <button class="mt-2" ng-click="CleanScreen()">Clear Screen</button>
+	
+    </form>
+</div>
+  </div>
+</div>
+
+<div class="data-component">
+  <div ng-show="LiveTickerInfo.length == 0">
+    {{Translate('No Wagers To Show')}}
+  </div>
+  <!--table id="liveTickerTable" class="tablesaw" data-tablesaw-sortable data-tablesaw-mode="swipe" data-tablesaw-minimap-->
+  <table id="liveTickerTable" class="tablesaw liveticker">
+    <thead class="header">
+    <tr>
+      <th scope="col" data-tablesaw-priority="persist" class="hidden-xs">{{Translate('Ticket')}}</th>
+      <th scope="col" data-tablesaw-priority="persist">{{Translate('ID')}}</th>
+        <th scope="col" data-tablesaw-priority="persist">{{Translate('Wise')}}</th>
+      <th scope="col">{{Translate('Time')}}</th>
+      <th scope="col" data-tablesaw-priority="2" class="hidden-xs">{{Translate('Clerk')}}</th>
+      <th scope="col" data-tablesaw-priority="3">{{Translate('Wager Type')}}</th>
+      <th scope="col" data-tablesaw-priority="4" class="text-right">{{Translate('Risk')}}</th>
+      <th scope="col" data-tablesaw-priority="5" class="text-right">{{Translate('Win')}}</th>
+      <th scope="col" data-tablesaw-priority="6">{{Translate('Description')}}</th>
+    </tr>
+    </thead>
+    <tbody>
+				
+      <tr ng-repeat="lT in LiveTickerInfo" id="{{lT.TicketNumber}}_{{lT.WagerNumber}}_liveTicket" ng-class="{'isWise':lT.WiseActionFlag == 'Y'} " table-saw>
+      <td class="hidden-xs"><span ng-bind="lT.TicketNumber + '-' + lT.WagerNumber"></span></td>
+      <td><span ng-bind="lT.CustomerId | FormatCustomer"></span></td>
+        <td><span ng-bind="lT.WiseActionFlag | FormatCustomer"></span></td>
+      <td>
+        <span ng-bind="FormatDateTime(lT.PostedDateTimeString, 6)" class="LiveTickerInfo-date"></span>
+        <span ng-bind="DisplayTimeFromDate(lT.PostedDateTimeString)" class="LiveTickerInfo-time"></span>
+      </td>
+      <td class="hidden-xs"><span ng-bind="lT.TicketWriter"></span></td>
+      <td><span ng-bind="DisplayWagerTypeName(lT)"></span></td>
+      <td class="text-right" ng-class="{'amount-middle': lT.AmountWagered > 100000 && lT.AmountWagered < 1000000  , 'amount-high': lT.AmountWagered > 1000000, 'amount-low': lT.AmountWagered < 100000}"><span ng-bind="lT.AmountWagered |formatNumber"></span></td>
+      <td class="text-right" ng-class="{'amount-middle': lT.AmountWagered > 100000 && lT.AmountWagered < 1000000  , 'amount-high': lT.AmountWagered > 1000000, 'amount-low': lT.AmountWagered < 100000}"><span ng-bind="lT.ToWinAmount |formatNumber"></span></td>
+      <td>
+        <ul class="livetick_details">
+            <li ng-if="lT.WagerType == 'A'">
+              {{Translate('Manual play')}}
+          </li>
+            <li ng-repeat="wI in lT.WagerItems" ng-bind-html="wI.FreePlayFlag == 'Y' ? Translate('**Free Play** ') + GetWagerItemDescription(wI, $index): GetWagerItemDescription(wI, $index)|unsafe">
+          </li>
+        </ul>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+
+		</div>
+
+</div>
+<audio class="my_audio" controls preload="auto" hidden>
+  <source src="/admin/assets_core/audio/job-done-501.mp3" type="audio/mpeg">
+  <source src="/admin/assets_core/audio/job-done-501.ogg" type="audio/ogg">
+</audio>

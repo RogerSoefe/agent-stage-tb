@@ -1,0 +1,115 @@
+﻿<div class="data-filters">
+  <div class="row">
+    <div class="col-xs-12 col-md-9 no-padding">
+      <form class="form-inline">
+        <div class="form-group">
+          <label class="" for="exampleInputName2">Sport</label>
+          <select class="form-control custom-dropdown"
+                  ng-options="contest.ContestType for contest in Contests"
+                  ng-model="Selections.ContestType"
+                  ng-change="Selections.ContestType2 = Selections.ContestType.ContestTypes2[0]; GetContestLines(0)">
+          </select>
+        </div>
+
+        <div class="form-group" ng-show="!!Selections.ContestType">
+          <label class="" for="exampleInputName2">SubSport</label>
+          <select class="form-control custom-dropdown"
+                  ng-options="st.ContestType2 for st in Selections.ContestType.ContestTypes2"
+                  ng-model="Selections.ContestType2"
+                  ng-change="Selections.ContestType3 = Selections.ContestType2.ContestTypes3[0]; GetContestLines(1)">
+          </select>
+        </div>
+
+        <div class="form-group" ng-show="Selections.ContestType2 && Selections.ContestType2.ContestTypes3.length > 0">
+          <label class="" for="exampleInputName2">Category</label>
+          <select class="form-control custom-dropdown"
+                  ng-options="st.ContestType3 for st in Selections.ContestType2.ContestTypes3"
+                  ng-model="Selections.ContestType3"
+                  ng-change="GetContestLines(2)">
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="" for="exampleInputName2">Contest</label>
+          <select class="form-control custom-dropdown"
+                  ng-model="Selections.ContestDesc"
+                  ng-change="GetContestLines(3)"
+                  ng-options="p.ContestDesc for p in ContestDescs">
+          </select>
+        </div>
+        <!--
+        <div class="form-group">
+            <label class="">Order by</label>
+            <select class="form-control custom-dropdown" ng-model="ContestOrderByValue" ng-init="ContestOrderByValue = 'RotNum'">
+                <option value="Team1RotNum">{{Translate('Rotation')}}</option>
+                <option value="GameDateTimeString">{{Translate('Contest Date')}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-default" ng-click="ShowEditDialog()">{{Translate('Sort Contest')}}</button>
+        </div>
+          -->
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="data-component">
+
+  <div class="row sport-settings-header-row">
+    <div class="col col-md-3">
+      <label ng-bind="Selections.ContestType.ContestType" class="d-inline"></label>
+      <input type="text" class="form-control d-inline search-filter white ng-valid ng-touched ng-dirty ng-valid-parse" placeholder="Search Contest..." ng-model="contestFilter" />
+    </div>
+    <div class="col col-md-3">
+      <span ng-bind="Translate('Money Line')"></span>
+      <br />
+      <input type="button" class="btn" value="Remove Money Lines" ng-click="ClearContestShadeLines()" />
+    </div>
+    <div class="col col-md-3">
+      <span ng-bind="Translate('Actions')"></span>
+    </div>
+  </div>
+</div>
+
+<div class="data-component">
+  <!--DATE HEADER-->
+  <div class="row">
+    <div class="col-md-12 d-flex justify-content-center bg-primary-color text-white" ng-bind="ContestInfo[0].WagerCutoff"></div>
+  </div>
+  <div class="row sport-settings-row" ng-repeat="gf in ContestInfo | orderBy: OrderByValue " ng-class="{'sport-changed': gf.Changed, 'agent-line': gf.CustProfile != '.', 'disabled-line': ContestLineIsActive(gf)}">
+
+    <!--TEAM 1 LINES-->
+    <div class="row">
+      <div class="col-md-1" ng-bind="gf.RotNum"></div>
+      <div class="col-md-2" ng-bind="Translate(gf.ContestantName)"></div>
+      <!--Money Line Team1 -->
+      <div class="col-md-3">
+        <div class="row">
+          <div class="col-md-11 col-md-offset-1">
+            <input type="text" class="form-control input-sm" ng-model="gf.MoneyLine" input-price-format ng-change="OnContestLineChange(gf)" ng-disabled="ContestLineIsActive(gf)" />
+          </div>
+        </div>
+      </div>
+      <!--Actions -->
+      <div class="col-md-3" style="">
+        <button class="btn btn-sm btn-warning btn-block" ng-if="gf.CustProfile != '.'" ng-click="DeleteAgentContestLines(gf)" ng-bind="Translate('Remove Shade')" ng-disabled="ContestLineIsActive(gf)"></button>
+        <button class="btn btn-sm btn-danger btn-block" ng-if="ClearContestShadeLinesBtnVisible(gf)" ng-click="ClearContestShadeLines(gf)" ng-bind="Translate('Remove Line')" ng-disabled="ContestLineIsActive(gf)"></button>
+      </div>
+
+
+    </div>
+    <!--Actions -->
+    <!--
+    <div class="col-md-3" style="padding-left:5px;">
+      <div ng-show="gf.CustProfile != '.'">
+        <label for="exampleInputEmail1" class="small">Shade type:</label>
+        <select id="exampleInputEmail1" class="form-control small" ng-change="ChangeContestLineLinkedToStoreFlag(gf)" ng-model="gf.LinkedToStoreFlag" ng-disabled="ContestLineIsActive(gf)">
+          <option value="Y">{{Translate('Soft')}}</option>
+          <option value="N">{{Translate('Hard')}}</option>
+        </select>
+      </div>
+    </div>
+    -->
+  </div>
+</div>

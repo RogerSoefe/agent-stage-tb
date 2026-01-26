@@ -1,0 +1,59 @@
+﻿<div class="row">
+
+  <div class="col-sm-12 col-lg-4 mt-5">
+    <h3>{{Translate('Move from agent')}}</h3>
+    <div class="input-group mt-3">
+      <input type="text" class="form-control" placeholder="Search" id="txtSearch1" ng-model="filter.originSearchInput" />
+      <div class="input-group-btn">
+        <button class="btn btn-primary" type="submit">
+          <span class="glyphicon glyphicon-search"></span>
+        </button>
+      </div>
+    </div>
+    <div class="mt-4 border cursor-pointer" style="display: grid; height: 500px; overflow-y: auto;">
+      <span ng-repeat="sourceAgent in AllAgentsList | filter: filterOriginAgents"
+            ng-class="{'agent-selected' : sourceAgent.originSelected == true, 'hover-select' : sourceAgent.originSelected != true}"
+            class="p-3 border-bottom"
+            ng-click="selectOrigin(sourceAgent)" id="{{sourceAgent.AgentId}}-source">
+        {{sourceAgent.AgentId}}
+      </span>
+    </div>
+  </div>
+  <div class="col-sm-12 col-lg-4 mt-5">
+    <h3 class="text-center">{{Translate('Customers to move')}}</h3>
+    <div class="mt-4" style="display: grid; max-height: 500px; overflow-y: auto;">
+      <label ng-repeat="customer in tableData">
+        <input type="checkbox" ng-model="customer.selectedToMove" ng-change="toggleAction(ts)"> {{customer.CustomerId}}
+      </label>
+    </div>
+    <div class="w-100 d-flex justify-content-center">
+      <button class="btn btn-default mr-3" ng-click="selectAllCustomerToMove()">{{Translate('Select All')}}</button>
+      <button class="btn btn-default" ng-click="unSelectAllCustomerToMove()">{{Translate('Unselect All')}}</button>
+    </div>
+    <div class="w-100 d-flex justify-content-center mt-4">
+      <button class="btn btn-success" ng-click="moveCustomers()">{{Translate('Submit')}}</button>
+    </div>
+  </div>
+  <div class="col-sm-12 col-lg-4 mt-5">
+    <h3>{{Translate('Move to agent')}}</h3>
+    <div class="input-group mt-3">
+      <input type="text" class="form-control" placeholder="Search" id="txtSearch2" ng-model="filter.destinySearchInput" />
+      <div class="input-group-btn">
+        <button class="btn btn-primary" type="submit">
+          <span class="glyphicon glyphicon-search"></span>
+        </button>
+      </div>
+    </div>
+    <div class="mt-4 border cursor-pointer" style="display: grid; height: 500px; overflow-y: auto;">
+      <span ng-repeat="destinyAgent in AllAgentsList | filter: filterDestinyAgents"
+            ng-class="{'agent-selected' : destinyAgent.destinySelected == true, 'hover-select' : sourceAgent.originSelected != true}"
+            class="p-3 border-bottom"
+            ng-click="selectDestiny(destinyAgent)"
+            ng-if="destinyAgent.originSelected != true">
+        {{destinyAgent.AgentId}}
+      </span>
+    </div>
+  </div>
+
+</div>
+

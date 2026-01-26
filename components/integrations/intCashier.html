@@ -1,0 +1,19 @@
+﻿<div ng-class="{'iframeMobile-container': IsMobileDevice, 'iframe-container': !IsMobileDevice}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.1/iframeResizer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.1/iframeResizer.contentWindow.min.js"></script>
+    <iframe id="main-demo-cashier-mobile-iframe" class="mobile-demo-cashier"  src="/admin/Pages/intCashier/Index.aspx" frameborder="0"
+            style="width: 100%; position: absolute;height: 2000px"></iframe>
+    <script>
+        window.ContextIsKiosk = window.UISettings?.IsKiosk ? window.UISettings?.IsKiosk : false
+        document.addEventListener('DOMContentLoaded', function () {
+            window.mainCashier = iFrameResize({ log: false }, '#main-demo-cashier-mobile-iframe');
+            function resizeMainIframe(pNewHeight) {
+                var iframe = document.getElementById('main-demo-cashier-mobile-iframe');
+                newHeight = pNewHeight ? pNewHeight : iframe.contentWindow.document.body.scrollHeight;
+                iframe.style.height = newHeight + 'px';
+            }
+            window.resizeMainIframe = resizeMainIframe;
+            window.mobileCashierFrame = true;
+        });
+    </script>
+</div>

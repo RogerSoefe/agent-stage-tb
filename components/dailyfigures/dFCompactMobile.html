@@ -1,0 +1,96 @@
+﻿
+<div class="row" ng-repeat="aF in CustomersDailyFigures track by $index">
+  <div class="col-xs-12 mt-5" ng-if="AgentAsCustomerInfo.IsAffiliate == false">
+    <div class="dropdown align-self-center p-3 bg-gray" ng-if="hierarchy.mode == 0">
+      <div class="d-flex" role="button" aria-haspopup="true" aria-expanded="true" data-toggle="dropdown">
+        <strong class="text-white" ng-bind="formatCustomer(aF.AgentId)"></strong>&nbsp;<span class="text-white" ng-bind="Translate('Click here to see hierarchy')"></span>
+      </div>
+      <div class="dropdown-menu">
+        <strong class="text-black p-3" ng-bind="(aF.CustomerDailyFigures[0].Hierarchy != '' ? aF.CustomerDailyFigures[0].Hierarchy.substring(2): formatCustomer(aF.AgentId))"></strong>
+      </div>
+    </div>
+    <div class="align-self-center p-3 bg-gray" ng-if="hierarchy.mode == 1">
+      <div class="d-flex" role="button" aria-haspopup="true" aria-expanded="true" data-toggle="dropdown">
+        <strong class="text-white p-3" ng-bind="(aF.CustomerDailyFigures[0].Hierarchy != '' ? aF.CustomerDailyFigures[0].Hierarchy.substring(2): formatCustomer(aF.AgentId))"></strong>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-12">
+    <div class="row">
+      <div class="col-xs-3 bg-black text-white pr-0 d-flex justify-content-center" style="height: 40px">
+        <i class="fa fa-caret-left px-2 cursor-pointer align-self-center cursor-pointer" ng-click="ReportTotals.showName = !ReportTotals.showName"></i>
+        <strong class="align-self-center" ng-bind="Translate('Name')" ng-if="ReportTotals.showName == true"></strong>
+        <strong class="align-self-center" ng-bind="Translate('Id')" ng-if="ReportTotals.showName == false"></strong>
+        <i class="fa fa-caret-right px-2 align-self-center cursor-pointer" ng-click="ReportTotals.showName = !ReportTotals.showName"></i>
+      </div>
+      <div class="col-xs-3 px-0" style="height: 40px">
+        <div class="row bg-black text-white d-flex">
+          <div class="col-xs-2 p-0 d-flex cursor-pointer" ng-click="aF.WeekData.currentDayIndex = aF.WeekData.currentDayIndex == 0 ? 6 : aF.WeekData.currentDayIndex - 1">
+            <i class="fa fa-caret-left px-2 cursor-pointer align-self-center"></i>
+          </div>
+          <div class="col-xs-8 text-align-center" ng-bind-html="aF.WeekData.weekList[aF.WeekData.currentDayIndex]"></div>
+          <div class="col-xs-2 p-0 d-flex justify-content-end cursor-pointer" ng-click="aF.WeekData.currentDayIndex = aF.WeekData.currentDayIndex < 6 ? aF.WeekData.currentDayIndex + 1 : 0">
+            <i class="fa fa-caret-right px-2 align-self-center"></i>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-3 bg-black text-white px-0 d-flex justify-content-center" style="height: 40px">
+        <strong class="align-self-center" ng-bind="Translate('Week')"></strong>
+      </div>
+      <div class="col-xs-3 bg-black text-white px-0 d-flex justify-content-center" style="height: 40px">
+        <i class="fa fa-caret-left px-2 cursor-pointer align-self-center cursor-pointer" ng-click="aF.showTran = aF.showTran == 0 ? 2 : aF.showTran - 1"></i>
+        <strong class="align-self-center" ng-bind="Translate('Ovrll.')" ng-if="aF.showTran == 1"></strong>
+        <strong class="align-self-center" ng-bind="Translate('Pend.')" ng-if="aF.showTran == 0"></strong>
+        <strong class="align-self-center" ng-bind="Translate('Paymt.')" ng-if="aF.showTran == 2"></strong>
+        <i class="fa fa-caret-right px-2 align-self-center cursor-pointer" ng-click="aF.showTran = aF.showTran == 2 ? 0 : aF.showTran + 1"></i>
+      </div>
+    </div>
+    <div class="row bg-white" ng-class="{'bg-light-gray' : $index % 2 == 0}" ng-repeat="dF in aF.CustomerDailyFigures track by $index">
+
+      <div class="col-xs-3 d-flex justify-content-center p-2">
+        <span ng-if="ReportTotals.showName == false" class="customer-table-button cursor-pointer" ng-click="ShowCustMaint(dF.CustomerId, 8)" ng-bind="formatCustomer(dF.CustomerId)"></span>
+        <span ng-if="ReportTotals.showName == true && AgentAsCustomerInfo.IsAffiliate == false" ng-click="ShowCustMaint(dF.CustomerId, 8)" class="customer-table-button" ng-bind="dF.FullName"></span>
+      </div>
+      <div class="col-xs-3">
+        <div class="d-flex d-flex justify-content-center  p-2">
+          <a href="" data-toggle="modal" data-target="#ModalDailyFig" ng-click="ShowMoreDetails(dF, aF.WeekData.currentDayIndex, !ReportFilters.BreakoutSportsAndCasinos)"
+             onclick="return false">
+            <span ng-bind="dF['dFData' + (AgentInfo.CloseDayOfWeek == 2 ? aF.WeekData.currentDayIndex : aF.WeekData.currentDayIndex == 6 ? 0 : aF.WeekData.currentDayIndex + 1)] | formatNumber" ng-class="{'num_neg' : dF['dFData' + (AgentInfo.CloseDayOfWeek == 2 ? aF.WeekData.currentDayIndex : aF.WeekData.currentDayIndex == 6 ? 0 : aF.WeekData.currentDayIndex + 1)] < 0, 'num_pos': dF['dFData' + (AgentInfo.CloseDayOfWeek == 2 ? aF.WeekData.currentDayIndex : aF.WeekData.currentDayIndex == 6 ? 0 : aF.WeekData.currentDayIndex + 1)] > 0}"></span>
+          </a>
+          <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+            <span ng-bind="GetCasinoFigure(dF, (AgentInfo.CloseDayOfWeek == 2 ? aF.WeekData.currentDayIndex : aF.WeekData.currentDayIndex == 6 ? 0 : aF.WeekData.currentDayIndex + 1), false) | formatNumber"></span>
+          </span>
+        </div>
+      </div>
+      <div class="col-xs-3 d-flex justify-content-center p-2">
+        <strong  data-toggle="modal" data-target="#ModalDailyFig" class="cursor-pointer" ng-click="ShowWeekDetails(dF, !ReportFilters.BreakoutSportsAndCasinos)" ng-bind="GetWeekFigure(dF, false) | formatNumber" ng-class="{'num_pos' : GetWeekFigure(dF, false) == 0, 'num_neg' : GetWeekFigure(dF, false) < 0, 'num_pos' : GetWeekFigure(dF, false) > 0}"></strong>
+      </div>
+      <div class="col-xs-3 d-flex justify-content-center p-2">
+        <span ng-if="aF.showTran == 1" ng-bind="dF.CurrentBalance | formatNumber" ng-class="{'num_pos' : dF.CurrentBalance == 0, 'num_neg' : dF.CurrentBalance < 0, 'num_pos' : dF.CurrentBalance > 0}"></span>
+        <a ng-if="aF.showTran == 0" href="" ng-click="ShowPendingBets(dF.CustomerId)" ng-class="{'num_pos' : dF.PendingTotal == 0}">
+          <span ng-class="{'num_pos' : dF.PendingTotal == 0, 'num_pos' : dF.PendingTotal > 0}" ng-bind="dF.PendingTotal | formatNumber"></span>
+        </a>
+        <span ng-if="aF.showTran == 2" ng-bind="dF.OtherTran | formatNumber" ng-class="{'num_pos' : dF.OtherTran == 0, 'num_neg' : dF.OtherTran < 0, 'num_pos' : dF.OtherTran > 0}"></span>
+      </div>
+    </div>
+    <div class="row bg-white">
+      <div class="col-xs-3 d-flex justify-content-center p-2">
+        <strong class="align-self-center" ng-bind="Translate('Total')"></strong><div class="df-actives ml-2">{{aF.TotalActive}}</div>
+      </div>
+      <div class="col-xs-3 d-flex justify-content-center p-2">
+        <span ng-bind="aF[GetWeekDayName(aF.WeekData.currentDayIndex).capitalize()] | formatNumber" ng-class="{'num_pos' : aF[GetWeekDayName(aF.WeekData.currentDayIndex).capitalize()] == 0, 'num_neg' : aF[GetWeekDayName(aF.WeekData.currentDayIndex).capitalize()] < 0, 'num_pos' : aF[GetWeekDayName(aF.WeekData.currentDayIndex).capitalize()] > 0}"></span>
+      </div>
+      <div class="col-xs-3 d-flex justify-content-center p-2">
+        <span ng-bind="aF.Week | formatNumber" ng-class="{'num_pos' : aF.Week == 0, 'num_neg' : aF.Week < 0, 'num_pos' : aF.Week > 0}"></span>
+      </div>
+      <div class="col-xs-3 d-flex justify-content-center p-2">
+        <span ng-if="aF.showTran == 0" ng-bind="aF.PendingTotal | formatNumber" ng-class="{'num_pos' : aF.PendingTotal == 0, 'num_neg' : aF.PendingTotal < 0, 'num_pos' : aF.PendingTotal > 0}"></span>
+        <span ng-if="aF.showTran == 2" ng-bind="aF.OtherTran | formatNumber" ng-class="{'num_pos' : aF.OtherTran == 0, 'num_neg' : aF.OtherTran < 0, 'num_pos' : aF.OtherTran > 0}"></span>
+        <span ng-if="aF.showTran == 1" ng-bind="aF.Overall | formatNumber" ng-class="{'num_pos' : aF.Overall == 0, 'num_neg' : aF.Overall < 0, 'num_pos' : aF.Overall > 0}"></span>
+      </div>
+    </div>
+
+
+  </div>
+
+</div>

@@ -1,0 +1,79 @@
+﻿<div class="dashbwrapper">
+	<div class="allscrll chat-bottom-spacer" id="scrollBox">
+		<div class="row pt-3 pl-3 title-divider">
+			<div class="d-flex align-items-center">
+				<a ng-click="toggleBookmark('Scores','#/scores')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Scores') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+				&nbsp;<h3>{{Translate('Scores')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+			</div>
+		</div>
+		<div class="data-filters hidden-print">
+			<div class="row">
+				<div class="col-xs-12">
+					<form class="form-inline">
+						<div class="form-group">
+							<label for="custList">{{Translate('Scores mode:')}}</label>
+							<select class="form-control" ng-model="reportFilters.showFinals" ng-change="getData()">
+								<option value="false" selected>{{Translate('Live Scores')}}</option>
+								<option value="true">{{Translate('Final Scores')}}</option>
+							</select>
+							<label for="custList">{{Translate('Select sport:')}}</label>
+							<select class="form-control" ng-model="reportFilters.sportType" style="width: 191px"
+									ng-options="sL.bindName for sL in sportList"></select>
+							<label for="custList">{{Translate('Date range')}}:</label>
+							<select class="form-control" ng-model="reportFilters.weekNumber" ng-change="getData()" ng-options="wR.DateRange for wR in WeeksRange"></select>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+
+		<div ng-repeat="scoresList in scoresByLeague | filter: filterScores">
+			<div class="row px-4 py-2 border-2 mt-4 cursor-pointer" data-toggle="collapse" data-target="#leagueScores_{{$index}}" ng-click="toogleClick(scoresList[0].SportSubType)">
+				<div class="col-xs-10 pl-0">
+					<h4 ng-bind="scoresList[0].SportSubType"></h4>
+				</div>
+				<div class="col-xs-2 pr-0 d-flex justify-content-end">
+					<h4 class="fa" ng-class="{'fa-caret-right' : isClicked(scoresList[0].SportSubType) == false, 'fa-caret-down' : isClicked(scoresList[0].SportSubType) == true}"></h4>
+				</div>
+			</div>
+			<div class="row bg-white collapse" ng-class="{'in' : isClicked(scoresList[0].SportSubType)}" id="leagueScores_{{$index}}">
+				<div class="col-xs-6 border-2 pt-0 p-0" ng-class="{'border-l-0' : $index % 2 != 0, 'border-b-0' : $index < (scoresList.length - 2)}" ng-repeat="score in scoresList">
+					<div class="row px-4 py-2 mb-4"
+						 ng-class="{
+					'bg-secondary' : score.FinalScore != 1 && score.Period_final == 1 && score.Status != 'Final',
+					'bg-primary' : score.FinalScore != 1 && score.Period_final == 0 && score.Status != 'Poned' && score.Status != 'Final',
+					'bg-light-gray'  : score.FinalScore == 1 || score.Status == 'Poned' || score.Status == 'Final'
+					}">
+						<div class="col-xs-9 p-0">
+							<b ng-if="score.FinalScore != 1" ng-bind="score.Status + ' ' + score.Timer"></b>
+							<b ng-if="score.FinalScore == 1" ng-bind="Translate('Final Score')"></b>
+						</div>
+						<!--div class="col-xs-3 p-0 d-flex justify-content-end">
+						<b class="text-success" ng-bind="score.FinalScore != 'false' ? 'TNT' : ''"></b>
+					</div-->
+					</div>
+					<div class="row mb-4 px-4" style="height:33px">
+						<div class="col-xs-9 pl-0 d-flex">
+							<img src="{{score.Team2LogoUrl}}" height="33" width="33" on-error-src="{{host}}/sports/assets_core/img/sport_types/{{score.SportType.trim()}}.svg"/>
+							<span class="ml-1 align-self-center" ng-bind="score.Team2ID"></span>
+						</div>
+						<div class="col-xs-3 d-flex h-100 justify-content-end pr-0">
+							<b class="align-self-center" ng-bind="score.ScoreHome"></b>
+						</div>
+					</div>
+					<div class="row mb-4 px-4" style="height:33px">
+						<div class="col-xs-9 pl-0 d-flex">
+							<img src="{{score.Team1LogoUrl}}" height="33" width="33" on-error-src="{{host}}/sports/assets_core/img/sport_types/{{score.SportType.trim()}}.svg"/>
+							<span class="ml-1 align-self-center" ng-bind="score.Team1ID"></span>
+						</div>
+						<div class="col-xs-3 d-flex h-100 justify-content-end pr-0">
+							<b class="align-self-center" ng-bind="score.ScoreAway"></b>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>

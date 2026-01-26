@@ -1,0 +1,482 @@
+﻿<div class="dashbwrapper">
+  <div class="allscrll" id="aPWrapper">
+    <div class="row pt-3 pl-3 title-divider">
+      <div class="d-flex align-items-center">
+        <a ng-click="toggleBookmark('Agent Exposure','#/agentExposure')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Agent Exposure') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+        &nbsp;<h3>{{Translate('Agent Exposure')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+      </div>
+    </div>
+    <div class="data-filters">
+      <div class="row center-block">
+        <div class="col-xs-2 no-padding">
+          <div class="form-group" ng-show="AllActiveSubSports.length != 0">
+            <label class="hidden-xs" for="ddSports" ng-bind="Translate('Sub Sports')"></label>
+            <select id="ddSports" class="custom-dropdown" ng-model="SelectedSubSport" ng-disabled="loadindingInfo"
+                    ng-change="LoadInfo(SelectedSubSport.subSportObj)"
+                    ng-options="aS.SubSport.Title for aS in AllActiveSubSports"></select>
+          </div>
+        </div>
+
+        <div class="col-xs-2 no-padding">
+          <label class="hidden-xs" for="ddSports" ng-bind="Translate('Filter By Date')"></label>
+          <select id="ddSports" class="custom-dropdown" ng-model="SelectedDateFilterOption" ng-options="d for d in filterArray">
+          </select>
+        </div>
+        <div class="col-xs-8 text-right no-padding">
+          <div onclick="window.print();" class="print-action hidden-print">
+            <h3>Print this</h3>
+            <div class="print-custom-icon fa-2x">
+              <i class="fas fa-print"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!--<div class="row">
+    <div class="col-xs-12">
+      <span class="chckbx float-left">
+        <input type="checkbox" id="activeOnly" ng-model="ReportFilters.ShowActiveOnly"
+               class="form-control">
+        <label for="activeOnly" ng-bind="Translate('Show Today Games Only')"></label>
+      </span>
+    </div>
+  </div>-->
+
+
+    <h2 ng-show="loadindingInfo == true && SelectedSports.length == 0" ng-bind="Translate('Loading...')"></h2>
+    <h2 ng-show="loadindingInfo == false && SelectedSports.length == 0" ng-bind="Translate('No data')"></h2>
+
+    <div class="data-component" ng-init="tabDisplay = 1">
+      <div class="pg-report-cont">
+        <div class="" ng-show="(ActiveSports == null || ActiveSports.length == 0)"
+             ng-bind="Translate('No Info To Show')"></div>
+        <div class="page-content inset">
+
+          <div class="panel-group" id="gamesAccordion" ng-repeat="sSs in SelectedSports | filter: FilterLeagues"
+               ng-show="SelectedSports.length != 0">
+            <div class="panel panel-default" id="{{'agPos.' + sSs.SportType + '.' + sSs.SportSubType}}"
+                 ng-show="sSs.PositionByGame != null">
+              <div class="row">
+                <div class="col-xs-3 bg-tertiary-color custom-table-title">
+                  <a class="ng-binding" data-target="#subSport_{{$index}}" data-toggle="collapse"
+                     data-parent="#gamesAccordion">
+                    <span ng-bind="sSs.SportType + ' ' + sSs.SportSubType"></span>
+                  </a>
+                </div>
+                <div class="col-xs-9 custom-table-periods">
+                  <select ng-show="IsMobile" ng-options="aP as aP.PeriodDescription for aP in sSs.AvailablePeriods" ng-model="sSs.SelectedPeriod" ng-change="LoadGamePeriodInfoFromGamePeriod(sSs, sSs.SelectedPeriod, $event)"></select>
+                  <div ng-show="!IsMobile" ng-repeat="aP in sSs.AvailablePeriods" class="cursor-pointer"
+                       ng-click="LoadGamePeriodInfoFromGamePeriod(sSs, aP, $event)"
+                       ng-class="{ 'active': aP.Selected }"
+                       id="{{'btn.' + sSs.SportType + '.' + sSs.SportSubType + '.' + aP.PeriodNumber}}">
+                    <span>{{aP.PeriodDescription}} <i class="fa fa-chevron-right"></i></span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="height: auto;" class="panel-collapse in" id="subSport_{{$index}}">
+
+
+                <div class="wagertypetitle">
+                  <div class="row">
+                    <div class="col-sm-12 col-lg-12 col-xl-12 no-padding-right">
+                      <div class="row">
+                        <div class="col-xs-3 no-padding"></div>
+                        <div class="col-xs-9 no-padding">
+                          <div class="row">
+                            <div class="col-xs-12 col-lg-3 text-center text-xs-right wagertypetitle-divider no-padding-left pr-3" ng-show="IsMobile == false || tabDisplay == 1">
+                              <div class="row d-flex">
+                                <div class="col-xs-2 p-0 d-flex" ng-click="tabDisplay = tabDisplay == 1 ? 4 : tabDisplay - 1">
+                                  <i class="fa fa-caret-left px-2 align-self-center hidden-lg"></i>
+                                </div>
+                                <div class="col-xs-8 text-align-center" ng-bind="Translate('Straights')"></div>
+                                <div class="col-xs-2 p-0 d-flex justify-content-end" ng-click="tabDisplay = tabDisplay < 4 ? tabDisplay + 1 : 1">
+                                  <i class="fa fa-caret-right px-2 align-self-center hidden-lg"></i>
+                                </div>
+                              </div>
+                              <div class="row" ng-if="!showProfit">
+                                <div class="col-xs-4 no-padding text-align-center">
+                                  <span class="line_limit" data-toggle="tooltip"
+                                        data-placement="bottom"
+                                        title="">{{Translate('Spread')}}</span>
+                                </div>
+                                <div class="col-xs-4 no-padding text-align-center">
+                                  <span class="line_limit" data-toggle="tooltip"
+                                        data-placement="bottom"
+                                        title="{{Translate('')}}">{{Translate('ML')}}</span>
+                                </div>
+                                <div class="col-xs-4 no-padding text-align-center">
+                                  <span class="line_limit" data-toggle="tooltip"
+                                        data-placement="bottom"
+                                        title="{{Translate('')}}">{{Translate('Total')}}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-xs-12 col-lg-3 text-center wagertypetitle-divider no-padding-left pr-3" ng-show="IsMobile == false || tabDisplay == 2">
+                              <div class="row d-flex">
+                                <div class="col-xs-2 p-0 d-flex" ng-click="tabDisplay = tabDisplay == 1 ? 4 : tabDisplay - 1">
+                                  <i class="fa fa-caret-left px-2 align-self-center hidden-lg"></i>
+                                </div>
+                                <div class="col-xs-8 text-align-center" ng-bind="Translate('Parlays')"></div>
+                                <div class="col-xs-2 p-0 d-flex justify-content-end" ng-click="tabDisplay = tabDisplay < 4 ? tabDisplay + 1 : 1">
+                                  <i class="fa fa-caret-right px-2 align-self-center hidden-lg"></i>
+                                </div>
+                              </div>
+                              <div class="row" ng-if="!showProfit">
+                                <div class="col-xs-4 no-padding text-align-center">
+                                  <span class="line_limit" data-toggle="tooltip"
+                                        data-placement="bottom"
+                                        title="">{{Translate('Spread')}}</span>
+                                </div>
+                                <div class="col-xs-4 no-padding text-align-center">
+                                  <span class="line_limit" data-toggle="tooltip"
+                                        data-placement="bottom"
+                                        title="{{Translate('')}}">{{Translate('ML')}}</span>
+                                </div>
+                                <div class="col-xs-4 no-padding text-align-center">
+                                  <span class="line_limit" data-toggle="tooltip"
+                                        data-placement="bottom"
+                                        title="{{Translate('')}}">{{Translate('Total')}}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-xs-12 col-lg-3 text-center wagertypetitle-divider no-padding-left pr-3" ng-show="IsMobile == false || tabDisplay ==3">
+                              <div class="row d-flex">
+                                <div class="col-xs-2 p-0 d-flex" ng-click="tabDisplay = tabDisplay == 1 ? 4 : tabDisplay - 1">
+                                  <i class="fa fa-caret-left px-2 align-self-center hidden-lg"></i>
+                                </div>
+                                <div class="col-xs-8 text-align-center" ng-bind="Translate('Teaser')"></div>
+                                <div class="col-xs-2 p-0 d-flex justify-content-end" ng-click="tabDisplay = tabDisplay < 4 ? tabDisplay + 1 : 1">
+                                  <i class="fa fa-caret-right px-2 align-self-center hidden-lg"></i>
+                                </div>
+                              </div>
+                              <div class="row" ng-if="!showProfit">
+                                <div class="col-xs-4 no-padding text-align-center">
+                                  <span class="line_limit" data-toggle="tooltip"
+                                        data-placement="bottom"
+                                        title="">{{Translate('Spread')}}</span>
+                                </div>
+                                <div class="col-xs-4 no-padding text-align-center">
+                                  <span class="line_limit" data-toggle="tooltip"
+                                        data-placement="bottom"
+                                        title="{{Translate('')}}">{{Translate('ML')}}</span>
+                                </div>
+                                <div class="col-xs-4 no-padding text-align-center">
+                                  <span class="line_limit" data-toggle="tooltip"
+                                        data-placement="bottom"
+                                        title="{{Translate('')}}">{{Translate('Total')}}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-xs-12 col-lg-3 text-center wagertypetitle-divider no-padding-left pr-3" ng-show="IsMobile == false || tabDisplay ==4">
+                              <div class="row d-flex">
+                                <div class="col-xs-2 p-0 d-flex" ng-click="tabDisplay = tabDisplay == 1 ? 4 : tabDisplay - 1">
+                                  <i class="fa fa-caret-left px-2 align-self-center hidden-lg"></i>
+                                </div>
+                                <div class="col-xs-8 text-align-center" ng-bind="Translate('Reverses')"></div>
+                                <div class="col-xs-2 p-0 d-flex justify-content-end" ng-click="tabDisplay = tabDisplay < 4 ? tabDisplay + 1 : 1">
+                                  <i class="fa fa-caret-right px-2 align-self-center hidden-lg"></i>
+                                </div>
+                              </div>
+                              <div class="row" ng-if="!showProfit">
+                                <div class="col-xs-4 no-padding text-align-center">
+                                  <span class="line_limit" data-toggle="tooltip"
+                                        data-placement="bottom"
+                                        title="">{{Translate('Spread')}}</span>
+                                </div>
+                                <div class="col-xs-4 no-padding text-align-center">
+                                  <span class="line_limit" data-toggle="tooltip"
+                                        data-placement="bottom"
+                                        title="{{Translate('')}}">{{Translate('ML')}}</span>
+                                </div>
+                                <div class="col-xs-4 no-padding text-align-center">
+                                  <span class="line_limit" data-toggle="tooltip"
+                                        data-placement="bottom"
+                                        title="{{Translate('')}}">{{Translate('Total')}}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <ul class="bettinglines">
+                  <li ng-repeat="pG in sSs.PositionByGame | filter: FilterGames">
+                    <div class="gameTitle text-center-xs" ng-if="pG.IsTitle"
+                         ng-bind="FormatDateTime(pG.GameDateString, 11, null, null)"></div>
+                    <div class="gameLineInfo" ng-if="!pG.IsTitle">
+                      <div class="row">
+                        <div class="game-line col-sm-12 col-lg-12 col-xl-12 no-padding-right">
+                          <div class="row">
+                            <div class="col-xs-3 no-padding">
+                              <span ng-bind="DisplayTeam(pG.Team1Data)"></span>
+                            </div>
+                            <div class="col-xs-9 no-padding">
+                              <div class="row">
+                                <div class="col-xs-12 col-lg-3 wagertypetitle-divider-data no-padding-left" ng-show="IsMobile == false || tabDisplay ==1">
+                                  <div class="row" ng-if="!showProfit">
+                                    <div class="col-xs-12 col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team1Data.straightsData, 'S')" ng-class="{'num_zero' : CalculateVolume(pG.Team1Data.straightsData, 'S') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team1Data.straightsData.spreadData.GameNum, pG.Team1Data.TeamId, 'S', 'S', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team1Data.straightsData, 'M')" ng-class="{'num_zero' : CalculateVolume(pG.Team1Data.straightsData, 'M') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team1Data.straightsData.moneyData.GameNum, pG.Team1Data.TeamId, 'M', 'S', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team1Data.straightsData, 'L')" ng-class="{'num_zero' : CalculateVolume(pG.Team1Data.straightsData, 'L') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team1Data.straightsData.totalData.GameNum, pG.Team1Data.TeamId +'/'+ pG.Team2Data.TeamId, 'L', 'S', sSs.PeriodInfo, 'O')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                  </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-3 wagertypetitle-divider-data no-padding-left" ng-show="IsMobile == false || tabDisplay ==2">
+                                  <div class="row" ng-if="!showProfit">
+                                    <div class="col-xs-12 col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team1Data.parlaysData, 'S')" ng-class="{'num_zero' : CalculateVolume(pG.Team1Data.parlaysData, 'S') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team1Data.parlaysData.spreadData.GameNum, pG.Team1Data.TeamId, 'S', 'P', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team1Data.parlaysData, 'M')" ng-class="{'num_zero' : CalculateVolume(pG.Team1Data.parlaysData, 'M') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team1Data.parlaysData.moneyData.GameNum, pG.Team1Data.TeamId, 'M', 'P', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team1Data.parlaysData, 'L')" ng-class="{'num_zero' : CalculateVolume(pG.Team1Data.parlaysData, 'L') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team1Data.parlaysData.totalData.GameNum, pG.Team1Data.TeamId +'/'+ pG.Team2Data.TeamId, 'L', 'P', sSs.PeriodInfo, 'O')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                  </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-3 wagertypetitle-divider-data no-padding-left" ng-show="IsMobile == false || tabDisplay ==3">
+                                  <div class="row" ng-if="!showProfit">
+                                    <div class="col-xs-12 col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team1Data.teasersData, 'S')" ng-class="{'num_zero' : CalculateVolume(pG.Team1Data.teasersData, 'S') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team1Data.teasersData.spreadData.GameNum, pG.Team1Data.TeamId, 'S', 'T', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team1Data.teasersData, 'M')" ng-class="{'num_zero' : CalculateVolume(pG.Team1Data.teasersData, 'M') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team1Data.teasersData.moneyData.GameNum, pG.Team1Data.TeamId, 'M', 'T', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team1Data.teasersData, 'L')" ng-class="{'num_zero' : CalculateVolume(pG.Team1Data.teasersData, 'L') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team1Data.teasersData.totalData.GameNum, pG.Team1Data.TeamId +'/'+ pG.Team2Data.TeamId, 'L', 'T', sSs.PeriodInfo, 'O')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                  </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-3 wagertypetitle-divider-data no-padding-left" ng-show="IsMobile == false || tabDisplay ==4">
+                                  <div class="row" ng-if="!showProfit">
+                                    <div class="col-xs-12 col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team1Data.reverseData, 'S')" ng-class="{'num_zero' : CalculateVolume(pG.Team1Data.reverseData, 'S') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team1Data.reverseData.spreadData.GameNum, pG.Team1Data.TeamId, 'S', 'I', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team1Data.reverseData, 'M')" ng-class="{'num_zero' : CalculateVolume(pG.Team1Data.reverseData, 'M') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team1Data.reverseData.moneyData.GameNum, pG.Team1Data.TeamId, 'M', 'I', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team1Data.reverseData, 'I')" ng-class="{'num_zero' : CalculateVolume(pG.Team1Data.reverseData, 'I') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team1Data.reverseData.totalData.GameNum, pG.Team1Data.TeamId +'/'+ pG.Team2Data.TeamId, 'L', 'I', sSs.PeriodInfo, 'O')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                          </div>
+
+                          <div class="row">
+
+                            <div class="col-xs-3 no-padding">
+                              <span ng-bind="DisplayTeam(pG.Team2Data)"></span>
+                            </div>
+
+                            <div class="col-xs-9 no-padding">
+                              <div class="row">
+                                <div class="col-xs-12 col-lg-3 wagertypetitle-divider-data no-padding-left" ng-show="IsMobile == false || tabDisplay ==1">
+                                  <div class="row" ng-if="!showProfit">
+                                    <div class="col-xs-12 col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team2Data.straightsData, 'S')" ng-class="{'num_zero' : CalculateVolume(pG.Team2Data.straightsData, 'S') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team2Data.straightsData.spreadData.GameNum, pG.Team2Data.TeamId, 'S', 'S', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team2Data.straightsData, 'M')" ng-class="{'num_zero' : CalculateVolume(pG.Team2Data.straightsData, 'M') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team2Data.straightsData.moneyData.GameNum, pG.Team2Data.TeamId, 'M', 'S', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team2Data.straightsData, 'L')" ng-class="{'num_zero' : CalculateVolume(pG.Team2Data.straightsData, 'L') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team2Data.straightsData.totalData.GameNum, pG.Team1Data.TeamId +'/'+ pG.Team2Data.TeamId, 'L', 'S', sSs.PeriodInfo, 'U')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                  </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-3 wagertypetitle-divider-data no-padding-left" ng-show="IsMobile == false || tabDisplay ==2">
+                                  <div class="row" ng-if="!showProfit">
+                                    <div class="col-xs-12 col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team2Data.parlaysData, 'S')" ng-class="{'num_zero' : CalculateVolume(pG.Team2Data.parlaysData, 'S') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team2Data.parlaysData.spreadData.GameNum, pG.Team2Data.TeamId, 'S', 'P', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team2Data.parlaysData, 'M')" ng-class="{'num_zero' : CalculateVolume(pG.Team2Data.parlaysData, 'M') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team2Data.parlaysData.moneyData.GameNum, pG.Team2Data.TeamId, 'M', 'P', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team2Data.parlaysData, 'L')" ng-class="{'num_zero' : CalculateVolume(pG.Team2Data.parlaysData, 'L') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team2Data.parlaysData.totalData.GameNum, pG.Team1Data.TeamId +'/'+ pG.Team2Data.TeamId, 'L', 'P', sSs.PeriodInfo, 'U')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                  </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-3 wagertypetitle-divider-data no-padding-left" ng-show="IsMobile == false || tabDisplay ==3">
+                                  <div class="row" ng-if="!showProfit">
+                                    <div class="col-xs-12 col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team2Data.teasersData, 'S')" ng-class="{'num_zero' : CalculateVolume(pG.Team2Data.teasersData, 'S') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team2Data.teasersData.spreadData.GameNum, pG.Team2Data.TeamId, 'S', 'T', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team2Data.teasersData, 'M')" ng-class="{'num_zero' : CalculateVolume(pG.Team2Data.teasersData, 'M') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team2Data.teasersData.moneyData.GameNum, pG.Team2Data.TeamId, 'M', 'T', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center" ng-bind="CalculateVolume(pG.Team2Data.teasersData, 'L')" ng-class="{'num_zero' : CalculateVolume(pG.Team2Data.teasersData, 'L') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team2Data.teasersData.totalData.GameNum, pG.Team1Data.TeamId +'/'+ pG.Team2Data.TeamId, 'L', 'T', sSs.PeriodInfo, 'U')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                  </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-3 wagertypetitle-divider-data no-padding-left" ng-show="IsMobile == false || tabDisplay ==4">
+                                  <div class="row" ng-if="!showProfit">
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team2Data.reverseData, 'S')" ng-class="{'num_zero' : CalculateVolume(pG.Team2Data.reverseData, 'S') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team2Data.reverseData.spreadData.GameNum, pG.Team2Data.TeamId, 'S', 'I', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team2Data.reverseData, 'M')" ng-class="{'num_zero' : CalculateVolume(pG.Team2Data.reverseData, 'M') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team2Data.reverseData.moneyData.GameNum, pG.Team2Data.TeamId, 'M', 'I', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.Team2Data.reverseData, 'I')" ng-class="{'num_zero' : CalculateVolume(pG.Team2Data.reverseData, 'I') == 0}"
+                                         ng-click="GetGameActionByLine(pG.Team2Data.reverseData.totalData.GameNum, pG.Team1Data.TeamId +'/'+ pG.Team2Data.TeamId, 'L', 'I', sSs.PeriodInfo, 'U')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                  </div>
+                                </div>
+                              </div>
+
+                            </div>
+                          </div>
+
+
+                          <div class="row" ng-show="pG.DrawData">
+
+                            <div class="col-xs-3 no-padding">
+                              <span ng-bind="DisplayTeam(pG.DrawData)"></span>
+                              <!--i style="color: #2A6D91;"></i-->
+                            </div>
+
+                            <div class="col-xs-9 no-padding">
+                              <div class="row">
+                                <div class="col-xs-12 col-lg-3 no-padding-left" ng-show="IsMobile == false || tabDisplay ==1">
+                                  <div class="row" ng-if="!showProfit">
+                                                                      <div class="col-xs-4 no-padding text-align-center"></div>
+                                    <div class="col-xs-4 no-padding text-align-center cursor-pointer" ng-bind="CalculateVolume(pG.DrawData, 'M')"
+                                         ng-click="GetGameActionByLineDraw(pG.DrawData, 'M', 'S', sSs.PeriodInfo, '')"
+                                         onclick="return false"
+                                         data-toggle="modal"
+                                         data-target="#ModalAgentPos"></div>
+                                    <div class="col-xs-4 no-padding text-right"></div>
+
+                                  </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-3" ng-show="IsMobile == false || tabDisplay ==1">
+                                  <div class="row">
+                                    <div class="col-xs-4 no-padding-left text-right"></div>
+
+                                    <div class="col-xs-4 no-padding-left text-right"></div>
+                                    <div class="col-xs-4 no-padding-left text-right"></div>
+
+                                  </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-3" ng-show="IsMobile == false || tabDisplay ==2">
+                                  <div class="row">
+                                    <div class="col-xs-4 no-padding-left text-right"></div>
+
+                                    <div class="col-xs-4 no-padding-left text-right"></div>
+                                    <div class="col-xs-4 no-padding-left text-right"></div>
+
+                                  </div>
+                                </div>
+                                <div class="col-xs-12 col-lg-3" ng-show="IsMobile == false || tabDisplay ==3">
+                                  <div class="row">
+                                    <div class="col-xs-4 no-padding-left text-right"></div>
+
+                                    <div class="col-xs-4 no-padding-left text-right"></div>
+                                    <div class="col-xs-4 no-padding-left text-right"></div>
+
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal fade modal-wide modal-wide_agposition" id="ModalAgentPos">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h1 class="modal-title" ng-bind="Translate('Agent Position by Line for') + ' '  + (AgentInfo.AgentID | FormatCustomer)"></h1>
+      </div>
+      <div class="modal-body" ng-if="dataSource.length > 0">
+        <open-bets source="dataSource"
+                   show-header="false"
+                   get-agent-parent="getAgentParent"
+                   format-customer="formatCustomer"
+                   format-date-time="FormatDateTime"
+                   display-time-from-date="DisplayTimeFromDate"
+                   is-mobile="IsMobile"
+                   raw-agents-list="rawAgentsList"
+                   add-session-data="addSessionData"
+                   get-session-data="getSessionData"
+                   customer-title="customerTitle"></open-bets>
+      </div>
+    </div>
+  </div>
+</div>

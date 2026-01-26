@@ -1,0 +1,109 @@
+﻿<div class="dashbwrapper">
+	<div class="allscrll chat-bottom-spacer" id="scrollBox">
+		<div class="row pt-3 pl-3 title-divider">
+			<div class="d-flex align-items-center">
+				<a ng-click="toggleBookmark('Access Log','#/webAccess')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Access Log') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+				&nbsp;<h3>{{Translate('Access Log')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+			</div>
+		</div>
+		<div class="data-filters hidden-print">
+			<div class="row" ng-show="AgentAsCustomerInfo.AgentType == 'M'">
+				<!--div class="col-xs-6 hidden-print">
+					<form class="form-inline float-right">
+						<div class="form-group">
+							<label for="mode">{{Translate('Access')}}</label>
+							<select id="mode" class="form-control custom-dropdown" ng-model="Filter.mode" ng-change="updateData()">
+								<option value="0">{{Translate('CU Session')}}</option>
+								<option value="1">{{Translate('Inet Session')}}</option>
+							</select>
+						</div>
+					</form>
+				</div-->
+				<div class="col-xs-6 hidden-print">
+					<form class="form-inline">
+						<div class="form-group">
+							<label for="mode">{{Translate('Access')}}:</label>
+							<select id="mode" class="form-control custom-dropdown" ng-model="Filter.access" ng-change="updateData()">
+								<option value="0">{{Translate('Customers')}}</option>
+								<option value="1">{{Translate('Agents')}}</option>
+							</select>
+						</div>
+					</form>
+				</div>
+			</div>
+			<!--div class="row" ng-show="Filter.mode == 0">
+				<div class="col-xs-12 text-right hidden-print">
+					<form class="form-inline">
+						<div class="form-group float-left">
+							<label for="loginId">{{Translate('LoginID')}}</!--label>
+							<input type="text" class="form-control form-control-ios-fix" id="loginId" ng-model="Filter.loginId">
+							<label for="operation">{{Translate('Operation')}}</label>
+							<input type="text" class="form-control form-control-ios-fix" id="operation" ng-model="Filter.operation">
+							<label for="data">{{Translate('Data')}}</label>
+							<input type="text" class="form-control form-control-ios-fix" id="data" ng-model="Filter.data">
+							<label for="exampleInputName2">{{Translate('Reporting Period')}}</label>
+							<select class="form-control custom-dropdown" ng-model="Filter.period" ng-change="updateData()">
+								<option value="7">{{Translate('Last 7 days')}}</option>
+								<option value="14">{{Translate('Last 14 days')}}</option>
+								<option value="30">{{Translate('Last 30 days')}}</option>
+								<option value="45">{{Translate('Last 45 days')}}</option>
+								<option value="90">{{Translate('Last 90 days')}}</option>
+							</select>
+						</div>
+						<input class="btn btn-default" type="button" value="{{Translate('Refresh')}}" ng-click="updateData()" />
+					</form>
+				</div>
+			</div-->
+			<div class="row">
+				<div class="col-xs-12 hidden-print">
+					<form class="form-inline">
+						<div class="form-group mr-4">
+							<label for="startDateInput" class="mt-4 mr-3">{{Translate('Start Date')}}</label>
+							<div class="date-picker">
+								<input id="startDateInput" type="text" class="form-control form-control-ios-fix" ng-model="Filter.startDate" name="filterDate" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="endDateInput" class="mt-4 mr-3">{{Translate('End Date')}}</label>
+							<div class="date-picker">
+								<input id="endDateInput" type="text"  class="form-control form-control-ios-fix" ng-model="Filter.endDate" name="filterDate" />
+							</div>
+						</div>
+						<div class="form-group">
+				           <label class="w-100 mt-4" for="exampleInputName2">{{Translate('Operation Type')}}:</label>
+				           <select class="custom-dropdown"
+				           		ng-options="cS.name for cS in OperationFilterList"
+				           		ng-model="Filter.operation">
+				           </select>
+                        </div>
+						<div class="form-group mt-5">
+							<button class="btn btn-primary ng-binding" ng-click="updateData()" ng-bind="Translate('Submit')"/>
+			            </div>
+					</form>
+				</div>
+				<div class="col-xs-12 hidden-print">
+					<form class="form-inline">
+						<div class="form-group float-left">
+							<div ng-if="AgentAsCustomerInfo.AgentType == 'M'" custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+								 ng-model=" Filter.AgentToShow" ng-change="updateData()"
+								 id="aList">
+								<div>
+									<span>{{ t.AgentBind }}</span>
+								</div>
+								<div class="clearfix"></div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="row mt-5">
+				<div class="col-xs-12">
+					<div class="table-wrapper table-responsive">
+						<table datatable dt-instance="vm.dtInstance" dt-options="vm.dtOptions" dt-column-defs="vm.dtColumnDefs" class="custom-datatable" id="accesLogDT">
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

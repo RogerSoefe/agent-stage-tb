@@ -1,0 +1,65 @@
+﻿<div class="row" style="height: 800px">
+  <div class="col-xs-12 col-lg-6">
+    <h3 class="p-3" ng-bind="Translate('Personal Info')"></h3>
+    <form class="form-horizontal">
+      <div class="form-group py-3">
+        <label class="col-sm-2 text-left" ng-bind="Translate('Name')"></label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" ng-model="SelectedCustomer.NameFirst" placeholder="{{SelectedCustomer.NameFirst}}">
+        </div>
+      </div>
+      <div class="form-group py-3">
+        <label class="col-sm-2 text-left" ng-bind="Translate('Refered By')"></label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" ng-model="SelectedCustomer.ReferredBy" placeholder="{{SelectedCustomer.ReferredBy}}">
+        </div>
+      </div>
+      <div class="form-group py-3">
+        <label class="col-sm-2 text-left" ng-bind="Translate('Phone')"></label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" ng-model="SelectedCustomer.HomePhone" placeholder="{{SelectedCustomer.HomePhone}}">
+        </div>
+      </div>
+      <div class="form-group py-3">
+        <label class="col-sm-2 text-left" ng-bind="Translate('Email')"></label>
+        <div class="col-sm-4">
+          <input type="email" class="form-control" ng-model="SelectedCustomer.EMail" placeholder="{{SelectedCustomer.EMail}}">
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="col-xs-12 col-lg-6">
+    <h3 class="p-3" ng-bind="Translate('Settings')"></h3>
+    <form class="form-horizontal">
+      <div class="form-group py-3">
+        <div class="col-sm-12">
+          <div class="checkbox">
+            <label><input type="checkbox" ng-model="SelectedCustomer.ActiveBoolean">{{Translate('Account Active')}}</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group py-3">
+        <label class="col-sm-2 text-left" ng-bind="Translate('Password')"></label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" ng-model="SelectedCustomer.Password" placeholder="{{SelectedCustomer.Password}}">
+        </div>
+      </div>
+    </form>
+
+    <h3 class="p-3" ng-bind="Translate('Move Agent')"></h3>
+    <div class="form-group py-3">
+      <label class="col-sm-2 text-left" for="agentsnList">{{Translate('This Agent Resports To')}}</label>
+      <div class="col-sm-4" custom-select="t as (t.AgentId ) for t in MasterAgentsList | filter : $searchTerm"
+           ng-model="SelectedCustomer.currentAgent" ng-change="ChangeCustomerAgent()"
+           id="agentsnList">
+        <div>
+          <span>{{ t.AgentBind }}</span>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-12 d-flex justify-content-start my-3">
+    <button class="btn btn-success" ng-bind="Translate('Save')" ng-click="UpdateAgentAsCustomer()"></button>
+  </div>
+</div>

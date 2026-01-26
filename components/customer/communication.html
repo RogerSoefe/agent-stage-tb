@@ -1,0 +1,29 @@
+﻿<form class="row" ng-submit="UpdateCustomerInfo()">
+  <div class="col-xs-12 col-lg-6 mt-5" ng-if="AgentInfo.EnableEditAccountsFlag == 'Y'">
+    <h3>
+      {{Translate("Notification to customer")}}
+    </h3>
+    <div class="form-row mb-4 mt-4">
+      <textarea id="txtAreaNotes" style="width: 80%;" rows="6" class="form-control ng-pristine ng-valid ng-touched" ng-model="SelectedCustomer.CommentsForCustomer" ng-disabled="AgentInfo.UpdateCommentsFlag != 'Y' || IsDisabled()"></textarea>
+    </div>
+    <label for="txtTempCreditAdjThru">{{Translate('Expiration:')}}</label>
+    <div class="date-picker">
+      <input type="text" style="width: 200px" class="form-control form-control-ios-fix" name="txtTempCreditAdjThru" ng-model="SelectedCustomer.CommentsForCstExpDateString" ng-disabled="AgentInfo.UpdateCommentsFlag != 'Y' || IsDisabled()" />
+    </div>
+    <small class="text-muted">{{Translate('Message will expire (stop displaying) at 12:00:01 A.M on selected date.')}}</small>
+  </div>
+
+  <div class="col-xs-12 col-lg-6 mt-5" ng-if="AgentInfo.EnableEditAccountsFlag == 'Y'">
+    <h3>
+      {{Translate("Notes")}}
+    </h3>
+    <div class="form-row mb-4 mt-4">
+      <textarea id="txtAreaNotes" style="width: 80%;" rows="6" class="form-control ng-pristine ng-valid ng-touched" ng-model="SelectedCustomer.Comments" ng-disabled="AgentInfo.UpdateCommentsFlag != 'Y' || IsDisabled()"></textarea>
+    </div>
+  </div>
+
+
+  <div class="col-xs-12">
+    <button class="btn btn-success" type="submit">{{Translate('Save')}}</button>
+  </div>
+</form>

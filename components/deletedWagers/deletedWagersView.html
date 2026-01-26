@@ -1,0 +1,299 @@
+﻿<div class="dashbwrapper">
+	<div class="allscrll chat-bottom-spacer" id="scrollBox">
+		<div class="row pt-3 pl-3 title-divider">
+			<div class="d-flex align-items-center">
+				<a ng-click="toggleBookmark('Deleted Bets','#/deletedWagers')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Deleted Bets') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+				&nbsp;<h3>{{Translate('Deleted Bets')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+			</div>
+		</div>
+		<div class="data-filters hidden-print">
+			<div class="row">
+				<div class="col-xs-6 no-padding">
+
+					<p ng-if="CustomerHash" class="hidden-print hidden-lg">
+						<a href="#/"
+						   ng-bind="Translate('Return to customer maintenance')"></a>
+					</p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12">
+					<form class="form-inline">
+						<div class="form-group">
+							<select class="form-control" ng-model="WeekNumber" ng-options="wR.DateRange for wR in WeeksRange" ng-change="refreshData()"></select>
+							<select class="form-control" ng-model="ReportFilters.WagerType" ng-change="ResetSportType()"
+									ng-disabled="Props.status == 0">
+								<option value="" selected>{{Translate('All wagers')}}</option>
+								<option value="SMEL">{{Translate('Straight Bets')}}</option>
+								<option value="P">{{Translate('Parlay/Round Robin')}}</option>
+								<option value="R">{{Translate('Action Reverse')}}</option>
+								<option value="T">{{Translate('Teaser')}}</option>
+								<option value="I">{{Translate('If bets')}}</option>
+							</select>
+							<select class="form-control" ng-model="ReportFilters.SportType"
+									ng-options="sL.SportName for sL in SportsList"
+									ng-disabled="ReportFilters.WagerType == 'C'"></select>
+						</div>
+						<select class="form-control" ng-change="saveSelections()" ng-model="hierarchy.mode">
+							<option value="0" ng-bind="Translate('Short hierarchy')"></option>
+							<option value="1" ng-bind="Translate('Long hierarchy')"></option>
+						</select>
+						<div class="form-group" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+							<label for="custList">{{Translate('Choose an account:')}}</label>
+							<div custom-select="t as (t.AgentID ) for t in AllAgentsList | filter : $searchTerm"
+								 ng-model=" ReportFilters.AgentToShow" ng-change="getData()"
+								 id="aList">
+								<div>
+									<span>{{ t.AgentBind }}</span>
+								</div>
+								<div class="clearfix"></div>
+							</div>
+
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div class="row hidden-xs hidden-sm">
+			<div class="col-xs-6">
+				<div class="float-left">
+					<div class="customer-card performance-ranges p-0 m-0">
+						<span ng-bind="Translate('Deleted bets')" ng-class="{active : Props.status == 1}"
+							  ng-click="Props.status = 1;getData()"></span>
+						<span ng-bind="Translate('Deleted Futures/Props bets')"
+							  ng-class="{active : Props.status == 0}"
+							  ng-click="Props.status = 0;getData()"></span>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-6">
+				<div class="float-right">
+					<button class="btn btn-default" ng-click="getData()" ng-bind="Translate('Refresh')"></button>
+				</div>
+			</div>
+		</div>
+		<h3 ng-if="AgentsCustomers.length == 0" class="p-5">{{Translate('Nothing to show')}}</h3>
+		<div class="" ng-repeat="OpenBets in AgentsCustomers track by $index" ng-if="!IsMobile">
+			<div class="bg-gray p-3 mt-5">
+				<div class="dropdown align-self-center mr-4" ng-if="hierarchy.mode == 0">
+					<div class="d-flex" role="button" aria-haspopup="true" aria-expanded="true" data-toggle="dropdown">
+						<strong class="text-white" ng-bind="formatCustomer(OpenBets[0][0].AgentID)"></strong>&nbsp;<span class="text-white" ng-bind="Translate('Click here to see hierarchy')"></span>
+					</div>
+					<div class="dropdown-menu">
+						<strong class="text-black p-3" ng-bind="(rawAgentsList ? OpenBets[0].AgentHier : formatCustomer(OpenBets[0][0].AgentID))"></strong>
+					</div>
+				</div>
+				<div class="align-self-center bg-gray" ng-if="hierarchy.mode == 1">
+					<div class="d-flex" role="button" aria-haspopup="true" aria-expanded="true" data-toggle="dropdown">
+						<strong class="text-white" ng-bind="(rawAgentsList ? OpenBets[0].AgentHier : formatCustomer(OpenBets[0][0].AgentID))"></strong>
+					</div>
+				</div>
+			</div>
+
+			<div class="row my-4" ng-repeat="gB in OpenBets | limitTo: totalDisplayed" ng-init="collapse = false">
+				<div class="row px-4 py-2 mt-4 border-2 cursor-pointer" data-toggle="collapse" data-target="#openBets_{{$parent.$index}}_{{$index}}" ng-click="collapse = !collapse">
+					<div class="col-xs-10 pl-0">
+						<h4 ng-bind="customerTitle(gB[0])"></h4>
+					</div>
+					<div class="col-xs-2 pr-0 d-flex justify-content-end">
+						<h4 class="fa" ng-class="{'fa-caret-right' : collapse == false, 'fa-caret-down' : collapse == true}"></h4>
+					</div>
+				</div>
+				<div class="row bg-white collapse in" id="openBets_{{$parent.$index}}_{{$index}}">
+					<table class="tablesaw table-responsive">
+						<thead class='header'>
+							<tr>
+								<th ng-bind="Translate('Ticket Number')" width="200"></th>
+								<th ng-bind="Translate('Deleted Date')" width="200"></th>
+								<th ng-bind="Translate('Type')" width="200"></th>
+								<th ng-bind="Translate('Details')" width="50%"></th>
+								<th ng-bind="Translate('Risk')"></th>
+								<th ng-bind="Translate('Win')"></th>
+								<th ng-bind="Translate('Responsible')" class="text-right"></th>
+								<th ng-bind="Translate('Comments')" class="text-right"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="oB in gB | filter: OpenBetsFilter">
+								<td ng-bind="FormatTicketNumberDisplay(oB)"></td>
+								<td ng-bind="FormatDateTime(oB.DeleteDateTimeString, 6) + '-' + DisplayTimeFromDate(oB.DeleteDateTimeString)"></td>
+								<td ng-bind="Translate(DisplayWagerTypeName(oB).trim())"></td>
+								<td ng-bind-html="getDetailsHTML(oB, $parent.$index, $index)"></td>
+								<td ng-bind="oB.AmountWagered | formatNumber"></td>
+								<td ng-bind="oB.ToWinAmount | formatNumber"></td>
+								<td ng-bind="oB.LoginID" class="text-right"></td>
+								<td class="text-right"><button class="btn btn-default" ng-click="showComments(oB.Comments)">{{Translate('Show')}}</button></td>
+</tbody>
+						<tfoot>
+							<tr>
+								<td colspan="4" ng-bind="Translate('Total')"></td>
+								<td ng-bind="gB.TotalAmountWagered | formatNumber"></td>
+								<td ng-bind="gB.TotalToWinAmount | formatNumber"></td>
+								<td></td>
+								<td></td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="container reports-container reports-container-mobile" ng-if="IsMobile">
+			<div class="row">
+				<div class="col-xs-12 no-padding no-padding-print" style="display: flex; flex-direction: row;align-items: center">
+					<div class="breakout breakout-left" style="flex-basis: 50%; margin: 10px">
+
+
+						<div class="customer-card performance-ranges p-0 m-0">
+							<span ng-bind="Translate('Deleted bets')" ng-class="{active : Props.status == 1}"
+								  ng-click="Props.status = 1;getData()"></span>
+							<span ng-bind="Translate('Deleted Props')"
+								  ng-class="{active : Props.status == 0}"
+								  ng-click="Props.status = 0;getData()"></span>
+						</div>
+
+						<!--<input type="checkbox" id="IncludeFutures" ng-model="Props.status" ng-click="getData()" />
+						<label for="IncludeFutures" ng-bind="Translate('Exclude Futures')"></label>-->
+					</div>
+				</div>
+				<div class="col-xs-12 no-padding no-padding-print d-flex justify-content-center" style="display: flex; flex-direction: row;align-items: center">
+					<button class="btn btn-default" ng-click="refreshData()" ng-bind="Translate('Refresh')"></button>
+				</div>
+			</div>
+			<div class="ticket" ng-show="OpenBets.length == 0" ng-bind="Translate('NO WAGERS PENDING')">
+			</div>
+			<div class="" ng-repeat="OpenBets in AgentsCustomers track by $index">
+				<div class="bg-gray p-3 mt-5">
+					<div class="dropdown align-self-center mr-4" ng-if="hierarchy.mode == 0">
+						<div class="d-flex" role="button" aria-haspopup="true" aria-expanded="true" data-toggle="dropdown">
+							<strong class="text-white" ng-bind="formatCustomer(OpenBets[0][0].AgentID)"></strong>&nbsp;<span class="text-white" ng-bind="Translate('Click here to see hierarchy')"></span>
+						</div>
+						<div class="dropdown-menu">
+							<strong class="text-black p-3" ng-bind="(rawAgentsList ? OpenBets[0].AgentHier : formatCustomer(OpenBets[0][0].AgentID))"></strong>
+						</div>
+					</div>
+					<div class="align-self-center bg-gray" ng-if="hierarchy.mode == 1">
+						<div class="d-flex" role="button" aria-haspopup="true" aria-expanded="true" data-toggle="dropdown">
+							<strong class="text-white" ng-bind="(rawAgentsList ? OpenBets[0].AgentHier : formatCustomer(OpenBets[0][0].AgentID))"></strong>
+						</div>
+					</div>
+				</div>
+				<div ng-repeat="gB in OpenBets | limitTo: totalDisplayed" ng-init="collapse = false">
+					<div class="row px-4 py-2 bg-black mt-4 cursor-pointer" data-toggle="collapse" data-target="#openBets_{{$parent.$index}}_{{$index}}" ng-click="collapse = !collapse">
+						<div class="col-xs-10 pl-0">
+							<h4 class="text-white" ng-bind="customerTitle(gB[0])"></h4>
+						</div>
+						<div class="col-xs-2 pr-0 d-flex justify-content-end">
+							<h4 class="fa text-white" ng-class="{'fa-caret-right' : collapse == false, 'fa-caret-down' : collapse == true}"></h4>
+						</div>
+					</div>
+					<div class="row bg-white collapse in" id="openBets_{{$parent.$index}}_{{$index}}">
+						<div class="ticket">
+							<div class="row">
+								<div class="col-sm-12 report-detail-open-bets no-padding col-print-12">
+									<div class="row graded-header hidden-xs">
+										<div class="col-sm-4 col-lg-4 col-xl-3 col-print-4 no-padding-print">
+											<div class="row">
+												<div class="col-sm-4 col-lg-4 no-padding">
+													<h2><span ng-bind="Translate('TIK')"></span>#</h2>
+												</div>
+												<div class="col-sm-4 col-lg-4 no-padding">
+													<h2 ng-bind="Translate('Deleted Date') + ' '"><br class="visible-print"><span ng-bind="Translate('Deleted Date')"> </span></h2>
+												</div>
+												<div class="col-sm-4 col-lg-4 no-padding text-center">
+													<h2 ng-bind="Translate('Type')"></h2>
+												</div>
+											</div>
+										</div>
+										<div class="col-sm-6 col-lg-6 col-xl-7 no-padding-right col-print-6 no-padding-print">
+											<h2 ng-bind="Translate('Details')"></h2>
+										</div>
+										<div class="col-sm-1 col-lg-1 col-xl-1 no-padding text-right pr-10 col-print-1">
+											<h2 ng-bind="Translate('RISK')"></h2>
+										</div>
+										<div class="col-sm-1 col-lg-1 col-xl-1 no-padding text-right pr-10 col-print-1">
+											<h2 ng-bind="Translate('WIN')"></h2>
+										</div>
+									</div>
+
+									<div class="row graded-data" ng-repeat="oB in gB | filter: OpenBetsFilter">
+										<div class="col-xs-12 no-padding-force">
+
+											<div class="row">
+												<div class="col-xs-12 no-padding">
+													<div>
+
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-xs-12 d-flex no-padding" style="justify-content: space-between;display: flex">
+													<div class="sm-tik-title">
+														<br class="visible-print">
+														<span ng-bind="Translate('TIK') + ': '"></span>
+														<span ng-bind="FormatTicketNumberDisplay(oB)"></span>
+														&nbsp;/&nbsp;<span ng-bind="Translate(DisplayWagerTypeName(oB))"></span>
+														<span ng-if="oB.WagerType == 'T' || oB.WagerType == 'P'" ng-bind="' (' + oB.totalPicks + ' ' + Translate('Teams') + ') '"></span>
+													</div>
+													<div>
+														<span ng-bind="FormatDateTime(oB.DeleteDateTimeString, 7)"></span>&nbsp;<span ng-bind="FormatDateTime(oB.DeleteDateTimeString, 8)"></span>
+													</div>
+												</div>
+
+											</div>
+
+											<div class="row">
+												<div class="col-xs-12 col-lg-6 col-xl-7 no-padding-right col-print-6 no-padding-print">
+													<div ng-bind-html="getDetailsHTML(oB, $parent.$index, $index)"></div>
+													<div class="graded-data-detail">
+														<button ng-if="oB.WagerStatus == 'O' && GetCustomerRestriction(oB.WagerType == 'P' ? 'PLOPEN' : 'TEOPEN')" type="button" class="btn btn-small btn-openspot active" ng-bind="OpenButtonText(oB.totalPicks, oB.Items.length)" ng-click="SelectOpenWager(oB)"></button>
+													</div>
+												</div>
+											</div>
+
+											<div class="row">
+												<div class="col-xs-12 no-padding text-center openBetTotal">
+													<br class="visible-print"><span ng-bind="Translate('RISK') + ' '"> </span>
+													<fplabel ng-show="oB.FreePlayFlag == 'Y'"> ({{Translate("FP")}})</fplabel>
+													<span>$<format-num num="{{oB.AmountWagered}}" divide /></span>
+													&nbsp;/&nbsp;
+													<br class="visible-print"><span ng-bind="Translate('WIN'+ ' ')"></span>
+													<span>$<format-num num="{{oB.ToWinAmount}}" divide /></span>
+												</div>
+											</div>
+											<div class="row" ng-if="AgentInfo.DeleteBets == 1 || AgentInfo.DeleteBets == 2">
+												<div class="col-xs-12 no-padding text-center openBetTotal justify-content-center">
+													<span ng-bind="Translate('Responsible') + ': ' + oB.LoginID"></span>
+												</div>
+												<div class="col-xs-12 no-padding text-center openBetTotal justify-content-center">
+													<span ng-bind="oB.Comments"></span>
+												</div>
+											</div>
+										</div>
+
+
+
+									</div>
+									<div style="background-color: #e8e4e4" class="col-xs-12  no-padding-force graded-data mt-2" ng-if="OpenBets.length > 0">
+										<div class="row ">
+											<div class="col-xs-12 text-center">
+												<b><span class="" ng-bind="Translate('Totals')"></span></b>&nbsp;
+												<br class="visible-print"><span ng-bind="Translate('RISK')"> </span>
+												<span>$<format-num num="{{gB.TotalAmountWagered}}" divide /></span>
+												&nbsp;/&nbsp;
+												<br class="visible-print"><span ng-bind="Translate('WIN')"> </span>
+												<span>$<format-num num="{{gB.TotalToWinAmount}}" divide /></span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

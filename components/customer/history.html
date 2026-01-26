@@ -1,0 +1,42 @@
+﻿<div ng-controller="historyController">
+  <div class="row mt-3">
+
+    <div class="col-xs-12">
+      <div class="customer-card performance-ranges p-0 m-0">
+        <span ng-bind="Translate('Daily')" ng-class="{active : ReportFilters.PeriodRange == 'D'}"
+              ng-click="ReportFilters.PeriodRange = 'D';getData()"></span>
+        <span ng-bind="Translate('Weekly')" ng-class="{active : ReportFilters.PeriodRange == 'W'}"
+              ng-click="ReportFilters.PeriodRange = 'W';getData()"></span>
+        <span ng-bind="Translate('Monthly')" ng-class="{active : ReportFilters.PeriodRange == 'M'}"
+              ng-click="ReportFilters.PeriodRange = 'M';getData()"></span>
+        <span ng-bind="Translate('Yearly')" ng-class="{active : ReportFilters.PeriodRange == 'Y'}"
+              ng-click="ReportFilters.PeriodRange = 'Y';getData()"></span>
+      </div>
+    </div>
+    <div class="col-xs-12 mt-3">
+      <div class="form-group mt-3 d-flex">
+        <label class="" for="ddSport">{{Translate('Sport')}}:</label>
+        <select id="ddSport" class="form-control custom-dropdown"
+                ng-options="sport.SportType for sport in Sports"
+                ng-model="SelectedSport"
+                ng-change="sportChanged()">
+        </select>
+        <label class="" for="ddSport">{{Translate('Sub Sport')}}:</label>
+        <select id="ddSport" class="form-control custom-dropdown"
+                ng-options="subSport.SportSubType for subSport in subSports"
+                ng-model="selectedSubSport"
+                ng-change="getData()">
+        </select>
+      </div>
+    </div>
+
+  </div>
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="table-wrapper table-responsive">
+        <table datatable dt-instance="dtInstance" dt-options="dtOptions" dt-column-defs="dtColumnDefs" class="custom-datatable">
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,93 @@
+﻿<div style="position: absolute; width: 100%; height: 100vh; background: black; opacity: 0.9; z-index: -1; display: none; justify-content: center" id="loadingAllTransactions">
+  <div class="align-self-center" style="width: 100px">
+    <img class="img-responsive" alt="gif" src="/admin/assets_core/img/loading.gif" />
+  </div>
+</div>
+<div class="dashbwrapper">
+    <div class="allscrll chat-bottom-spacer">
+        <div class="row pt-3 pl-3 title-divider">
+            <div class="d-flex align-items-center">
+                <a ng-click="toggleBookmark('Customers Transactions','#/alltransactions')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Customers Transactions') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+                &nbsp;<h3>{{Translate('Customers Transactions')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+            </div>
+        </div>
+        <div class="data-filters">
+            <div class="row">
+                <div class="col-xs-12 hidden-print">
+                    <form class="form-inline hidden-print">
+                        <div class="form-group" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+                            <label for="agentsnList">{{Translate('Choose an account:')}}</label>
+                            <div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+                                    ng-model="$root.selectedAgent" ng-change="GetAgentCustomerTransactions()"
+                                    id="agentsnList">
+                                <div>
+                                    <span>{{ t.AgentBind }}</span>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="PeriodsInput">{{Translate('Reporting Period')}}</label>
+                            <select id="PeriodsInput" class="form-control" ng-model="Filters.Week" ng-change="GetAgentCustomerTransactions()" ng-options="wR.DateRange for wR in WeeksRange"></select>
+                        </div> 
+  <div class="form-group">
+     <div class="col-xs-12 no-padding-print text-right" ng-show="Filters.Week.Index == -1">
+         <div class="date-picker">
+             <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 0; width: 100%">
+                 <b class="glyphicon glyphicon-calendar fa fa-calendar"></b><span></span>
+             </div>
+         </div>
+     </div>
+ </div>						
+                </form>
+            </div>
+            </div>
+        </div>
+
+        <div ng-show="!AgentsTrans || AgentsTrans.length == 0">
+            <h3 ng-bind="Translate('No Transactions To Show')"></h3>
+        </div>
+
+        <div class="data-component" ng-repeat="ag in AgentsTrans track by $index">
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <h2 ng-bind="ag[0].AgentID | FormatCustomer"></h2>
+                </div>
+            </div>
+
+            <table id="agentSummaryTbl" class="tablesaw" data-tablesaw-sortable data-tablesaw-mode="swipe" data-tablesaw-minimap>
+                <thead class="header">
+                    <tr>
+                        <th class="tablesaw-cell-persist">{{Translate('Date')}}</th>
+                        <th>{{Translate('Customer')}}</th>
+                        <th>{{Translate('Description')}}</th>
+                        <th class="text-right">{{Translate('Amount')}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-if="ag.TotalC > 0" table-saw style="color: #0F4F73"><td colspan="4"><span style="font-weight: bold" ng-bind="Translate('Deposits')"></span></td></tr>
+                    <tr ng-repeat="tr in ag | filter: {TranCode : 'C'} track by $index" table-saw>
+                        <td><span ng-bind="tr.TranDateTimeString"></span></td>
+                        <td id="D_1{{$index}}"><span ng-bind="tr.CustomerID | FormatCustomer"></span></td>
+                        <td id="D_1{{$index}}"><span ng-bind="tr.Description"></span></td>
+                        <td id="P_{{$index}}" class="text-right"><span ng-bind="tr.Amount | formatNumber"></span></td>
+                    </tr>
+                    <tr ng-if="ag.TotalD > 0" table-saw style="color: #0F4F73"><td colspan="4"><span style="font-weight: bold" ng-bind="Translate('Withdrawals')"></span></td></tr>
+                    <tr ng-repeat="tr in ag | filter: {TranCode : 'D'} track by $index" table-saw>
+                        <td><span ng-bind="tr.TranDateTimeString"></span></td>
+                        <td id="D_1{{$index}}"><span ng-bind="tr.CustomerID | FormatCustomer"></span></td>
+                        <td id="D_1{{$index}}"><span ng-bind="tr.Description"></span></td>
+                        <td id="P_{{$index}}" class="text-right"><span ng-bind="(tr.Amount * -1) | formatNumber"></span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr style="margin: 5px" />
+            <div class="text-right">
+                <label ng-bind="Translate('Net Total: ') + (ag.Total | formatNumber)"></label>
+            </div>
+        </div>
+
+    </div>
+
+</div>

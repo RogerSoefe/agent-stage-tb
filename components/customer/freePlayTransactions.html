@@ -1,0 +1,76 @@
+﻿<div id="all-transactions" class="tap-pane active" role="tabpanel">
+    <cust-actions ng-if="AgentInfo.AddFreePlaysFlag == 'Y'" customer="SelectedCustomer" agent-info="AgentInfo" format-date-time="FormatDateTime" fire-swal="fireSwal"
+                  update-customer-balance="UpdateCustomerBalance(customerId, currentBalance)" delete-transaction="DeleteTransaction" transaction-is-this-week="transactionIsThisWeek"
+                  update-customer-password="UpdateCustomer(customer)" free-play-mode="true" load-free-play-data="loadFreePlayData"></cust-actions>
+    <div class="row">
+        <div class="cust_dropdown">
+            <span ng-bind="Translate('Balance: ')"></span><strong ng-bind="SelectedCustomer.FreePlayBalance | formatNumber"></strong>
+            <!--<span ng-bind="Translate('Balance: ')"></span><strong ng-bind="SelectedCustomer.FreePlayTotal | formatNumber"></strong>-->
+            <span ng-bind="Translate('Pending amount: ')"></span><strong ng-bind="OpenBetsTotal | formatNumber"></strong>
+            <span ng-bind="Translate('Pending count: ')"></span><strong ng-bind="OpenBetsCount"></strong>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 no-padding-print text-right">
+            <div class="date-picker">
+                <div id="reportrange1" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 0; width: 100%">
+                    <b class="glyphicon glyphicon-calendar fa fa-calendar"></b><span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ticket" ng-show="FreePlayTransactions.length == 0" ng-bind="Translate('YOU DON\'T HAVE FREE PLAYS ON DATE RANGE')">
+    </div>
+
+    <div class="ticket" ng-if="FreePlayTransactions.length > 0">
+        <div class="row">
+            <div class="col-sm-12 report-detail-open-bets col-print-12">
+                <div class="row graded-header">
+                    <div class="col-sm-12 col-lg-12 col-xl-12 col-print-12 no-padding-print">
+                        <div class="row">
+                            <div class="col-sm-1 col-md-1 col-lg-1 col-xl-1 no-padding">
+                                <h2 ng-bind="Translate('TIK')"></h2>
+                            </div>
+                            <div class="col-sm-1 col-md-1 no-padding">
+                                <h2 ng-bind="Translate('Date')"></h2>
+                            </div>
+                            <div class="col-sm-1 col-md-1 no-padding text-right">
+                                <h2 ng-bind="Translate('Credit/Debit')"></h2>
+                            </div>
+                            <div class="col-sm-1 col-md-1 no-padding text-right">
+                                <h2 ng-bind="Translate('Balance')"></h2>
+                            </div>
+                            <div class="col-sm-7 col-md-6 col-lg-6 col-xl-5 padding-left">
+                                <h2 ng-bind="Translate('Description')"></h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row graded-data" ng-repeat="f in FreePlayTransactions">
+                    <div class="col-sm-12 col-lg-12 col-xl-12 col-print-12 no-padding-print">
+                        <div class="row">
+
+                            <div class="col-sm-1 col-md-1 col-lg-1 no-padding" ng-bind="f.DocumentNumber"></div>
+
+                            <div class="col-sm-1 col-md-1 no-padding col-print-1">
+                                <span ng-bind="FormatDateTime(f.TranDateTimeString,16)"></span>
+                                <span ng-bind="FormatDateTime(f.TranDateTimeString,8)"></span>
+                            </div>
+                            <div class="col-sm-1 col-md-1 no-padding text-right col-print-1">
+                                <span ng-show="f.TranCode == 'C'" ng-bind="'+ ' + (f.Amount | formatNumber)"></span><span ng-show="f.TranCode == 'D'" ng-bind="'- ' + (f.Amount | formatNumber)"></span>
+                            </div>
+                            <div class="col-sm-1 col-md-1 no-padding text-right col-print-1">
+                                <span ng-bind="f.CurrentBalance | dollar"></span>
+                            </div>
+                            <div class="col-sm-7 col-lg-6 col-xl-5 no-padding col-print-7 padding-left">
+                                <section ng-bind="f.ShortDesc">
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

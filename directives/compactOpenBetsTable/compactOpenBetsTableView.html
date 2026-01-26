@@ -1,0 +1,277 @@
+<table
+  class="tablesaw table-responsive table-header-compact"
+  data-tablesaw-mode="stack"
+  data-tablesaw-sortable
+  data-tablesaw-minimap
+>
+  <thead class="header ts-hd">
+    <tr>
+      <!-- <th ng-bind="Translate('Agent')" width="140"></th> -->
+      <th
+        ng-if="compactHeader == true"
+        ng-bind="Translate('Customer')"
+        width="160"
+      ></th>
+      <th
+        ng-bind="Translate('Ticket Number')"
+        width="160"
+      ></th>
+      <th
+        ng-bind="Translate('Accepted Date')"
+        width="200"
+      ></th>
+
+      <th class="text-center" ng-bind="Translate('Type')" width="160"></th>
+      <th ng-bind="Translate('Details')" width="70%"></th>
+      <th ng-bind="Translate('Risk')"></th>
+      <th ng-bind="Translate('Win')"></th>
+      <th ng-if="isGradedBets == true" ng-bind="Translate('Outcome')"></th>
+      <th
+        ng-if="(AgentInfo.DeleteBets == 1 || AgentInfo.DeleteBets == 2)"
+        ng-bind="Translate('Action')"
+        class="text-right"
+      ></th>
+    </tr>
+  </thead>
+				<tbody>
+					<tr ng-repeat="oB in betsData | filter: OpenBetsFilter | filter: ThirdPartyFilter | orderBy:(compactHeader && viewSettings.orderByDate ? 'AcceptedDateTimeString' : ''):(compactHeader && viewSettings.orderByDate ? true : false)"
+          
+          >
+            <td ng-if="compactHeader == true" ng-bind="oB.CustomerID"></td>
+						<td ng-bind="FormatTicketNumberDisplay(oB)"></td>
+						<td class="accepted-date"
+							ng-bind="FormatDateTime(oB.AcceptedDateTimeString, 6) + '-' + DisplayTimeFromDate(oB.AcceptedDateTimeString)">
+						</td>
+						<td>
+							<!-- get type column -->
+							<div ng-if="!oB.RoundRobinLink" class=" text-center">
+								<div class="text-center">
+									<span ng-bind="Translate(DisplayWagerTypeName(oB))"></span>
+									<div ng-if="(oB.WagerType == 'T' || oB.WagerType == 'P')">
+										<span ng-if="oB.TicketWriter.trim() == 'Classic Sportsbook'"
+											ng-bind="oB.WagerType == 'T'? 'Teaser': 'Parlay'"></span>
+										<span ng-if="oB.TicketWriter.trim() != 'Classic Sportsbook' && oB.totalPicks"
+											ng-bind="' (' + oB.totalPicks + ' ' + Translate('Teams') + ') '"></span>
+									</div>
+								</div>
+							</div>
+
+							<!-- round robin list -->
+							<div ng-if="oB.RoundRobinLink" class=" text-center">
+								<span ng-bind="Translate('Round Robin')"></span>
+								<div class="d-flex flex-wrap justify-content-center">
+									<div ng-repeat="rr in oB.RoundRobinList" class="input-custom d-flex flex-wrap">
+										<label class="d-flex align-items-center">
+											<input ng-model="oB.RoundRobinPicksSelected" class="m-0 p-0 ml-2 mr-2"
+												name="{{oB.TicketNumber + '_roundRobinPickCountList'}}" type="radio"
+												ng-click="setRoundRobinCount(oB,rr)" ng-value="rr">{{!$last ? (rr +
+											"'s") : rr}}
+										</label>
+									</div>
+								</div>
+							</div>
+							<!-- end round robin list -->
+							<div ng-if="oB.ARBirdcageLink || oB.ArLink" class=" text-center">
+								<div class="text-center align-items-center">
+									<div>
+										<span ng-bind="Translate('If Bets')"></span>&nbsp;/&nbsp;
+										<span ng-bind="oB.Type"></span>
+									</div>
+									<p class="text-success font-weight-bold"><b
+											ng-bind="'(' + oB.Items.length + ' ' + Translate('Combinations') + ')'"></b>
+									</p>
+								</div>
+							</div>
+							<!-- end get type column -->
+						</td>
+						<td class="details">
+
+							<div class="">
+								<div class="sm-head-title">
+									<br class="visible-print">
+									<div class="d-flex">
+										<div ng-if="oB.RoundRobinLink" class="d-flex">
+											<a class="icon_viewresults" onclick="changeIcon(this); return false;"
+												role="button" data-toggle="collapse"
+												data-target=".openbet_{{oB.TicketNumber}}" role="button"
+												aria-expanded="false" aria-controls="collapseExample"></a>
+										</div>
+									</div>
+								</div>
+
+								<div ng-if="!oB.RoundRobinLink && !oB.ARBirdcageLink && !oB.ArLink"
+									ng-repeat="oBi in oB.Items">
+									<div class="graded-data-detail">
+										<a class="icon_viewresults" onclick="changeIcon(this); return false;"
+											role="button" data-toggle="collapse"
+											data-target="#openbet_{{oB.TicketNumber}}_{{oB.WagerNumber}}_{{$index}}"
+											aria-expanded="false" ng-show="oB.WagerType != 'A'"></a>
+										<strong style="text-transform: capitalize; color: #337AB7;"
+											ng-bind="Translate(oBi.Result) + ' '"
+											ng-show="oBi.Result != 'PENDING'"></strong><span
+											ng-bind="GetWagerItemDescription(oBi.Description,$index)"></span>
+										<div class="collapse openbet_{{oB.TicketNumber}}"
+											id="openbet_{{oB.TicketNumber}}_{{oB.WagerNumber}}_{{$index}}"
+											style="margin-left: 18px; margin-bottom: 4px;">
+											<b ng-hide="!oBi.Comments" ng-bind="Translate('Game Notes')"></b>
+											<span ng-show="oBi.Team1ID != null && oBi.Team1ID != ''">{{oBi.Team1ID}} vs
+												{{oBi.Team2ID}}<br /></span>
+											<span ng-show="oBi.Comments">{{oBi.Comments}}<br /></span>
+											<span ng-show="!(oBi.Result == 'WON' || oBi.Result == 'LOST')"
+												ng-bind="Translate('Event date') + ': ' + FormatDateTime(oBi.EventDateTimeString, 17)"></span><br />
+											<span
+												ng-if="oB.WagerStatus == 'O' && GetCustomerRestriction(oB.WagerType == 'P' ? 'PLOPEN' : 'TEOPEN')"
+												ng-bind="Translate('Item Added date') + ': ' + FormatDateTime(oBi.PostedDateTimeString, 17)"></span>
+											<section id="resultsf_{{$parent.$index}}_{{$index}}"
+												ng-show="(oBi.Result == 'WON' || oBi.Result == 'LOST' ) && ObiHasResults(oBi)">
+												<b ng-bind="Translate('Game Results')+':'"></b>
+												<span ng-bind="ScoredPtsHeader(oBi)"></span>
+												<br />
+												<span ng-bind="WriteTeamsScores(oBi)"></span>
+												<br />
+												<span ng-bind="WriteWinner(oBi)"></span>
+											</section>
+										</div>
+									</div>
+								</div>
+
+								<div ng-if="oB.RoundRobinLink || oB.ARBirdcageLink || oB.ArLink">
+									<div class="wagerList" ng-repeat="(key,wi) in oB.Items">
+
+										<div class="d-flex">
+											<span>{{"Tik# " + oB.TicketNumber + "-" + wi.WagerNumber}}</span>
+
+											<div class="d-flex font-weight-bold">
+												<span class="pl-2">(</span>
+												<div class="d-flex">
+													<div>Risk:&nbsp;</div>
+													<fplabel ng-show="oB.FreePlayFlag == 'Y'"
+														class="ng-binding ng-hide"> (FP)</fplabel>
+													<span ng-class="{num_neg: wi.AmountWagered < 0}">$<format-num
+															num="{{wi.AmountWagered}}" divide=""></format-num></span>
+												</div>
+												<span>&nbsp;/&nbsp;</span>
+												<div class="d-flex">
+													<div>Win:&nbsp;</div>
+													<span ng-class="{num_neg: wi.ToWinAmount < 0}">$<format-num
+															num="{{wi.ToWinAmount}}" divide=""></format-num></span>
+												</div>
+												<span>)</span>
+											</div>
+
+										</div>
+
+										<div ng-repeat="oBi in wi.Items">
+											<div class="graded-data-detail">
+												<a class="icon_viewresults test1"
+													onclick="changeIcon(this); return false;" role="button"
+													aria-expanded="false" aria-controls="collapseExample"
+													data-toggle="collapse"
+													data-target="#openbet_{{$parent.$index}}_{{$index}}"
+													ng-show="oB.WagerType != 'A'"></a>
+												<strong style="text-transform: capitalize; color: #337AB7;"
+													ng-bind="Translate(oBi.Result) + ' '"
+													ng-show="oBi.Result != 'PENDING'"></strong><span
+													ng-bind="GetWagerItemDescription(oBi.Description,$index)"></span>
+												<div class="collapse openbet_{{oB.TicketNumber}}"
+													id="openbet_{{$parent.$index}}_{{$index}}"
+													style="margin-left: 18px; margin-bottom: 4px;">
+													<b ng-hide="!oBi.Comments" ng-bind="Translate('Game Notes')"></b>
+													<span
+														ng-show="oBi.Team1ID != null && oBi.Team1ID != ''">{{oBi.Team1ID}}
+														vs {{oBi.Team2ID}}<br /></span>
+													<span ng-show="oBi.Comments">{{oBi.Comments}}<br /></span>
+													<span ng-show="!(oBi.Result == 'WON' || oBi.Result == 'LOST')"
+														ng-bind="Translate('Event date') + ': ' + FormatDateTime(oBi.EventDateTimeString, 17)"></span><br />
+													<span
+														ng-if="oB.WagerStatus == 'O' && GetCustomerRestriction(oB.WagerType == 'P' ? 'PLOPEN' : 'TEOPEN')"
+														ng-bind="Translate('Item Added date') + ': ' + FormatDateTime(oBi.PostedDateTimeString, 17)"></span>
+													<section id="resultsf_{{$parent.$index}}_{{$index}}"
+														ng-show="(oBi.Result == 'WON' || oBi.Result == 'LOST' ) && ObiHasResults(oBi)">
+														<b ng-bind="Translate('Game Results')+':'"></b>
+														<span ng-bind="ScoredPtsHeader(oBi)"></span>
+														<br />
+														<span ng-bind="WriteTeamsScores(oBi)"></span>
+														<br />
+														<span ng-bind="WriteWinner(oBi)"></span>
+													</section>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="graded-data-detail">
+
+									<div class="ml-0" ng-init="showDetails = false">
+										<button class="btn btn-rolling-if-bet" ng-show="RifHookupBtnVisible(oB)">
+											<a class="icon_viewresults test1" onclick="changeIcon(this); return false;"
+												role="button" data-toggle="collapse"
+												href="#rollingIfBets_list_{{$parent.$index}}_{{$index}}"
+												aria-expanded="false" aria-controls="collapseExample"
+												ng-click="showDetails = !showDetails;GetTicketRifHookups(oB)">
+												<span ng-bind="Translate('Rolling If Bets Hookup Report')"></span>
+											</a>
+										</button>
+
+										<div ng-if="showDetails == true" class="rolling-if-bet-details"
+											ng-repeat="ib in oB.RifHookups">
+											<b><span ng-bind="ib.TicketNumber"></span>&nbsp;&nbsp;&nbsp;<span
+													ng-bind="getWagerTypeByCode(ib.WagerType)"></span><br /></b>
+											<span ng-bind="FormatDateTime(ib.AcceptedDateTime,7)"></span>&nbsp;<span
+												ng-bind="FormatDateTime(ib.AcceptedDateTime,8)"></span>
+											<br /><span ng-bind="ib.Description"></span>
+											<br /><span ng-bind="oB.CustomerType"></span>
+											<span ng-bind="Translate('Risk')"></span>:&nbsp;
+											<span ng-bind="( ib.AmountWagered | dollar)"></span>
+											<span ng-bind="Translate('To Win')"></span>:&nbsp;
+											<span ng-bind="(ib.ToWinAmount | dollar)"></span>
+										</div>
+
+									</div>
+								</div>
+							</div>
+
+						</td>
+						<td class="risk-win">
+							<fplabel ng-show="oB.FreePlayFlag == 'Y'"> ({{Translate("FP")}})</fplabel>
+							<span ng-if="!oB.RoundRobinLink" ng-class="{num_neg: oB.AmountWagered < 0}">$<format-num
+									num="{{oB.AmountWagered}}" divide /></span>
+							<span ng-if="oB.RoundRobinLink"
+								ng-class="{num_neg: oB.RoundRobinAmountWagered < 0}">$<format-num
+									num="{{oB.RoundRobinAmountWagered}}" divide /></span>
+						</td>
+						<td class="risk-win">
+							<span ng-if="!oB.RoundRobinLink" ng-class="{num_neg: oB.ToWinAmount < 0}">$<format-num
+									num="{{oB.ToWinAmount}}" divide /></span>
+							<span ng-if="oB.RoundRobinLink"
+								ng-class="{num_neg: oB.RoundRobinToWinAmount < 0}">$<format-num
+									num="{{oB.RoundRobinToWinAmount}}" divide /></span>
+						</td>
+						<td ng-if="isGradedBets == true && !oB.RoundRobinLink"
+							ng-class="{'num_pos' : oB.WagerStatus == 'W', 'num_neg' : oB.WagerStatus == 'L'}"
+							ng-bind="oB.WagerStatus == 'W' ? '+$' + (oB.ToWinAmount | formatNumber) : oB.WagerStatus == 'L' ? '$' + ((oB.AmountWagered * -1) | formatNumber) : ''">
+						</td>
+						<td ng-if="isGradedBets == true && oB.RoundRobinLink"
+							ng-class="{'num_pos' : oB.WagerStatus == 'W', 'num_neg' : oB.WagerStatus == 'L'}"
+							ng-bind="oB.WagerStatus == 'W' ? '+$' + (oB.RoundRobinToWinAmount | formatNumber) : oB.WagerStatus == 'L' ? '$' + ((oB.RoundRobinAmountWagered * -1) | formatNumber) : ''">
+						</td>
+						<td ng-if="(AgentInfo.DeleteBets == 1 || AgentInfo.DeleteBets == 2)">
+							<button ng-if="showDeleteButton(oB)" class="btn btn-default float-right"
+								ng-click="DeleteWager(oB)" ng-bind="Translate('delete')"></button>
+						</td>
+					</tr>
+				</tbody>
+        <tfoot ng-if="gB.TotalAmountWagered && !compactHeader">
+					<tr>
+						<td colspan="4" ng-bind="Translate('Total')"></td>
+						<td class="risk-win" ng-bind="gB.TotalAmountWagered | formatNumber"></td>
+						<td class="risk-win" ng-bind="gB.TotalToWinAmount | formatNumber"></td>
+						<td ng-if="isGradedBets == true"
+							ng-class="{'num_pos' : gB.TotalNetAmount >= 0, 'num_neg' : gB.TotalNetAmount < 0}"
+							ng-bind="gB.TotalNetAmount | formatNumber"></td>
+						<td ng-if="(AgentInfo.DeleteBets == 1 || AgentInfo.DeleteBets == 2)">
+						</td>
+					</tr>
+				</tfoot>
+</table>

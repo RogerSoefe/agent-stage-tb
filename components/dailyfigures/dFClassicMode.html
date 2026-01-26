@@ -1,0 +1,298 @@
+﻿<div id="agentListDiv" class="data-component" ng-repeat="aF in CustomersDailyFigures track by $index"
+     ng-if="!IsMobile || viewportMode.isDesktop">
+  <div class="row" ng-if="AgentAsCustomerInfo.IsAffiliate == false">
+    <div style="border: 1px solid white">
+      <div class="bg-gray p-3 mt-5" ng-if="hierarchy.mode == 0">
+        <div class="dropdown align-self-center mr-4">
+          <div class="d-flex" role="button" aria-haspopup="true" aria-expanded="true"
+               data-toggle="dropdown">
+            <strong class="text-white" ng-bind="formatCustomer(aF.AgentId)"></strong>&nbsp;<span class="text-white" ng-bind="Translate('Click here to see hierarchy')"></span>
+          </div>
+          <div class="dropdown-menu">
+            <strong class="text-black p-3"
+                    ng-bind="(aF.CustomerDailyFigures[0].Hierarchy != '' ? aF.CustomerDailyFigures[0].Hierarchy.substring(2): formatCustomer(aF.AgentId))"></strong>
+          </div>
+        </div>
+      </div>
+      <div class="align-self-center p-3 bg-gray" ng-if="hierarchy.mode == 1">
+        <div class="d-flex" role="button" aria-haspopup="true" aria-expanded="true"
+             data-toggle="dropdown">
+          <strong class="text-white"
+                  ng-bind="(aF.CustomerDailyFigures[0].Hierarchy != '' ? aF.CustomerDailyFigures[0].Hierarchy.substring(2): formatCustomer(aF.AgentId))"></strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="w-100">
+    <table class="tablesaw agents" data-tablesaw-sortable data-tablesaw-mode="swipe" data-tablesaw-minimap
+           table-saw>
+      <thead class='header dw'>
+        <tr>
+          <th data-tablesaw-priority="persist">{{Translate('Id')}}</th>
+          <th data-tablesaw-priority="persist" style="max-width: 100px"
+              ng-if="AgentAsCustomerInfo.IsAffiliate == false">{{Translate('Full Name')}}</th>
+          <th data-tablesaw-priority="persist" ng-if="AgentAsCustomerInfo.IsAffiliate == false">
+            {{Translate('Password')}}
+          </th>
+          <th ng-if="SettleFigureMode && IsMobile" class="text-right">{{Translate('Settle')}}</th>
+          <th class="text-right">
+            {{Translate('Carry')}}
+          </th>
+          <th class="text-right">
+            <span ng-bind="GetWeekDayName(1)"></span>
+            <br />
+            <span ng-bind="GetDate(1)"></span>
+          </th>
+          <th class="text-right">
+            <span ng-bind="GetWeekDayName(2)"></span>
+            <br />
+            <span ng-bind="GetDate(2)"></span>
+          </th>
+          <th class="text-right">
+            <span ng-bind="GetWeekDayName(3)"></span>
+            <br />
+            <span ng-bind="GetDate(3)"></span>
+          </th>
+          <th class="text-right">
+            <span ng-bind="GetWeekDayName(4)"></span>
+            <br />
+            <span ng-bind="GetDate(4)"></span>
+          </th>
+          <th class="text-right">
+            <span ng-bind="GetWeekDayName(5)"></span>
+            <br />
+            <span ng-bind="GetDate(5)"></span>
+          </th>
+          <th class="text-right">
+            <span ng-bind="GetWeekDayName(6)"></span>
+            <br />
+            <span ng-bind="GetDate(6)"></span>
+          </th>
+          <th class="text-right">
+            <span ng-bind="GetWeekDayName(0)"></span>
+            <br />
+            <span ng-bind="GetDate(0)"></span>
+          </th>
+          <th class="text-right">
+            {{Translate('This')}}<br />
+            {{Translate('Week')}}
+          </th>
+          <th ng-if="!SettleFigureMode" class="text-right hidden-print">
+            {{Translate('Payments')}}
+          </th>
+          <th ng-if="!SettleFigureMode" class="text-right hidden-print">
+            {{Translate('Pending')}}<br />
+            {{Translate('Bets')}}
+          </th>
+          <th class="text-right">
+            {{Translate('Overall')}}<br />
+            {{Translate('Figure')}}
+          </th>
+          <th ng-if="SettleFigureMode && !IsMobile" class="text-right">{{Translate('Settle')}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="dF in aF.CustomerDailyFigures  track by $index" table-saw>
+          <td class="df-id">
+            <span class="customer-table-button" ng-click="ShowCustMaint(dF.CustomerId, 8)"
+                  ng-bind="formatCustomer(dF.CustomerId)"></span>
+          </td>
+          <td ng-if="AgentAsCustomerInfo.IsAffiliate == false" class="df-fullname">
+            <span class="text-elipsis"
+                  style="max-width: 100px" title="{{dF.FullName}}" ng-bind="dF.FullName"></span>
+          </td>
+          <td><span ng-bind="dF.Password" class="df-password"></span></td>
+          <td ng-if="SettleFigureMode && IsMobile" class="text-right">
+            <span ng-bind="dF.SettleFigure | formatNumber: false: true"></span>
+          </td>
+          <td class="text-right">
+            <span class="num_bold" ng-bind="dF.PrevBal | formatNumber"
+                  ng-class="{'num_pos' : dF.PrevBal == 0, 'num_neg' : dF.PrevBal < 0, 'num_pos' : dF.PrevBal > 0}"></span>
+          </td>
+
+          <td class="text-right" ng-if="AgentInfo.CloseDayOfWeek == 2">
+            <a href="#" data-toggle="modal" data-target="#ModalDailyFig"
+               ng-click="ShowMoreDetails(dF, 1, !ReportFilters.BreakoutSportsAndCasinos)"
+               onclick="return false"
+               ng-class="{'num_neg' : dF.dFData1 < 0, 'num_pos' : dF.dFData1 > 0 || dF.dFData1 == 0}">
+              <span ng-bind="dF.dFData1 | formatNumber"></span>
+            </a>
+            <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+              <span ng-bind="GetCasinoFigure(dF, 1, false) | formatNumber"></span>
+            </span>
+          </td>
+          <td class="text-right">
+            <a href="#" data-toggle="modal" data-target="#ModalDailyFig"
+               ng-click="ShowMoreDetails(dF, AgentInfo.CloseDayOfWeek == 2 ? 2 : 1, !ReportFilters.BreakoutSportsAndCasinos)"
+               onclick="return false"
+               ng-class="{'num_neg' : dF.dFData2 < 0, 'num_pos' : dF.dFData2 > 0 || dF.dFData2 == 0 }">
+              <span ng-bind="dF.dFData2 | formatNumber"></span>
+            </a>
+            <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+              <span ng-bind="GetCasinoFigure(dF, 2, false) | formatNumber"></span>
+            </span>
+          </td>
+          <td class="text-right">
+            <a href="#" data-toggle="modal" data-target="#ModalDailyFig"
+               ng-click="ShowMoreDetails(dF, AgentInfo.CloseDayOfWeek == 2 ? 3 : 2, !ReportFilters.BreakoutSportsAndCasinos)"
+               onclick="return false"
+               ng-class="{'num_neg' : dF.dFData3 < 0, 'num_pos' : dF.dFData3 > 0 || dF.dFData3 == 0 }">
+              <span ng-bind="dF.dFData3 | formatNumber"></span>
+            </a>
+            <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+              <span ng-bind="GetCasinoFigure(dF, 3, false) | formatNumber"></span>
+            </span>
+          </td>
+          <td class="text-right">
+            <a href="#" data-toggle="modal" data-target="#ModalDailyFig"
+               ng-click="ShowMoreDetails(dF, AgentInfo.CloseDayOfWeek == 2 ? 4 : 3, !ReportFilters.BreakoutSportsAndCasinos)"
+               onclick="return false"
+               ng-class="{ 'num_neg' : dF.dFData4 < 0, 'num_pos' : dF.dFData4 > 0 || dF.dFData4 == 0 }">
+              <span ng-bind="dF.dFData4 | formatNumber"></span>
+            </a>
+            <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+              <span ng-bind="GetCasinoFigure(dF, 4, false) | formatNumber"></span>
+            </span>
+          </td>
+          <td class="text-right">
+            <a href="#" data-toggle="modal" data-target="#ModalDailyFig"
+               ng-click="ShowMoreDetails(dF, AgentInfo.CloseDayOfWeek == 2 ? 5 : 4, !ReportFilters.BreakoutSportsAndCasinos)"
+               onclick="return false"
+               ng-class="{ 'num_neg' : dF.dFData5 < 0, 'num_pos' : dF.dFData5 > 0 || dF.dFData5 == 0}">
+              <span ng-bind="dF.dFData5 | formatNumber"></span>
+            </a>
+            <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+              <span ng-bind="GetCasinoFigure(dF, 5, false) | formatNumber"></span>
+            </span>
+          </td>
+          <td class="text-right">
+            <a href="#" data-toggle="modal" data-target="#ModalDailyFig"
+               ng-click="ShowMoreDetails(dF, AgentInfo.CloseDayOfWeek == 2 ? 6 : 5, !ReportFilters.BreakoutSportsAndCasinos)"
+               onclick="return false"
+               ng-class="{ 'num_neg' : dF.dFData6 < 0, 'num_pos' : dF.dFData6 > 0 || dF.dFData6 == 0}">
+              <span ng-bind="dF.dFData6 | formatNumber"></span>
+            </a>
+            <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+              <span ng-bind="GetCasinoFigure(dF, 6, false) | formatNumber"></span>
+            </span>
+          </td>
+          <td class="text-right">
+            <a href="#" data-toggle="modal" data-target="#ModalDailyFig"
+               ng-click="ShowMoreDetails(dF, AgentInfo.CloseDayOfWeek == 2 ? 0 : 6, !ReportFilters.BreakoutSportsAndCasinos)"
+               onclick="return false"
+               ng-class="{ 'num_neg' : dF.dFData0 < 0, 'num_pos' : dF.dFData0 > 0 || dF.dFData0 == 0}">
+              <span ng-bind="dF.dFData0 | formatNumber"></span>
+            </a>
+            <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+              <span ng-bind="GetCasinoFigure(dF, 0, false) | formatNumber"></span>
+            </span>
+          </td>
+          <td class="text-right" ng-if="AgentInfo.CloseDayOfWeek == 3">
+            <a href="#" data-toggle="modal" data-target="#ModalDailyFig"
+               ng-click="ShowMoreDetails(dF, 0, !ReportFilters.BreakoutSportsAndCasinos)"
+               onclick="return false"
+               ng-class="{ 'num_neg' : dF.dFData1 < 0, 'num_pos' : dF.dFData1 > 0 || dF.dFData1 == 0}">
+              <span ng-bind="dF.dFData1 | formatNumber"></span>
+            </a>
+            <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+              <span ng-bind="GetCasinoFigure(dF, 1, false) | formatNumber"></span>
+            </span>
+          </td>
+          <td class="text-right">
+            <span data-toggle="modal" data-target="#ModalDailyFig" class="num_bold cursor-pointer" ng-click="ShowWeekDetails(dF, !ReportFilters.BreakoutSportsAndCasinos)" ng-bind="GetWeekFigure(dF, false) | formatNumber"
+                  ng-class="{'num_pos' : GetWeekFigure(dF, false) == 0, 'num_neg' : GetWeekFigure(dF, false) < 0, 'num_pos' : GetWeekFigure(dF, false) > 0}"></span>
+            <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+              <span ng-bind="GetCasinoWeekFigure(dF, false) | formatNumber"></span>
+            </span>
+          </td>
+          <td ng-if="!SettleFigureMode" class="text-right hidden-print">
+            <a href="" ng-click="ShowCustMaint(dF.CustomerId, 2)"
+               ng-class="{'num_pos' : dF.OtherTran == 0, 'customer-table-button' : dF.OtherTran > 0, 'num_neg' : dF.OtherTran < 0}">
+              <span ng-bind="dF.OtherTran | formatNumber"></span>
+            </a>
+          </td>
+          <td ng-if="!SettleFigureMode" class="text-right hidden-print">
+            <a href="" ng-click="ShowPendingBets(dF.CustomerId)"
+               ng-class="{'num_pos' : dF.PendingTotal == 0}">
+              <span ng-class="{'num_pos' : dF.PendingTotal == 0, 'num_pos' : dF.PendingTotal > 0}"
+                    ng-bind="dF.PendingTotal | formatNumber"></span>
+            </a>
+          </td>
+          <td class="text-right">
+            <span ng-bind="dF.CurrentBalance | formatNumber"
+                  ng-class="{'num_pos' : dF.CurrentBalance == 0, 'num_neg' : dF.CurrentBalance < 0, 'num_pos' : dF.CurrentBalance > 0}"></span>
+          </td>
+          <td ng-if="SettleFigureMode" class="text-right">
+            <span ng-bind="dF.SettleFigure | formatNumber: false: true"></span>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td><span>{{Translate('TOTAL')}}</span></td>
+          <td colspan="{{AgentAsCustomerInfo.IsAffiliate === true ? '1' : '2'}}" class="text-left">
+            <div class="df-actives">{{aF.TotalActive}}</div>
+          </td>
+          <td ng-if="SettleFigureMode && IsMobile" class="text-right">
+            <span ng-bind="GetAgentTotals('Settle', sortedFigure) | formatNumber : false: true"></span>
+          </td>
+          <td class="text-right">
+            <span ng-bind="aF.PrevBalance | formatNumber"
+                  ng-class="{'num_pos' : aF.PrevBalance == 0, 'num_neg' : aF.PrevBalance < 0, 'num_pos' : aF.PrevBalance > 0}"></span>
+          </td>
+          <td class="text-right" ng-if="AgentInfo.CloseDayOfWeek == 2">
+            <span ng-bind="aF.Mon | formatNumber"
+                  ng-class="{'num_pos' : aF.Mon == 0, 'num_neg' : aF.Mon < 0, 'num_pos' : aF.Mon > 0}"></span>
+          </td>
+          <td class="text-right">
+            <span ng-bind="aF.Tue | formatNumber"
+                  ng-class="{'num_pos' : aF.Tue == 0, 'num_neg' : aF.Tue < 0, 'num_pos' : aF.Tue > 0}"></span>
+          </td>
+          <td class="text-right">
+            <span ng-bind="aF.Wed | formatNumber"
+                  ng-class="{'num_pos' : aF.Wed == 0, 'num_neg' : aF.Wed < 0, 'num_pos' : aF.Wed > 0}"></span>
+          </td>
+          <td class="text-right">
+            <span ng-bind="aF.Thu | formatNumber"
+                  ng-class="{'num_pos' : aF.Thu == 0, 'num_neg' : aF.Thu < 0, 'num_pos' : aF.Thu > 0}"></span>
+          </td>
+          <td class="text-right">
+            <span ng-bind="aF.Fri | formatNumber"
+                  ng-class="{'num_pos' : aF.Fri == 0, 'num_neg' : aF.Fri < 0, 'num_pos' : aF.Fri > 0}"></span>
+          </td>
+          <td class="text-right">
+            <span ng-bind="aF.Sat | formatNumber"
+                  ng-class="{'num_pos' : aF.Sat == 0, 'num_neg' : aF.Sat < 0, 'num_pos' : aF.Sat > 0}"></span>
+          </td>
+          <td class="text-right">
+            <span ng-bind="aF.Sun | formatNumber"
+                  ng-class="{'num_pos' : aF.Sun == 0, 'num_neg' : aF.Sun < 0, 'num_pos' : aF.Sun > 0}"></span>
+          </td>
+          <td class="text-right" ng-if="AgentInfo.CloseDayOfWeek == 3">
+            <span ng-bind="aF.Mon | formatNumber"
+                  ng-class="{'num_pos' : aF.Mon == 0, 'num_neg' : aF.Mon < 0, 'num_pos' : aF.Mon > 0}"></span>
+          </td>
+          <td class="text-right">
+            <span ng-bind="aF.Week | formatNumber"
+                  ng-class="{'num_pos' : aF.Week == 0, 'num_neg' : aF.Week < 0, 'num_pos' : aF.Week > 0}"></span>
+          </td>
+          <td ng-if="!SettleFigureMode" class="text-right hidden-print">
+            <span ng-bind="aF.OtherTran | formatNumber"
+                  ng-class="{'num_pos' : aF.OtherTran == 0, 'num_pos' : aF.OtherTran > 0}"></span>
+          </td>
+          <td ng-if="!SettleFigureMode" class="text-right hidden-print">
+            <span ng-bind="aF.PendingTotal | formatNumber"
+                  ng-class="{'num_pos' : aF.PendingTotal == 0, 'num_pos' : aF.PendingTotal > 0}"></span>
+          </td>
+          <td class="text-right">
+            <span ng-bind="aF.Overall | formatNumber"
+                  ng-class="{'num_pos' : aF.Overall == 0, 'num_neg' : aF.Overall < 0, 'num_pos' : aF.Overall > 0}"></span>
+          </td>
+          <td ng-if="SettleFigureMode" class="text-right">
+            <span ng-bind="GetAgentTotals('Settle', sortedFigure) | formatNumber : false: true"></span>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>

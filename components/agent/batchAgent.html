@@ -1,0 +1,83 @@
+﻿<div class="dashbwrapper">
+  <div id="customersDiv" class="allscrll chat-bottom-spacer">
+    <div class="row pt-3 pl-3 title-divider">
+      <div class="col-xs-12 no-padding">
+        <div class="d-flex align-items-center">
+          <a ng-click="toggleBookmark('Add Agent','#/addAgent')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Add Agent') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+          <h3>{{Translate('Add Agent')}}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" ng-show="AgentAsCustomerInfo.AgentType == 'M'">
+      <div class="form-group col-xs-12 m-0">
+        <label for="aList">{{Translate('Choose Master Agent:')}}</label>
+        <div custom-select="t as (t.AgentId ) for t in masterAgents() | filter : $searchTerm"
+             ng-model="selectedAgent" ng-change="updateFields()"
+             id="aList">
+          <div>
+            <span>{{ t.AgentBind }}</span>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="form-row mt-5">
+      <div class="form-group col-xs-12 col-lg-4">
+        <div class="form-inline ml-0">
+          <div class="form-group">
+            <label class="mr-2">{{Translate('Agent ID')}}:</label>
+            <input type="text" class="form-control mr-4" ng-model="NewAgent.Prefix" style="width:100px">
+          </div>
+          <div class="form-group">
+            <label for="passwordNewAgent">{{Translate('Password')}}:</label>
+            <input id="passwordNewAgent" type="text" class="form-control" ng-model="NewAgent.password" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100" style="width:100px">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-xs-12 col-lg-4">
+        <div class="form-inline ml-0">
+          <div class="form-group">
+            <label for="agentType">{{Translate('Agent Type')}}:</label>
+            <select id="agentType" type="text" ng-model="NewAgent.AgentType" class="custom-dropdown mr-4">
+              <option value="A">{{Translate('Agent')}}</option>
+              <option value="M">{{Translate('Master Agent')}}</option>
+            </select>
+          </div>
+          <div class="form-group" ng-show="AgentAsCustomerInfo.AgentType == 'M'">
+            <label for="bList">{{Translate('Inherit from:')}}</label>
+            <div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+                 ng-model="selectedInheritAgent"
+                 id="bList">
+              <div>
+                <span>{{ t.AgentBind }}</span>
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-xs-12 mt-4">
+        <button class="btn btn-success" ng-bind="Translate('Generate accounts')" ng-click="SetAgentsBatch()"></button>
+        <button class="btn btn-success" ng-show="tableData.length > 0" ng-bind="Translate('CREATE')" ng-click="saveBatch()" ></button>
+      </div>
+    </div>
+
+    <div class="row mt-5">
+      <div class="col-xs-12">
+        <div class="table-wrapper table-responsive">
+          <table datatable dt-instance="dtInstance" dt-options="dtOptions" dt-column-defs="dtColumnDefs" class="custom-datatable">
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

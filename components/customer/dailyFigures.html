@@ -1,0 +1,573 @@
+﻿<div ng-show="Report.DailyFigures != null" id="daily-figures" class="tab-pane active" role="tabpanel">
+	<div class="row">
+
+		<div class="col-xs-6 no-padding-print">
+			<h3><span ng-bind="Translate('Daily Figures') +' (' + custCurrencyCode + ') ' + Translate('FOR') + ' ' + (SelectedCustomer.CustomerId | FormatCustomer)"></span></h3>
+		</div>
+		<div class="col-xs-6 no-padding-print">
+			<div class="date-picker">
+				<input type="text" class="form-control" name="ReportDate" ng-model="DailyFiguresDate" />
+			</div>
+			<div onclick="window.print();" class="print-action hidden-print" ng-if="!IsMobile">
+				<h3>Print this</h3>
+				<div class="print-custom-icon fa-2x">
+					<i class="fas fa-print"></i>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div ng-if="!IsMobile">
+
+		<div class="row figures-header">
+			<div class="col-sm-1 mt-4 hidden-print">
+				<a class="arrow_left" ng-click="ShowPreviousWeek()" onclick="return false" href="#"></a>
+			</div>
+			<div class="col-sm-8 col-print-10 no-padding-print col-division-right">
+				<div class="row">
+					<div class="col-sm-6 col-print-6 pr-0 no-padding-print">
+						<div class="row">
+							<div class="col-sm-3 no-padding">
+								<span class="font-bigger" ng-bind="ShowCurrentMonths()"></span>
+							</div>
+							<div class="col-sm-3 no-padding">
+								<section ng-class="HighlightedClass(0)">{{GetWeekDayName(1)}}<span ng-bind="ShowDateNumber(0)"></span></section>
+							</div>
+							<div class="col-sm-3 no-padding">
+								<section ng-class="HighlightedClass(1)">{{GetWeekDayName(2)}}<span ng-bind="ShowDateNumber(1)"></span></section>
+							</div>
+							<div class="col-sm-3 no-padding">
+								<section ng-class="HighlightedClass(2)">{{GetWeekDayName(3)}}<span ng-bind="ShowDateNumber(2)"></span></section>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6 col-print-6 pl-0 no-padding-print">
+						<div class="row">
+							<div class="col-sm-3 no-padding">
+								<section ng-class="HighlightedClass(3)">{{GetWeekDayName(4)}}<span ng-bind="ShowDateNumber(3)"></span></section>
+							</div>
+							<div class="col-sm-3 no-padding">
+								<section ng-class="HighlightedClass(4)">{{GetWeekDayName(5)}}<span ng-bind="ShowDateNumber(4)"></span></section>
+							</div>
+							<div class="col-sm-3 no-padding">
+								<section ng-class="HighlightedClass(5)">{{GetWeekDayName(6)}}<span ng-bind="ShowDateNumber(5)"></span></section>
+							</div>
+							<div class="col-sm-3 no-padding">
+								<section ng-class="HighlightedClass(6)">{{GetWeekDayName(0)}}<span ng-bind="ShowDateNumber(6)"></span></section>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-sm-2 col-print-2 no-padding num-totals-title">
+				<span class="font-bigger" ng-bind="Translate('Week_total')"></span>
+			</div>
+			<div class="col-sm-1 mt-4 hidden-print">
+				<a class="arrow_right hidden-print" ng-click="ShowNextWeek()" onclick="return false" href="#"></a>
+			</div>
+		</div>
+
+		<div class="row figures-data highlighted">
+			<div class="col-sm-8 col-sm-offset-1 col-print-10 no-padding-print col-division-right">
+				<div class="row">
+					<div class="col-sm-6 pr-0 no-padding-print">
+						<div class="row">
+							<div class="col-sm-3 no-padding">
+								<b ng-bind="Translate('Starting Bal')"></b>
+							</div>
+							<div class="col-sm-3 no-padding">
+								<span class="num_pos" style="cursor: default">
+									<span ng-class="{num_neg: ShowStartingBalance() < 0, num_zero: ShowStartingBalance() == 0, num_pos: ShowStartingBalance() > 0}" ng-bind="ShowStartingBalance() | dollar"></span>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row figures-data">
+			<div class="col-sm-8 col-sm-offset-1 col-print-10 no-padding-print col-division-right">
+				<div class="row">
+					<div class="col-sm-6 pr-0 no-padding-print">
+						<div class="row">
+							<div class="col-sm-3 text-right no-padding">
+								<b ng-bind="Translate('Win') + '/' + Translate('Loss')"></b>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-bind="DailyWinLossList[0].value | dollar" ng-class="{num_zero: !DailyWinLossList[0].hasValue, num_neg: DailyWinLossList[0].value < 0,  num_pos: DailyWinLossList[0].value >= 0}" ng-click="ShowMoreDetails(0, 'winloss')"></a>
+
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-bind="DailyWinLossList[1].value | dollar" ng-class="{num_zero: !DailyWinLossList[1].hasValue, num_neg: DailyWinLossList[1].value < 0,  num_pos: DailyWinLossList[1].value >= 0}" ng-click="ShowMoreDetails(1, 'winloss')"></a>
+
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-bind="DailyWinLossList[2].value | dollar" ng-class="{num_zero: !DailyWinLossList[2].hasValue, num_neg: DailyWinLossList[2].value < 0, num_pos: DailyWinLossList[2].value >= 0}" ng-click="ShowMoreDetails(2, 'winloss')"></a>
+
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6 pl-0 no-padding-print">
+						<div class="row">
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-bind="DailyWinLossList[3].value | dollar" ng-class="{num_zero: !DailyWinLossList[3].hasValue, num_neg: DailyWinLossList[3].value < 0,  num_pos: DailyWinLossList[3].value >= 0}" ng-click="ShowMoreDetails(3, 'winloss')"></a>
+
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-bind="DailyWinLossList[4].value | dollar" ng-class="{num_zero: !DailyWinLossList[4].hasValue, num_neg: DailyWinLossList[4].value < 0,  num_pos: DailyWinLossList[4].value >= 0}" ng-click="ShowMoreDetails(4, 'winloss')"></a>
+
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-bind="DailyWinLossList[5].value | dollar" ng-class="{num_zero: !DailyWinLossList[5].hasValue, num_neg: DailyWinLossList[5].value < 0, num_pos: DailyWinLossList[5].value >= 0}" ng-click="ShowMoreDetails(5, 'winloss')"></a>
+
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-bind="DailyWinLossList[6].value | dollar" ng-class="{num_zero: !DailyWinLossList[6].hasValue, num_neg: DailyWinLossList[6].value < 0, num_pos: DailyWinLossList[6].value >= 0}" ng-click="ShowMoreDetails(6, 'winloss')"></a>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-2 col-print-2 num-totals">
+				<span ng-class="{num_neg: ShowWinLossTotal() < 0, num_zero: ShowWinLossTotal() == 0, num_pos: ShowWinLossTotal() > 0}" ng-bind="ShowWinLossTotal() | dollar"></span>
+			</div>
+		</div>
+
+		<div class="row figures-data" ng-if="ShowCasinoLine()">
+			<div class="col-sm-8 col-sm-offset-1 col-print-10 no-padding-print col-division-right">
+				<div class="row">
+					<div class="col-sm-6 pr-0 no-padding-print">
+						<div class="row">
+							<div class="col-sm-3 text-right no-padding">
+								<b ng-bind="Translate('Casino')">Casino</b>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-bind="DailyCasinoWinLossList[0].value | dollar" ng-class="{num_neg: DailyCasinoWinLossList[0].value < 0, num_zero: !DailyCasinoWinLossList[0].hasValue, num_pos: DailyCasinoWinLossList[0].value >= 0}" ng-click="ShowMoreDetails(0, 'casino')"></a>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-bind="DailyCasinoWinLossList[1].value | dollar" ng-class="{num_neg: DailyCasinoWinLossList[1].value < 0, num_zero: !DailyCasinoWinLossList[1].hasValue, num_pos: DailyCasinoWinLossList[1].value >= 0}" ng-click="ShowMoreDetails(1, 'casino')"></a>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-bind="DailyCasinoWinLossList[2].value | dollar" ng-class="{num_neg: DailyCasinoWinLossList[2].value < 0, num_zero: !DailyCasinoWinLossList[2].hasValue, num_pos: DailyCasinoWinLossList[2].value >= 0}" ng-click="ShowMoreDetails(2, 'casino')"></a>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6 pl-0 no-padding-print">
+						<div class="row">
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-bind="DailyCasinoWinLossList[3].value | dollar" ng-class="{num_neg: DailyCasinoWinLossList[3].value < 0, num_zero: !DailyCasinoWinLossList[3].hasValue, num_pos: DailyCasinoWinLossList[3].value >= 0}" ng-click="ShowMoreDetails(3, 'casino')"></a>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-bind="DailyCasinoWinLossList[4].value | dollar" ng-class="{num_neg: DailyCasinoWinLossList[4].value < 0, num_zero: !DailyCasinoWinLossList[4].hasValue, num_pos: DailyCasinoWinLossList[4].value >= 0}" ng-click="ShowMoreDetails(4, 'casino')"></a>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-bind="DailyCasinoWinLossList[5].value | dollar" ng-class="{num_neg: DailyCasinoWinLossList[5].value < 0, num_zero: !DailyCasinoWinLossList[5].hasValue, num_pos: DailyCasinoWinLossList[5].value >= 0}" ng-click="ShowMoreDetails(5, 'casino')"></a>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-bind="DailyCasinoWinLossList[6].value | dollar" ng-class="{num_neg: DailyCasinoWinLossList[6].value < 0, num_zero: !DailyCasinoWinLossList[6].hasValue, num_pos: DailyCasinoWinLossList[6].value >= 0}" ng-click="ShowMoreDetails(6, 'casino')"></a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-sm-2 col-print-2 num-totals">
+				<span ng-class="{num_neg: ShowCasinoWinLossTotal() < 0, num_zero: ShowCasinoWinLossTotal() == 0, num_pos: ShowCasinoWinLossTotal() > 0}" ng-bind="ShowCasinoWinLossTotal() | dollar"></span>
+			</div>
+		</div>
+
+		<div class="row figures-data">
+			<div class="col-sm-8 col-sm-offset-1 col-print-10 no-padding-print col-division-right">
+				<div class="row">
+					<div class="col-sm-6 pr-0 no-padding-print">
+						<div class="row">
+							<div class="col-sm-3 text-right no-padding">
+								<b ng-bind="Translate('Cash In') + '/' + Translate('Out')">Cash In / Out</b>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-class="{num_neg: DailyCashInOutList[0].value < 0, num_zero: !DailyCashInOutList[0].hasValue, num_pos: DailyCashInOutList[0].value > 0}" ng-bind="DailyCashInOutList[0].value | dollar" ng-click="ShowMoreDetails(0, 'cashintout')"></a>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-class="{num_neg: DailyCashInOutList[1].value < 0, num_zero: !DailyCashInOutList[1].hasValue, num_pos: DailyCashInOutList[1].value > 0}" ng-bind="DailyCashInOutList[1].value | dollar" ng-click="ShowMoreDetails(1, 'cashintout')"></a>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-class="{num_neg: DailyCashInOutList[2].value < 0, num_zero: !DailyCashInOutList[2].hasValue, num_pos: DailyCashInOutList[2].value > 0}" ng-bind="DailyCashInOutList[2].value | dollar" ng-click="ShowMoreDetails(2, 'cashintout')"></a>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6 pl-0 no-padding-print">
+						<div class="row">
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-class="{num_neg: DailyCashInOutList[3].value < 0, num_zero: !DailyCashInOutList[3].hasValue, num_pos: DailyCashInOutList[3].value > 0}" ng-bind="DailyCashInOutList[3].value | dollar" ng-click="ShowMoreDetails(3, 'cashintout')"></a>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-class="{num_neg: DailyCashInOutList[4].value < 0, num_zero: !DailyCashInOutList[4].hasValue, num_pos: DailyCashInOutList[4].value > 0}" ng-bind="DailyCashInOutList[4].value | dollar" ng-click="ShowMoreDetails(4, 'cashintout')"></a>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-class="{num_neg: DailyCashInOutList[5].value < 0, num_zero: !DailyCashInOutList[5].hasValue, num_pos: DailyCashInOutList[5].value > 0}" ng-bind="DailyCashInOutList[5].value | dollar" ng-click="ShowMoreDetails(5, 'cashintout')"></a>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<a role="button" ng-class="{num_neg: DailyCashInOutList[6].value < 0, num_zero: !DailyCashInOutList[6].hasValue, num_pos: DailyCashInOutList[6].value > 0}" ng-bind="DailyCashInOutList[6].value | dollar" ng-click="ShowMoreDetails(6, 'cashintout')"></a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-2 col-print-2 num-totals">
+				<span ng-class="{num_neg: ShowCashInOutTotal() < 0, num_zero: ShowCashInOutTotal() == 0, num_pos: ShowCashInOutTotal() > 0}" ng-bind="ShowCashInOutTotal() | dollar"></span>
+			</div>
+		</div>
+
+		<div class="row figures-data day-bal">
+			<div class="col-sm-8 col-sm-offset-1 col-print-10 no-padding-print col-division-right">
+				<div class="row">
+					<div class="col-sm-6 pr-0 no-padding-print">
+						<div class="row">
+							<div class="col-sm-3 text-right no-padding">
+								<b ng-bind="Translate('Balance')">Balance</b>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<span ng-class="{num_neg: DailyBalanceList[0].value < 0, num_zero:  !DailyBalanceList[0].hasValue, num_pos: DailyBalanceList[0].value >= 0}" ng-bind="DailyBalanceList[0].value | dollar" role="button" ng-click="ShowMoreDetails(0, 'bal')"></span>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<span ng-class="{num_neg: DailyBalanceList[1].value < 0, num_zero:  !DailyBalanceList[1].hasValue, num_pos: DailyBalanceList[1].value >= 0}" ng-bind="DailyBalanceList[1].value | dollar" role="button" ng-click="ShowMoreDetails(1, 'bal')"></span>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<span ng-class="{num_neg: DailyBalanceList[2].value < 0, num_zero:  !DailyBalanceList[2].hasValue, num_pos: DailyBalanceList[2].value >= 0}" ng-bind="DailyBalanceList[2].value | dollar" role="button" ng-click="ShowMoreDetails(2, 'bal')"></span>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6 pl-0 no-padding-print">
+						<div class="row">
+							<div class="col-sm-3 text-right no-padding">
+								<span ng-class="{num_neg: DailyBalanceList[3].value < 0, num_zero:  !DailyBalanceList[3].hasValue, num_pos: DailyBalanceList[3].value >= 0}" ng-bind="DailyBalanceList[3].value | dollar" role="button" ng-click="ShowMoreDetails(3, 'bal')"></span>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<span ng-class="{num_neg: DailyBalanceList[4].value < 0, num_zero:  !DailyBalanceList[4].hasValue, num_pos: DailyBalanceList[4].value >= 0}" ng-bind="DailyBalanceList[4].value | dollar" role="button" ng-click="ShowMoreDetails(4, 'bal')"></span>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<span ng-class="{num_neg: DailyBalanceList[5].value < 0, num_zero:  !DailyBalanceList[5].hasValue, num_pos: DailyBalanceList[5].value >= 0}" ng-bind="DailyBalanceList[5].value | dollar" role="button" ng-click="ShowMoreDetails(5, 'bal')"></span>
+							</div>
+							<div class="col-sm-3 text-right no-padding">
+								<span ng-class="{num_neg: DailyBalanceList[6].value < 0, num_zero:  !DailyBalanceList[6].hasValue, num_pos: DailyBalanceList[6].value >= 0}" ng-bind="DailyBalanceList[6].value | dollar" role="button" ng-click="ShowMoreDetails(6, 'bal')"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-2 col-print-2 num-totals">
+				<span ng-class="{num_neg: DailyBalanceList[6].value < 0, num_zero: !DailyBalanceList[6].hasValue, num_pos: DailyBalanceList[6].value >= 0}" ng-bind="DailyBalanceList[6].value | dollar"></span>
+			</div>
+		</div>
+
+		<div class="row figures-data highlighted">
+			<div class="col-sm-8 col-sm-offset-1 col-print-10 no-padding-print col-division-right">
+				<div class="row">
+					<div class="col-sm-6 col-sm-offset-6 col-print-12 no-padding-print">
+						<div class="row">
+							<div class="col-sm-6 col-sm-offset-6 col-print-12 no-padding">
+								<b ng-bind="Translate('Zero_Balance')">Zero Bal</b>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-2 col-print-2 num-totals">
+				<span ng-class="{num_neg: ShowZeroBalance() < 0, num_zero: !ShowZeroBalance() || ShowZeroBalance() == 0, num_pos: ShowZeroBalance() > 0 }" ng-bind="ShowZeroBalance() | dollar"></span>
+			</div>
+		</div>
+
+		<div class="row figures-data highlighted">
+			<div class="col-sm-8 col-sm-offset-1 col-print-10 no-padding-print col-division-right">
+				<div class="row">
+					<div class="col-sm-6 col-sm-offset-6 col-print-12 no-padding-print">
+						<div class="row">
+							<div class="col-sm-6 col-sm-offset-6 col-print-12 no-padding">
+								<b ng-bind="Translate('Ending Balance')">Ending Bal</b>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-2 col-print-2 num-totals">
+				<span ng-class="{num_zero: ShowEndingBalance() == 0, num_neg: ShowEndingBalance() < 0,  num_pos: ShowEndingBalance() > 0}" ng-bind="ShowEndingBalance() | dollar"></span>
+			</div>
+		</div>
+	</div>
+
+	<div class="row mt-5" ng-if="IsMobile" ng-init="showTran = false">
+		<div class="col-xs-12 px-0">
+			<div class="row">
+				<div class="col-xs-3 bg-black text-white pr-0 d-flex justify-content-center" style="height: 40px">
+					<strong class="align-self-center" ng-bind="Translate('Id')"></strong>
+				</div>
+				<div class="col-xs-3 px-0" style="height: 40px">
+					<div class="row bg-black text-white d-flex">
+						<div class="col-xs-2 p-0 d-flex cursor-pointer" ng-click="WeekData.currentDayIndex = WeekData.currentDayIndex == 0 ? 6 : WeekData.currentDayIndex - 1">
+							<i class="fa fa-caret-left px-2 cursor-pointer align-self-center"></i>
+						</div>
+						<div class="col-xs-8 text-align-center" ng-bind-html="WeekData.weekList[WeekData.currentDayIndex]"></div>
+						<div class="col-xs-2 p-0 d-flex justify-content-end cursor-pointer" ng-click="WeekData.currentDayIndex = WeekData.currentDayIndex < 6 ? WeekData.currentDayIndex + 1 : 0">
+							<i class="fa fa-caret-right px-2 align-self-center"></i>
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-3 bg-black text-white px-0 d-flex justify-content-center" style="height: 40px">
+					<strong class="align-self-center" ng-bind="Translate('Week')"></strong>
+				</div>
+				<div class="col-xs-3 bg-black text-white px-0 d-flex justify-content-center" style="height: 40px">
+					<i class="fa fa-caret-left px-2 cursor-pointer align-self-center cursor-pointer" ng-click="showTran = !showTran"></i>
+					<strong class="align-self-center" ng-bind="Translate('Cash.')" ng-if="showTran == false"></strong>
+					<strong class="align-self-center" ng-bind="Translate('Bal.')" ng-if="showTran == true"></strong>
+					<i class="fa fa-caret-right px-2 align-self-center cursor-pointer" ng-click="showTran = !showTran"></i>
+				</div>
+			</div>
+			<div class="row bg-white">
+
+				<div class="col-xs-3 d-flex justify-content-center p-2">
+					<a href="" onclick="return false;" ng-click="ShowCustMaint(dF.CustomerId, 8)" class="customer-table-button"><span ng-bind="(SelectedCustomer.CustomerId | FormatCustomer)"></span></a>
+				</div>
+				<div class="col-xs-3 p-0">
+					<div class="d-flex justify-content-center px-1 w-100">
+						<a href="" ng-click="ShowMoreDetails(WeekData.currentDayIndex, 'bal')">
+							<span ng-bind="DailyWinLossList[WeekData.currentDayIndex].value | dollar" ng-class="{'num_zero' : DailyWinLossList[WeekData.currentDayIndex].value == 0, 'num_neg' : DailyWinLossList[WeekData.currentDayIndex].value < 0, 'num_pos': DailyWinLossList[WeekData.currentDayIndex].value > 0}"></span>
+						</a>
+					</div>
+					<div class="d-flex justify-content-center px-1 w-100" ">
+						<span class="row breakoutcasino">
+							<span ng-bind="DailyCashInOutList[WeekData.currentDayIndex].value| dollar"></span>
+						</span>
+					</div>
+				</div>
+				<div class="col-xs-3 d-flex justify-content-center p-2">
+					<strong ng-bind="ShowWinLossTotal() | dollar" ng-class="{'num_zero' : ShowWinLossTotal() == 0, 'num_neg' : ShowWinLossTotal() < 0, 'num_pos' : ShowWinLossTotal() > 0}"></strong>
+				</div>
+				<div class="col-xs-3 d-flex justify-content-center p-2">
+					<span ng-if="showTran == false" ng-bind="ShowCashInOutTotal() | dollar" ng-class="{'num_zero' : ShowCashInOutTotal() == 0, 'num_neg' : ShowCashInOutTotal() < 0, 'num_pos' : ShowCashInOutTotal() > 0}"></span>
+					<a ng-if="showTran == true" href="" ng-click="ShowCustMaint(dF.CustomerId, 2)" ng-class="{'num_zero' : dF.OtherTran == 0, 'customer-table-button' : dF.OtherTran > 0, 'num_neg' : dF.OtherTran < 0}">
+						<span ng-bind="DailyBalanceList[6].value | dollar"></span>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="collapse" id="monday">
+
+		<div class="row trans-details-day-indicator hidden-xs" style="margin-top: 15px;">
+			<div class="col-sm-9 col-sm-offset-1 col-print-10 no-padding-print">
+				<div class="row">
+					<div class="col-sm-6 pr-0 no-padding-print">
+						<div class="row">
+							<div class="col-sm-3 col-sm-offset-3 no-padding">
+								<!-- Monday -->
+								<div ng-if="Arrow == 0" class="arrow-up"></div>
+							</div>
+							<div class="col-sm-3 no-padding">
+								<!-- Tuesday -->
+								<div ng-if="Arrow == 1" class="arrow-up"></div>
+							</div>
+							<div class="col-sm-3 no-padding">
+								<!-- Wed -->
+								<div ng-if="Arrow == 2" class="arrow-up"></div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6 pl-0 no-padding-print">
+						<div class="row">
+							<div class="col-sm-3 no-padding">
+								<!-- Thu -->
+								<div ng-if="Arrow == 3" class="arrow-up"></div>
+							</div>
+							<div class="col-sm-3 no-padding">
+								<!-- Fri -->
+								<div ng-if="Arrow == 4" class="arrow-up"></div>
+							</div>
+							<div class="col-sm-3 no-padding">
+								<!-- Sat -->
+								<div ng-if="Arrow == 5" class="arrow-up"></div>
+							</div>
+							<div class="col-sm-3 no-padding">
+								<!-- Sun -->
+								<div ng-if="Arrow == 6" class="arrow-up"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-10 col-sm-offset-1 col-print-12 report-detail-daily-fig no-padding">
+
+				<!--
+				<h2 style="margin-left: -15px; margin-bottom: 20px;" ng-bind="Translate('Transactions for') + ' ' + TransactionDate"></h2>
+				<button id="btnClose" type="button" class="close" ng-click="CloseDailyFiguresDetails()">&times;</button>
+				-->
+
+				<div class="row graded-main-header">
+					<div class="col-sm-8 no-padding"><h2 ng-bind="Translate('Transactions for') + ' ' + TransactionDate"></h2></div>
+					<div class="col-sm-4 no-padding"><button id="btnClose" type="button" class="close" ng-click="CloseDailyFiguresDetails()">&times;</button></div>
+				</div>
+				<section ng-if="(setCategory == 'bal' || setCategory == 'winloss') && Report.TransactionsByDate.length > 0">
+					<div class="row graded-header mb-4">
+						<div class="col-md-4 col-lg-4 col-xl-3 col-print-4 no-padding-print hidden-sm hidden-xs">
+							<div class="row">
+								<div class="col-sm-4 col-lg-4 no-padding">
+									<h2 ng-bind="Translate('TIK')"></h2>
+								</div>
+								<div class="col-sm-4 col-lg-4 no-padding">
+									<h2 ng-bind="Translate('Time')"></h2>
+								</div>
+								<div class="col-sm-4 col-lg-4 no-padding">
+									<h2 ng-bind="Translate('Type')"></h2>
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-5 col-lg-6 col-xl-7 no-padding-right col-print-6 no-padding-print">
+							<h2 ng-bind="Translate('Details')"></h2>
+						</div>
+						<div class="col-xs-1 no-padding-right col-print-1 no-padding-print">
+						</div>
+						<div class="col-xs-6 col-lg-1 col-xl-1 no-padding text-right col-print-1">
+							<h2 ng-bind="Translate('Amount')"></h2>
+						</div>
+					</div>
+					<div class="row graded-data" ng-repeat="t in Report.TransactionsByDate track by $index">
+						<div class="col-sm-4 col-lg-4 col-xl-3 col-print-4 no-padding-print">
+							<div class="row">
+								<div class="col-sm-4 col-lg-4 no-padding" ng-bind="t.DocumentNumber + '' + t.WagerNumber">
+								</div>
+								<div class="col-sm-4 col-lg-4 no-padding" ng-bind="FormatDateTime(t.TranDateTimeString,8)">
+								</div>
+								<div class="col-sm-4 col-lg-4 no-padding" ng-bind="WagerType(t)">
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-6 col-lg-6 col-xl-7 no-padding-right col-print-7 no-padding-print">
+							<div ng-show="t.Items.length > 0 && !isXTransaction && t.WagerType != 'C'" ng-repeat="ti in t.Items">
+								<div class="graded-data-detail">
+									<a ng-show="t.Items.length > 0 && t.WagerType != 'C' && t.TranType != 'C' && t.TranType != 'D'" class="icon_viewresults" onclick="changeIcon(this)" ng-class="{pendingWager: ti.Outcome == 'P'}" role="button" data-toggle="collapse" href="" data-target="#resultsf_{{$parent.$index}}_{{$index}}" aria-expanded="false" aria-controls="collapseExample"></a>
+									<strong ng-class="{num_neg: ti.Outcome == 'LOST', num_pos: ti.Outcome == 'WON'}" ng-bind="Translate(ti.Outcome) + ' '"></strong><span ng-show="ti.FreePlayFlag == 'Y'" ng-bind="'***'+Translate('Free play') + '*** '"></span><span ng-bind="GetWagerItemDescription(ti.Description, $index)"></span>
+									<div class="collapse" id="resultsf_{{$parent.$index}}_{{$index}}" style="margin-left: 18px; margin-bottom: 10px;" ng-show="ti.Outcome != 'P'">
+
+										<b ng-bind="Translate('Game_Results')"></b>
+										<span ng-bind="ScoredPtsHeader(ti)"></span>
+										<br />
+										<span ng-bind="WriteTeamsScores(ti)"></span>
+										<br />
+										<span ng-bind="WriteWinner(ti)"></span>
+
+										<b ng-bind="Translate('Game Notes')" ng-show="ti.Comments"></b>
+										<!--<span ng-show="ti.Team1ID != null && ti.Team1ID != ''">{{ti.Team1ID}} vs {{ti.Team2ID}}<br />
+					</span>-->
+										<span ng-show="ti.Comments">
+											{{ti.Comments}}<br />
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-4 col-lg-4 no-padding" ng-bind="t.Description || t.ShortDesc.replace(t.TranType.name, '') " ng-if="!t.Items || isXTransaction || t.WagerType == 'C'">
+							</div>
+						</div>
+						<div class="col-sm-1 col-lg-1 col-xl-1 no-padding text-right num_pos"><span ng-if="t.FreePlayFlag == 'Y'">({{Translate('Free Play')}})</span></div>
+						<div class="col-sm-1 col-lg-1 col-xl-1 no-padding text-right num_pos" ng-if="t.TranCode == 'C'"><span ng-bind="t.Amount | dollar"></span></div>
+						<div class="col-sm-1 col-lg-1 col-xl-1 no-padding text-right num_neg" ng-if="t.TranCode == 'D'"><span ng-bind="t.Amount * -1 | dollar"></span></div>
+						<div class="col-sm-1 col-lg-1 col-xl-1 no-padding text-right num_neg" ng-if="t.TranCode == 'X' && t.FreePlayFlag == 'Y'">({{Translate('FP')}})<span ng-bind="0 | dollar"></span></div>
+					</div>
+				</section>
+
+				<section ng-if="(setCategory == 'casino') && Report.CasinoTransactions.length > 0">
+					<div class="row graded-header">
+						<div class="col-sm-4 col-lg-4 col-xl-3 col-print-4 no-padding-print">
+							<div class="row">
+								<div class="col-sm-4 col-lg-4 no-padding">
+									<h2 ng-bind="Translate('TIK')"></h2>
+								</div>
+								<div class="col-sm-4 col-lg-4 no-padding">
+									<h2 ng-bind="Translate('Time')"></h2>
+								</div>
+								<div class="col-sm-4 col-lg-4 no-padding">
+									<h2 ng-bind="Translate('Type')"></h2>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-7 col-lg-7 col-xl-8 no-padding-right col-print-7 no-padding-print">
+							<h2 ng-bind="Translate('Details')"></h2>
+						</div>
+						<div class="col-sm-1 col-lg-1 col-xl-1 no-padding text-right col-print-1">
+							<h2 ng-bind="Translate('Amount')"></h2>
+						</div>
+					</div>
+
+					<div class="row graded-data" ng-repeat="t in Report.CasinoTransactions track by $index">
+						<div class="col-sm-4 col-lg-4 col-xl-3 col-print-4 no-padding-print">
+							<div class="row">
+								<div class="col-sm-4 col-lg-4 no-padding" ng-bind="t.DocumentNumber">
+								</div>
+								<div class="col-sm-4 col-lg-4 no-padding" ng-bind="FormatDateTime(t.TranDateTimeString,8)">
+								</div>
+								<div class="col-sm-4 col-lg-4 no-padding" ng-bind="Translate('Casino')">
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-7 col-lg-7 col-xl-8 no-padding-right col-print-7 no-padding-print">
+							<div class="row">
+								<div class="col-sm-12 col-lg-12 no-padding" ng-bind="t.ShortDesc"></div>
+							</div>
+						</div>
+						<div class="col-sm-1 col-lg-1 col-xl-1 no-padding text-right col-print-1 num_pos" ng-if="t.TranCode == 'C'" ng-bind="t.Amount | dollar"></div>
+						<div class="col-sm-1 col-lg-1 col-xl-1 no-padding text-right col-print-1 num_neg" ng-if="t.TranCode == 'D'" ng-bind="t.Amount * -1 | dollar"></div>
+					</div>
+				</section>
+
+				<section ng-if="(setCategory == 'cash')  &&  Report.CashTransactions.length > 0">
+					<div class="row graded-header">
+						<div class="col-sm-4 col-lg-4 col-xl-3 col-print-4 no-padding-print">
+							<div class="row">
+								<div class="col-sm-4 col-lg-4 no-padding">
+									<h2 ng-bind="Translate('TIK')"></h2>
+								</div>
+								<div class="col-sm-4 col-lg-4 no-padding">
+									<h2 ng-bind="Translate('Time')"></h2>
+								</div>
+								<div class="col-sm-4 col-lg-4 no-padding">
+									<h2 ng-bind="Translate('Type')"></h2>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-7 col-lg-7 col-xl-8 no-padding-right col-print-7 no-padding-print">
+							<h2 ng-bind="Translate('Details')"></h2>
+						</div>
+						<div class="col-sm-1 col-lg-1 col-xl-1 no-padding text-right col-print-1">
+							<h2 ng-bind="Translate('Amount')"></h2>
+						</div>
+					</div>
+
+					<div class="row graded-data" ng-repeat="t in Report.CashTransactions track by $index">
+						<div class="col-sm-4 col-lg-4 col-xl-3 col-print-4 no-padding-print">
+							<div class="row">
+								<div class="col-sm-4 col-lg-4 no-padding" ng-bind="t.DocumentNumber">
+								</div>
+								<div class="col-sm-4 col-lg-4 no-padding" ng-bind="FormatDateTime(t.TranDateTimeString,8)">
+								</div>
+								<div class="col-sm-4 col-lg-4 no-padding" ng-bind="Translate(t.TranType.name)">
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-7 col-lg-7 col-xl-8 no-padding-right col-print-6 no-padding-print">
+							<div class="col-sm-4 col-lg-4 no-padding" ng-bind="t.ShortDesc.replace(t.TranType.name, '')"></div>
+						</div>
+						<div class="col-sm-1 col-lg-1 col-xl-1 no-padding text-right col-print-1 num_pos" ng-if="t.TranCode == 'C'" ng-bind="t.Amount | dollar"></div>
+						<div class="col-sm-1 col-lg-1 col-xl-1 no-padding text-right col-print-1 num_neg" ng-if="t.TranCode == 'D'" ng-bind="t.Amount * -1 | dollar"></div>
+					</div>
+				</section>
+				<!-- /.graded-data -->
+			</div>
+		</div>
+	</div>
+
+</div>

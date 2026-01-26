@@ -1,0 +1,100 @@
+﻿<div style="position: absolute; width: 100%; height: 100vh; background: black; opacity: 0.9; z-index: -1; display: none; justify-content: center" id="loadingVigLimits">
+  <div class="align-self-center" style="width: 100px">
+    <img class="img-responsive" alt="gif" src="/admin/assets_core/img/loading.gif" />
+  </div>
+</div>
+<div class="dashbwrapper">
+  <div id="div_sport" class="allscrll chat-bottom-spacer">
+    <div class="row pt-3 pl-3 title-divider sticky-top">
+      <div class="d-flex align-items-center">
+        <a ng-click="toggleBookmark('Vig Limits','#/vigLimits')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Vig Limits') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+        &nbsp;<h3>{{Translate('Set Vig Casino limits')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+      </div>
+    </div>
+    <div class="data-filters">
+      <div class="row">
+        <div class="col-xs-12 no-padding">
+          <div class="form-inline">
+            <div class="form-group" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+              <label for="agentsnList">{{Translate('Choose an agent account:')}}</label>
+              <div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+                   ng-model="Selection.Agent" ng-change="getData(Selection.Agent.AgentId);getAgentPlayers(Selection.Customer.AgentId)"
+                   id="agentsnList">
+                <div>
+                  <span>{{ t.AgentBind }}</span>
+                </div>
+                <div class="clearfix"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-12 no-padding">
+          <div class="form-inline">
+            <div class="form-group">
+              <label for="agentsnList">{{Translate('Choose a player account:')}}</label>
+              <div custom-select="t as (t.id ) for t in AgentCustomers | filter : $searchTerm"
+                   ng-model="Selection.Customer" ng-change="loadVigLimits(Selection.Customer.id)"
+                   id="agentsnList">
+                <div>
+                  <span>{{ t.id }}</span>
+                </div>
+                <div class="clearfix"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-12 no-padding">
+          <div class="form-inline d-flex">
+            <div class="d-flex">
+              <label for="agentsnList" class="align-self-center mb-0 mr-3">{{Translate('Select customers to apply changes:')}}</label>
+            </div>
+            <div ng-dropdown-multiselect="" options="AgentCustomers" selected-model="selectedCustomers" extra-settings="mddSettings" events="eventsCustomersApply"></div>
+          </div>
+        </div>
+        <div class="col-xs-12 no-padding" ng-if="AgentCustomers">
+          <div class="form-inline">
+            <div class="form-group">
+              <label ng-bind="Translate('Apply to customers') + ': '"></label>&nbsp;
+              <span ng-if="selectedCustomers.length < AgentCustomers.length" ng-repeat="c in selectedCustomers track by $index" ng-bind="c.id + ' | '"></span>
+              <span ng-if="selectedCustomers.length == AgentCustomers.length" ng-bind="Translate('All')"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-12 col-lg-4">
+        <div class="form-group">
+          <div class="form-group col-xs-12">
+            <label for="DailyMaxLoss">{{Translate('Daily Max Loss')}}</label>
+            <input type="text" class="form-control form-control-ios-fix ng-pristine ng-valid ng-touched" id="DailyMaxLoss" ng-model="VigLimitsCust.DailyMaxLoss" only-digits />
+          </div>
+          <div class="form-group col-xs-12">
+            <label for="DailyMaxWin">{{Translate('Daily Max Win')}}</label>
+            <input type="text" class="form-control form-control-ios-fix ng-pristine ng-valid ng-touched" id="DailyMaxWin" ng-model="VigLimitsCust.DailyMaxWin" only-digits />
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-12 col-lg-4">
+        <div class="form-group">
+          <div class="form-group col-xs-12">
+            <label for="WeeklyMaxLoss" style="color: darkblue">{{Translate('Weekly Max Loss')}}</label>
+            <input type="text" class="form-control form-control-ios-fix ng-pristine ng-valid ng-touched" id="WeeklyMaxLoss" ng-model="VigLimitsCust.WeeklyMaxLoss" only-digits />
+          </div>
+          <div class="form-group col-xs-12">
+            <label for="WeeklyMaxWin" style="color: darkblue">{{Translate('Weekly Max Win')}}</label>
+            <input type="text" class="form-control form-control-ios-fix ng-pristine ng-valid ng-touched" id="WeeklyMaxWin" ng-model="VigLimitsCust.WeeklyMaxWin" only-digits />
+          </div>
+          <div class="form-group col-xs-12 d-flex justify-content-center">
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-12 col-lg-4" style="height:133px">
+        <div class="form-group" style="position: relative; top: 50%; -webkit-transform: translateY(-50%); -ms-transform: translateY(-50%); transform: translateY(-50%);">
+          <button type="button" class="btn btn-primary mx-4" ng-click="SetVigLimits()">{{Translate('Submit')}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

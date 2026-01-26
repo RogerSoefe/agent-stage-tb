@@ -1,0 +1,229 @@
+﻿
+<div class="row" ng-if="IsMobile">
+	<div class="col-xs-12 col-lg-4 col-lg-offset-4 p-0">
+		<div class="col-xs-6 col-lg-6 mt-5">
+			<div class="form-row">
+				<div class="form-group">
+					<label for="Name">{{Translate('First Name')}}:</label>
+					<input type="text" class="form-control form-control-ios-fix" id="Name" ng-model="SelectedCustomer.NameFirst" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" maxlength="30">
+
+					<label for="Last">{{Translate('Last Name')}}:</label>
+					<input type="text" class="form-control form-control-ios-fix" id="Last" ng-model="SelectedCustomer.NameLast" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" maxlength="150">
+
+					<label for="txtCreditLimitAmt">{{Translate('Password:')}}</label>
+					<input type="text" class="form-control form-control-ios-fix" name="txtCustomerPassowrd" ng-model="SelectedCustomer.password" ng-disabled="AgentInfo.EnableEditAccountsFlag!= 'Y' || IsDisabled()" id="password" maxlength="10">
+
+					<form class="form-inline hidden-print m-0" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+						<div class="form-group">
+							<label for="agentsnList">{{Translate('Customer\'s Agent:')}}</label>
+							<div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm" class="w-100"
+								 ng-model="SelectedCustomer.currentAgent" ng-change="ChangeCustomerAgent()"
+								 id="agentsnList">
+								<div>
+									<span>{{ t.AgentBind }}</span>
+								</div>
+								<div class="clearfix"></div>
+							</div>
+						</div>
+					</form>
+
+					<form class="form-inline hidden-print m-0">
+
+						<div class="form-group col-xs-12 my-3 p-0">
+							<input type="checkbox" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" ng-change="toggleAction(specAction.accStatus, true)" ng-model="specAction.accStatus.checked"> {{Translate('Account Active')}}
+						</div>
+
+						<div class="form-group col-xs-12 my-3 p-0">
+							<input type="checkbox" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" ng-change="updateCustomerAccess(!specAction.readOnly, 'NOWAGERING')" ng-model="specAction.readOnly"> {{Translate('Read Only')}}
+						</div>
+
+						<div class="form-group col-xs-12 my-3 p-0">
+							<input type="checkbox" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" ng-change="toggleAction(specAction.casino)" ng-model="specAction.casino.checked"> {{Translate('Disable All Casino')}}
+
+						</div>
+						<div class="form-group col-xs-12 my-3 p-0">
+							<input type="checkbox" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" ng-change="toggleAction(specAction.horses)" ng-model="specAction.horses.checked"> {{Translate('Suspend Horses')}}
+
+						</div>
+
+						<div class="form-group col-xs-12 my-3 p-0">
+							<label class="checkbox-inline">
+								<input type="checkbox" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" ng-model="SelectedCustomer.ZeroBalanceFlagBoolean"> {{Translate('Zero Balance')}}
+							</label>
+						</div>
+
+						<div class="form-group col-xs-12 my-3 p-0">
+							<label class="checkbox-inline">
+								<input type="checkbox" id="CustomerIsABotBoolean" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" ng-model="SelectedCustomer.CustomerIsABotBoolean"> {{Translate('Customer Is A Bot')}}
+							</label>
+						</div>
+
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-xs-6 col-lg-6 mt-5" ng-if="AgentInfo.EnableEditAccountsFlag == 'Y'">
+
+			<div class="form-group">
+				<label for="txtCreditLimitAmt">{{Translate('Credit Limit:')}}</label>
+				<input type="text" class="form-control form-control-ios-fix w-lg-50" name="txtCreditLimitAmt" ng-model="offering.CreditLimit" ng-disabled="AgentInfo.ChangeCreditLimitFlag!= 'Y' || IsDisabled()" id="txtCreditLimitAmt" placeholder="{{customerPlaceholder('CreditLimit')}}" only-digits>
+
+
+				<label for="txtQuickLimitAmt">{{Translate('Wager Limit:')}}</label>
+				<input type="text" class="form-control form-control-ios-fix w-lg-50" name="txtQuickLimitAmt" ng-model="offering.WagerLimit" ng-disabled="AgentInfo.ChangeWagerLimitFlag!= 'Y'|| SelectedCustomer.TempWagerLimit || IsDisabled()" id="txtQuickLimitAmt" placeholder="{{customerPlaceholder('WagerLimit')}}" only-digits>
+				<small class="text-muted" ng-if="SelectedCustomer.TempWagerLimit" ng-bind="'Temp quick limit set (' + (SelectedCustomer.TempWagerLimit | formatNumber) + ') until ' + FormatDateTime(SelectedCustomer.TempWagerLimitExpiration, 4)"></small>
+
+				<label for="Name">{{Translate('Mininum Bet')}} </label>
+				<input type="text" only-digits class="form-control form-control-ios-fix w-lg-50" ng-model="offering.InetMinimumWager" ng-disabled="AgentInfo.ChangeWagerLimitFlag != 'Y' || IsDisabled()" maxlength="30" placeholder="{{SelectedCustomer.InetMinimumWager | formatNumber}}">
+
+				<label for="settlefigure">{{Translate('Settle Limit:')}}</label>
+				<input type="text" class="form-control form-control-ios-fix w-lg-50" name="settlefigure" ng-model="limits.settleLimitAmt" ng-disabled="AgentInfo.ChangeSettleFigureFlag!= 'Y' || IsDisabled()" placeholder="{{customerPlaceholder('SettleFigure')}}" only-digits>
+
+				<label for="inputDelay">{{Translate('Delay Sec')}}:</label>
+				<input type="number" class="form-control form-control-ios-fix w-lg-50" min="1" step="1" id="inputDelay" ng-model="SelectedCustomer.ConfirmationDelay" ng-disabled="AgentInfo.EnableEditAccountsFlag!= 'Y' || IsDisabled()" maxlength="100">
+
+				<label for="txtTmpCreditLimitAmt">{{Translate('Temp Credit:')}}</label>
+				<input type="text" class="form-control form-control-ios-fix w-lg-50" name="txtTmpCreditLimitAmt" ng-model="offering.TempCreditAdj" name="tempCredit" ng-disabled="AgentInfo.ChangeTempCreditFlag!= 'Y' || IsDisabled()" id="txtTmpCreditLimitAmt" placeholder="{{customerPlaceholder('TempCreditAdj')}}" only-digits>
+
+				<label for="txtTempCreditAdjThru">{{Translate('Expires Date:')}}</label>
+				<div class="date-picker">
+					<input type="text" class="form-control form-control-ios-fix w-lg-50" name="txtTempCreditAdjThru" ng-model="offering.TempCreditAdjExpDateString" ng-disabled="AgentInfo.ChangeTempCreditFlag!= 'Y' || IsDisabled()" placeholder="{{customerPlaceholder('TempCreditAdjExpDateString')}}" />
+				</div>
+
+				<div class="form-group col-xs-12 my-3 p-0">
+					<label class="checkbox-inline">
+						<input type="checkbox" ng-model="SelectedCustomer.NotifyBetsToAgent" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y'"> {{Translate('Notify Agent (Main, SMS, Telegram)')}}
+					</label>
+					<input type="button" class="form-control form-control-ios-fix" ng-disabled="AgentInfo.EnableEditAccountsFlag!= 'Y' || IsDisabled()" data-target="#commDialog" data-toggle="modal" value="{{Translate('Communication')}}">
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row" ng-if="!IsMobile">
+	<div class="col-xs-12 p-0">
+		<div class="col-xs-3 mt-5">
+			<div class="form-row">
+				<div class="form-group">
+					<label for="Name">{{Translate('First Name')}}:</label>
+					<input type="text" class="form-control form-control-ios-fix" id="Name" ng-model="SelectedCustomer.NameFirst" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" maxlength="30">
+
+					<label for="Last">{{Translate('Last Name')}}:</label>
+					<input type="text" class="form-control form-control-ios-fix" id="Last" ng-model="SelectedCustomer.NameLast" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" maxlength="150">
+
+					<label for="txtCreditLimitAmt">{{Translate('Password:')}}</label>
+					<input type="text" class="form-control form-control-ios-fix" name="txtCustomerPassowrd" ng-model="SelectedCustomer.password" ng-disabled="AgentInfo.EnableEditAccountsFlag!= 'Y' || IsDisabled()" id="password" maxlength="10">
+
+					<form class="form-inline hidden-print m-0" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+						<div class="form-group">
+							<label for="agentsnList">{{Translate('Customer\'s Agent:')}}</label>
+							<div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm" class="w-100"
+								 ng-model="SelectedCustomer.currentAgent" ng-change="ChangeCustomerAgent()"
+								 id="agentsnList">
+								<div>
+									<span>{{ t.AgentBind }}</span>
+								</div>
+								<div class="clearfix"></div>
+							</div>
+						</div>
+					</form>
+
+
+				</div>
+			</div>
+		</div>
+
+		<div class="col-xs-2 mt-5" ng-if="AgentInfo.EnableEditAccountsFlag == 'Y'">
+
+			<div class="form-group">
+				<label for="txtCreditLimitAmt">{{Translate('Credit Limit:')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" name="txtCreditLimitAmt" ng-model="offering.CreditLimit" ng-disabled="AgentInfo.ChangeCreditLimitFlag!= 'Y' || IsDisabled()" id="txtCreditLimitAmt" placeholder="{{customerPlaceholder('CreditLimit')}}" only-digits>
+
+				<label for="txtQuickLimitAmt">{{Translate('Wager Limit:')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" name="txtQuickLimitAmt" ng-model="offering.WagerLimit" ng-disabled="AgentInfo.ChangeWagerLimitFlag!= 'Y'|| SelectedCustomer.TempWagerLimit || IsDisabled()" id="txtQuickLimitAmt" placeholder="{{customerPlaceholder('WagerLimit')}}" only-digits>
+				<small class="text-muted" ng-if="SelectedCustomer.TempWagerLimit" ng-bind="'Temp quick limit set (' + (SelectedCustomer.TempWagerLimit | formatNumber) + ') until ' + FormatDateTime(SelectedCustomer.TempWagerLimitExpiration, 4)"></small>
+
+				<label for="Name">{{Translate('Mininum Bet')}} </label>
+				<input type="text" only-digits class="form-control form-control-ios-fix" ng-model="offering.InetMinimumWager" ng-disabled="AgentInfo.ChangeWagerLimitFlag != 'Y' || IsDisabled()" maxlength="30" placeholder="{{SelectedCustomer.InetMinimumWager | formatNumber}}">
+
+			</div>
+		</div>
+
+		<div class="col-xs-2 mt-5" ng-if="AgentInfo.EnableEditAccountsFlag == 'Y'">
+
+			<div class="form-group">
+
+				<label for="settlefigure">{{Translate('Settle Limit:')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" name="settlefigure" ng-model="limits.settleLimitAmt" ng-disabled="AgentInfo.ChangeSettleFigureFlag!= 'Y' || IsDisabled()" placeholder="{{customerPlaceholder('SettleFigure')}}" only-digits>
+
+				<label for="inputDelay">{{Translate('Delay Sec')}}:</label>
+				<input type="number" class="form-control form-control-ios-fix" min="1" step="1" id="inputDelay" ng-model="SelectedCustomer.ConfirmationDelay" ng-disabled="AgentInfo.EnableEditAccountsFlag!= 'Y' || IsDisabled()" maxlength="100">
+
+				<div class="form-group col-xs-12 my-3 p-0">
+					<label class="checkbox-inline">
+						<input type="checkbox" ng-model="SelectedCustomer.NotifyBetsToAgent" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y'"> {{Translate('Notify Agent (Main, SMS, Telegram)')}}
+					</label>
+					<input type="button" class="form-control form-control-ios-fix" ng-disabled="AgentInfo.EnableEditAccountsFlag!= 'Y' || IsDisabled()" data-target="#commDialog" data-toggle="modal" value="{{Translate('Communication')}}">
+				</div>
+
+			</div>
+		</div>
+
+
+		<div class="col-xs-2 mt-5" ng-if="AgentInfo.EnableEditAccountsFlag == 'Y'">
+
+			<div class="form-group">
+
+				<label for="txtTmpCreditLimitAmt">{{Translate('Temp Credit:')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" name="txtTmpCreditLimitAmt" ng-model="offering.TempCreditAdj" ng-disabled="AgentInfo.ChangeTempCreditFlag!= 'Y' || IsDisabled()" id="txtTmpCreditLimitAmt" placeholder="{{customerPlaceholder('TempCreditAdj')}}" only-digits>
+
+				<label for="txtTempCreditAdjThru">{{Translate('Expires Date:')}}</label>
+				<div class="date-picker">
+					<input type="text" class="form-control form-control-ios-fix" name="txtTempCreditAdjThru" ng-model="offering.TempCreditAdjExpDateString" ng-disabled="AgentInfo.ChangeTempCreditFlag!= 'Y' || IsDisabled()" placeholder="{{customerPlaceholder('TempCreditAdjExpDateString')}}" />
+				</div>
+
+			</div>
+		</div>
+
+		<div class="col-xs-12">
+			<form class="hidden-print mt-5">
+				<div class="checkbox-inline mr-4">
+										<input type="checkbox" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" ng-change="toggleAction(specAction.accStatus, true)" ng-model="specAction.accStatus.checked"> {{Translate('Account Active')}}
+
+				</div>
+				<div class="checkbox-inline mx-4">
+					<input type="checkbox" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" ng-change="updateCustomerAccess(!specAction.readOnly, 'NOWAGERING')" ng-model="specAction.readOnly"> {{Translate('Read Only')}}
+
+				</div>
+
+				<div class="checkbox-inline mx-4">
+					<input type="checkbox" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" ng-change="toggleAction(specAction.casino)" ng-model="specAction.casino.checked"> {{Translate('Disable All Casino')}}
+
+				</div>
+				<div class="checkbox-inline mx-4">
+					<input type="checkbox" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" ng-change="toggleAction(specAction.horses)" ng-model="specAction.horses.checked"> {{Translate('Suspend Horses')}}
+
+				</div>
+
+				<div class="checkbox-inline mx-4">
+					<input type="checkbox" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" ng-model="SelectedCustomer.ZeroBalanceFlagBoolean"> {{Translate('Zero Balance')}}
+				</div>
+
+				<div class="checkbox-inline mx-4">
+					<input type="checkbox" id="CustomerIsABotBoolean" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" ng-model="SelectedCustomer.CustomerIsABotBoolean"> {{Translate('Customer Is A Bot')}}
+				</div>
+
+			</form>
+		</div>
+
+	</div>
+</div>
+
+<div class="form-row mt-5">
+	<div class="form-group col-xs-12 d-flex justify-content-center">
+		<input type="button" class="btn btn-primary mr-5 mb-5" value="{{Translate('Submit')}}" ng-click="PostQuickLimitsTransaction();UpdateCustomerOffering(false)" ng-disabled="IsDisabled()">
+	</div>
+</div>

@@ -1,0 +1,57 @@
+﻿<div class="dashbwrapper">
+  <div class="allscrll chat-bottom-spacer" id="scrollBox">
+
+    <div class="row pt-3 pl-3 title-divider">
+      <div class="d-flex align-items-center">
+        <a ng-click="toggleBookmark('No Activity Players','#/noActivityPlayer')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('No Activity Players') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+        &nbsp;<h3>{{Translate('No Activity Players')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+      </div>
+    </div>
+    <div class="data-filters hidden-print">
+
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="form-group col-xs-6 no-padding" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+            <label for="agentsnList">{{Translate('Choose an account:')}}</label>
+            <div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+                 ng-model="$root.selectedAgent" ng-change="getData()"
+                 id="agentsnList">
+              <div>
+                <span>{{ t.AgentBind }}</span>
+              </div>
+              <div class="clearfix"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xs-12">
+            <form class="form-inline">
+              <div class="form-group">
+                <label ng-bind="Translate('Days back')"></label>
+                <select class="form-control" ng-model="SelectedWeekNumber" ng-change="getData()" ng-options="wR.label for wR in WeeksRange"></select>
+              </div>
+            </form>
+          </div>
+          <div class="col-xs-12">
+            <form class="form-inline">
+              <div class="form-group">
+                <label ng-bind="Translate('Status')"></label>
+                <select class="form-control" ng-model="SelectedPlayersStatus" ng-change="filterData()" ng-options="wR.label for wR in PlayerStatus"></select>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="table-wrapper table-responsive">
+            <table datatable dt-instance="vm.dtInstance" dt-options="vm.dtOptions" dt-column-defs="vm.dtColumnDefs" class="custom-datatable" id="agentsWB">
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

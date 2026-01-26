@@ -1,0 +1,97 @@
+﻿<div class="dashbwrapper">
+	<div id="customersDiv" class="allscrll chat-bottom-spacer">
+		<div class="row pt-3 pl-3 title-divider">
+			<div class="col-xs-12 no-padding">
+				<div class="d-flex align-items-center">
+					<a ng-click="toggleBookmark('Add Customer','#/addCustomer')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Add Customer') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+										<h3>{{Translate('Add Customer')}}</h3>
+				</div>
+			</div>
+		</div>
+
+		<div class="row" ng-show="AgentAsCustomerInfo.AgentType == 'M'">
+			<div class="form-group">
+				<label for="aList">{{Translate('Choose agent:')}}</label>
+        <div custom-select="t as (t.AgentId ) for t in noMasterList | filter : $searchTerm"
+					 ng-model="selectedAgent" ng-change="updateFields()"
+					 id="aList">
+					<div>
+						<span>{{ t.AgentBind }}</span>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+			</div>
+		</div>
+		<div class="row mt-4">
+			<div class="col-xs-12 d-flex">
+				<b class="mr-2" ng-bind="Translate('Prefix')"></b>
+				<input type="text" class="form-control" ng-model="NewCustomer.Prefix" style="width:80px">
+			</div>
+		</div>
+
+		<hr />
+
+		<div class="form-row mt-4">
+			<div class="form-group col-xs-12 col-md-3">
+				<label for="inpuyHomePhone">{{Translate('Password')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="inpuyHomePhone" ng-model="NewCustomer.password" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100">
+			</div>
+			<div class="form-group col-lg-3 col-xs-6">
+				<label for="inputTimeZone">{{Translate('Time Zone')}}</label>
+				<select id="inputTimeZone" class="form-control form-control-ios-fix" ng-model="NewCustomer.TimeZone" ng-options="s.TzCode as s.TzName for s in TimeZoneList" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()">
+				</select>
+			</div>
+		</div>
+
+		<div class="form-row">
+			<div class="form-group col-lg-3 col-xs-6">
+				<label for="inputCurrency">{{Translate('Currency')}}</label>
+				<select id="inputCurrency" class="form-control form-control-ios-fix" ng-model="NewCustomer.Currency" ng-options="s.CurrencyName as s.CurrencyName for s in Currencies" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()">
+				</select>
+			</div>
+			<div class="form-group col-xs-6 col-md-3">
+				<label for="inputSettleFigure">{{Translate('Settle Figure')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="inputSettleFigure" ng-model="NewCustomer.SettleFigure" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100" only-digits>
+			</div>
+		</div>
+
+		<div class="form-row">
+			<div class="form-group col-xs-6 col-md-3">
+				<label for="wagerLimit">{{Translate('Max Wager')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="wagerLimit" ng-model="NewCustomer.wagerLimit" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100" only-digits>
+			</div>
+			<div class="form-group col-xs-6 col-md-3">
+				<label for="creditLimit">{{Translate('Credit Limit')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="creditLimit" ng-model="NewCustomer.creditLimit" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100" only-digits>
+			</div>
+		</div>
+
+		<div class="form-row">
+			<div class="form-group col-xs-3 mt-4">
+				<label class="checkbox-inline">
+					<input type="checkbox" id="ZeroBalanceFlagBoolean" ng-model="NewCustomer.ZeroBalanceFlagBoolean" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()"> {{Translate('Zero Balance')}}
+				</label>
+			</div>
+		</div>
+
+		<div class="form-row">
+      <div class="form-group col-xs-12 d-flex mt-4">
+				<b class="mr-2" ng-bind="Translate('How many customers?')"></b>
+				<input type="number" class="form-control" ng-model="NewCustomer.batch" style="width:50px">
+      </div>
+      <div class="form-group col-xs-12 mt-4">
+				<button class="btn btn-success ml-3" ng-bind="Translate('Set')" ng-click="SetCustomersBatch()"></button>
+        <button class="btn btn-success" ng-bind="Translate('Save batch')" ng-click="saveBatch()"></button>
+			</div>
+		</div>
+
+		<div class="row mt-5">
+			<div class="col-xs-12">
+				<div class="table-wrapper table-responsive">
+					<table datatable dt-instance="dtInstance" dt-options="dtOptions" dt-column-defs="dtColumnDefs" class="custom-datatable">
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

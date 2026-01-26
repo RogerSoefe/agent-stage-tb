@@ -1,0 +1,566 @@
+﻿
+<div class="row">
+  <div class="col-xs-12 p-0">
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <form id="menu2" ng-submit="UpdateCustomerOffering()">
+        <div class="form-row mt-5">
+          <div class="form-group col-xs-6 col-lg-3" ng-show="AgentInfo.ChangeWagerLimitFlag =='Y'">
+            <label for="txtStraightLimitAmt">{{Translate('Parlay Max Bet:')}}</label>
+            <input type="number" class="form-control form-control-ios-fix" name="txtStraightLimitAmt" ng-model="limits.ParlayMaxBet" ng-disabled="AgentInfo.ChangeWagerLimitFlag!= 'Y'|| IsDisabled()" id="txtStraightLimitAmt" placeholder="{{SelectedCustomer.ParlayMaxBet | formatNumber }}">
+
+            <label for="txtStraightLimitAmt">{{Translate('Parlay Max Payout:')}}</label>
+            <input type="number" class="form-control form-control-ios-fix" name="txtStraightLimitAmt" ng-model="limits.ParlayMaxPayout" ng-disabled="AgentInfo.ChangeWagerLimitFlag!= 'Y'|| IsDisabled()" id="txtStraightLimitAmt" placeholder="{{SelectedCustomer.ParlayMaxPayout | formatNumber }}">
+
+            <label for="txtParlayLimitAmt">{{Translate('Max Teaser Bet:')}}</label>
+            <input type="number" class="form-control form-control-ios-fix" name="txtParlayLimitAmt" ng-model="limits.TeaserMaxBet" ng-disabled="AgentInfo.ChangeWagerLimitFlag!= 'Y'|| IsDisabled()" id="txtParlayLimitAmt" placeholder="{{SelectedCustomer.TeaserMaxBet | formatNumber }}">
+
+            <label for="txtHorsesLimitAmt">{{Translate('Max Contest Price:')}}</label>
+            <input type="number" class="form-control form-control-ios-fix" name="txtHorsesLimitAmt" ng-model="limits.MaxContestPrice" ng-disabled="AgentInfo.ChangeWagerLimitFlag!= 'Y'|| IsDisabled()" id="txtHorsesLimitAmt" placeholder="{{SelectedCustomer.MaxContestPrice | formatNumber:false }}">
+
+          </div>
+
+
+          <div class="form-group col-xs-6 col-lg-4" ng-show="AgentInfo.ChangeWagerLimitFlag =='Y'">
+            <label for="txtTeaserLimitAmt">{{Translate('Max Action Reverse:')}}</label>
+            <input type="number" class="form-control form-control-ios-fix" name="txtTeaserLimitAmt" ng-model="limits.ActionReverseMaxBet" ng-disabled="AgentInfo.ChangeWagerLimitFlag!= 'Y'|| IsDisabled()" id="txtTeaserLimitAmt" placeholder="{{SelectedCustomer.ActionReverseMaxBet  | formatNumber }}">
+
+            <label for="txtLiveLimitAmt">{{Translate('Max Props/Furures Bet:')}}</label>
+            <input type="number" class="form-control form-control-ios-fix" name="txtLiveLimitAmt" ng-model="limits.ContestMaxBet" ng-disabled="AgentInfo.ChangeWagerLimitFlag!= 'Y'|| IsDisabled()" id="txtLiveLimitAmt" placeholder="{{SelectedCustomer.ContestMaxBet | formatNumber }}">
+
+            <label for="txtIfBetLimitAmt">{{Translate('Max Prop/Futures Payout:')}}</label>
+            <input type="number" class="form-control form-control-ios-fix" name="txtIfBetLimitAmt" ng-model="limits.ContestMaxPayout" ng-disabled="AgentInfo.ChangeWagerLimitFlag!= 'Y'|| IsDisabled()" id="txtIfBetLimitAmt" placeholder="{{SelectedCustomer.ContestMaxPayout | formatNumber }}">
+
+            <label for="txtHorsesLimitAmt">{{Translate('Max Money Line:')}}</label>
+            <input type="text" class="form-control form-control-ios-fix" name="txtHorsesLimitAmt" ng-model="limits.MaxMoneyLinePrice" ng-disabled="AgentInfo.ChangeWagerLimitFlag!= 'Y'|| IsDisabled()" id="txtHorsesLimitAmt" placeholder="{{SelectedCustomer.MaxMoneyLinePrice | formatNumber:false }}" only-digits>
+
+          </div>
+
+          <div class="form-group col-xs-6 col-lg-4">
+            <div class="w-100">
+              <label class="w-100">{{Translate('Baseball Pitchers')}}</label>
+              <select ng-model="SelectedCustomer.BaseballAction">
+                <option value="Listed">{{Translate('Listed Pitchers')}}</option>
+                <option value="Action">{{Translate('Action')}}</option>
+                <option value="Fixed">{{Translate('Fixed Odds')}}</option>
+              </select>
+            </div>
+            <div class="w-100">
+              <label class="w-100">{{Translate('Enforce Wager Limit')}}</label>
+              <select ng-model="SelectedCustomer.EnforcedWagerLimit">
+                <option value="byGame">{{Translate('By Game')}}</option>
+                <option value="byLine">{{Translate('By Line')}}</option>
+                <option value="duplicated">{{Translate('Allow Duplicate')}}</option>
+              </select>
+            </div>
+            <div class="w-100 mt-3">
+              <input type="button" class="btn btn-default" value="{{Translate('Parlay Team Config.')}}" ng-click="openParlayTeamConfig()">
+            </div>
+            <div class="w-100 mt-3">
+              <input type="button" class="btn btn-default" value="{{Translate('Buy Points')}}" data-target="#buyPointsModal" data-toggle="modal">
+            </div>
+
+
+          </div>
+
+          </div>
+
+        <div class="row px-4 mt-5">
+          <div class="col-xs-12 p-0">
+            <input type="submit" class="btn btn-primary mb-4" value="Update" ng-disabled="(AgentInfo.AddNewAccountFlag != 'Y' && AgentInfo.ChangeWagerLimitFlag != 'Y' && AgentInfo.ChangeCreditLimitFlag != 'Y') || IsDisabled()">
+            <label ng-bind="confirmationMsg" ng-show="confirmationMsg != ''"></label>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade modal-wide printable" id="buyPointsModal">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h1 class="modal-title" ng-bind="Translate('Buy/Sell Points')"></h1>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+
+          <div id="points_panel" ng-init="points_selection_type = 'buy'" class="my-4">
+            <ul class="nav nav-tabs float-right">
+              <li role="presentation" ng-click="points_selection_type='buy'" ng-class="{active: points_selection_type == 'buy'}" class="active" style=""><a>{{Translate('Buy Points')}}</a></li>
+              <li role="presentation" ng-click="points_selection_type='sell'" ng-class="{active: points_selection_type == 'sell'}" class="" style=""><a>{{Translate('Sell Points')}}</a></li>
+            </ul>
+            <div class="tab-content  clearfix">
+              <form class="tab-pane" ng-class="{active: points_selection_type == 'buy'}" style="" ng-submit="UpdateCustomerBuyPoints()">
+                <div>
+                  <!--<div class="row">
+                    <div class="col-md-6 col-xs-12">
+                      <fieldset>
+                        <legend>Progressive Sell Points:</legend>
+                        <label checkbox="myCheckbox_">
+                          <input type="checkbox" ng-model="SelectedCustomer.BuyPoinstsInfo.ProgressivePointBuyingFlagBoolean">
+                          {{Translate('Use progressive Point Buying')}}
+                        </label>
+                      </fieldset>
+                    </div>
+                  </div>-->
+                  <div class="row">
+                    <div class="col-xs-12 col-md-6 col-xl-6 no-padding">
+                      <div class="points_panel_m10">
+                        <fieldset>
+                          <legend>{{Translate('Buy points in NFL FOOTBALL:')}}</legend>
+                          <div class="row">
+                            <div class="col-xl-4 col-md-4 col-xs-12">&nbsp;</div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('SPREAD')}}</span></div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12 points_row_title">{{Translate('Cost to Buy 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.FootballSpreadBuy">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.FootballTotalBuy">
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12  points_row_title">{{Translate('Max Numbers of 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.FootballSpreadBuyMax">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.FootballTotalBuyMax">
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-md-4 col-xl-4 col-xs-12  points_row_title">{{Translate('Cost to buy ON 3:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.FootballSpreadBuyOn3">
+                              <span>OFF 3:</span><input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.FootballSpreadBuyOff3">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-6">
+
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-md-4 col-xl-4 col-xs-12  points_row_title">{{Translate('Cost to buy ON 7:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.FootballSpreadBuyOn7">
+                              <span>OFF 3:</span><input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.FootballSpreadBuyOff7">
+                            </div>
+                          </div>
+                        </fieldset>
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 col-xl-6 no-padding">
+                      <div class="points_panel_m10">
+                        <fieldset>
+                          <legend>{{Translate('Buy points in COLLEGE FOOTBALL:')}}</legend>
+                          <div class="row">
+                            <div class="col-xl-4 col-md-4 col-xs-12">&nbsp;</div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('SPREAD')}}</span></div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12 points_row_title">{{Translate('Cost to Buy 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.CollegeFootballSpreadBuy">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.CollegeFootballTotalBuy">
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12  points_row_title">{{Translate('Max Numbers of 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.CollegeFootballSpreadBuyMax">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.CollegeFootballTotalBuyMax">
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-md-4 col-xl-4 col-xs-12  points_row_title">{{Translate('Cost to buy ON 3:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.CollegeFootballSpreadBuyOn3">
+                              <span>OFF 3:</span><input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.CollegeFootballSpreadBuyOff3">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-6">
+
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-md-4 col-xl-4 col-xs-12  points_row_title">{{Translate('Cost to buy ON 7:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.CollegeFootballSpreadBuyOn7">
+                              <span>OFF 3:</span><input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.CollegeFootballSpreadBuyOff7">
+                            </div>
+                          </div>
+                        </fieldset>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-xs-12 col-md-6 col-xl-6 no-padding">
+                      <div class="points_panel_m10">
+                        <fieldset>
+                          <legend>{{Translate('Buy points in BASKETBALL:')}}</legend>
+                          <div class="row">
+                            <div class="col-xl-4 col-md-4 col-xs-12">&nbsp;</div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('SPREAD')}}</span></div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12 points_row_title">{{Translate('Cost to Buy 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.BasketballSpreadBuy">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.BasketballTotalBuy">
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12  points_row_title">{{Translate('Max Numbers of 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.BasketballSpreadBuyMax">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.BasketballTotalBuyMax">
+                            </div>
+                          </div>
+                        </fieldset>
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 col-xl-6 no-padding">
+                      <div class="points_panel_m10">
+                        <fieldset>
+                          <legend>{{Translate('Buy points in COLLEGE BASKETBALL:')}}</legend>
+                          <div class="row">
+                            <div class="col-xl-4 col-md-4 col-xs-12">&nbsp;</div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('SPREAD')}}</span></div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12 points_row_title">{{Translate('Cost to Buy 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.CollegeBasketballSpreadBuy">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.CollegeBasketballTotalBuy">
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12  points_row_title">{{Translate('Max Numbers of 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.CollegeBasketballSpreadBuyMax">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.BuyPoinstsInfo.CollegeBasketballTotalBuyMax">
+                            </div>
+                          </div>
+                        </fieldset>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-xs-12 my-4">
+                    <p>
+                      <input type="submit" class="btn btn-primary" value="Update" ng-disabled="AgentInfo.ChangeWagerLimitFlag != 'Y' || IsDisabled()">
+                      <label ng-bind="confirmationMsg" ng-show="confirmationMsg != ''"></label>
+                    </p>
+                  </div>
+                </div>
+              </form>
+              <form class="tab-pane" ng-class="{active: points_selection_type == 'sell'}" ng-submit="UpdateCustomerSellPoints()">
+                <div>
+                  <div class="row">
+                    <div class="col-xs-12 col-md-6 col-xl-6 no-padding">
+                      <div class="points_panel_m10">
+                        <fieldset>
+                          <legend>{{Translate('Sell points in NFL FOOTBALL:')}}</legend>
+                          <div class="row">
+                            <div class="col-xl-4 col-md-4 col-xs-12">&nbsp;</div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('SPREAD')}}</span></div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12 points_row_title">{{Translate('Cost to Sell 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.FootballSpreadSell">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.FootballTotalSell">
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12  points_row_title">{{Translate('Max Numbers of 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.FootballSpreadSellMax">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.FootballTotalSellMax">
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-md-4 col-xl-4 col-xs-12  points_row_title">{{Translate('Cost to Sell ON 3:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.FootballSpreadSellOn3">
+                              <span>OFF 3:</span><input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.FootballSpreadSellOff3">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-6">
+
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-md-4 col-xl-4 col-xs-12  points_row_title">{{Translate('Cost to Sell ON 7:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>SPREAD</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.FootballSpreadSellOn7">
+                              <span>OFF 3:</span><input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.FootballSpreadSellOff7">
+                            </div>
+                          </div>
+                        </fieldset>
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 col-xl-6 no-padding">
+                      <div class="points_panel_m10">
+                        <fieldset>
+                          <legend>{{Translate('Sell points in COLLEGE FOOTBALL:')}}</legend>
+                          <div class="row">
+                            <div class="col-xl-4 col-md-4 col-xs-12">&nbsp;</div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('SPREAD')}}</span></div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12 points_row_title">{{Translate('Cost to Sell 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.CollegeFootballSpreadSell">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.CollegeFootballTotalSell">
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12  points_row_title">{{Translate('Max Numbers of 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.CollegeFootballSpreadSellMax">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.CollegeFootballTotalSellMax">
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-md-4 col-xl-4 col-xs-12  points_row_title">{{Translate('Cost to Sell ON 3:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.CollegeFootballSpreadSellOn3">
+                              <span>OFF 3:</span><input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.CollegeFootballSpreadSellOff3">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-6">
+
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-md-4 col-xl-4 col-xs-12  points_row_title">{{Translate('Cost to Sell ON 7:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.CollegeFootballSpreadSellOn7">
+                              <span>OFF 3:</span><input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.CollegeFootballSpreadSellOff7">
+                            </div>
+                          </div>
+                        </fieldset>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-xs-12 col-md-6 col-xl-6 no-padding">
+                      <div class="points_panel_m10">
+                        <fieldset>
+                          <legend>{{Translate('Sell points in BASKETBALL:')}}</legend>
+                          <div class="row">
+                            <div class="col-xl-4 col-md-4 col-xs-12">&nbsp;</div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('SPREAD')}}</span></div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>TOTAL POINTS</span></div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12 points_row_title">{{Translate('Cost to Sell 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.BasketballSpreadSell">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.BasketballTotalSell">
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12  points_row_title">{{Translate('Max Numbers of 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.BasketballSpreadSellMax">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.BasketballTotalSellMax">
+                            </div>
+                          </div>
+                        </fieldset>
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 col-xl-6 no-padding">
+                      <div class="points_panel_m10">
+                        <fieldset>
+                          <legend>{{Translate('Sell points in COLLEGE BASKETBALL:')}}</legend>
+                          <div class="row">
+                            <div class="col-xl-4 col-md-4 col-xs-12">&nbsp;</div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('SPREAD')}}</span></div>
+                            <div class="col-xl-4 col-md-4 col-xs-4 column-title d-sm-none"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12 points_row_title">{{Translate('Cost to Sell 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.CollegeBasketballSpreadSell">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.CollegeBasketballTotalSell">
+                            </div>
+                          </div>
+                          <div class="row points_row">
+                            <div class="col-xl-4 col-md-4 col-xs-12  points_row_title">{{Translate('Max Numbers of 1/2 point:')}}</div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('SPREAD')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.CollegeBasketballSpreadSellMax">
+                            </div>
+                            <div class="col-xl-4 col-md-4 col-xs-12">
+                              <div class="col-xs-6 points_item_type"><span>{{Translate('TOTAL POINTS')}}</span></div>
+                              <input class="form-control" type="text" only-digits ng-model="SelectedCustomer.SellPoinstsInfo.CollegeBasketballTotalSellMax">
+                            </div>
+                          </div>
+                        </fieldset>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-xs-12 my-4">
+                    <p>
+                      <input type="submit" class="btn btn-primary" value="Update" ng-disabled="IsDisabled()">
+                      <label ng-bind="confirmationMsg" ng-show="confirmationMsg != ''"></label>
+                    </p>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+<div class="modal fade modal-wide printable" id="parlayTCModal">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h1 class="modal-title" ng-bind="Translate('Parlay Team Configuration')"></h1>
+      </div>
+      <div class="modal-body mb-3">
+
+        <div class="custom-datatable bg-white" style="max-height: 400px">
+
+          <div class="row py-3 d-flex justify-content-center">
+            <div class="customers-left">
+              <div class="bg-white Flipped" style="position: sticky; top:-15px; overflow-x: scroll; overflow-y: hidden">
+                <div class="text-white bg-black p-3 customers-left-header Flipped" style="height: 60px;">
+                  <strong>{{Translate('Teams')}}</strong>
+                </div>
+              </div>
+              <div ng-repeat="cL in tableData track by $index" style="height: 55px" class="d-flex">
+                <div class="p-3 d-flex w-100" ng-class="{'even' : $index % 2 == 0, 'odd' : $index % 2 != 0}">
+                  <span class="customer-table-button">{{cL.Teams}}</span>
+                </div>
+              </div>
+
+            </div>
+            <div class="customers-right">
+              <div style="overflow-x: scroll; position: sticky; top:-15px; z-index: 1" class="syncscroll Flipped" name="customerTable">
+                <div class="d-flex text-white bg-black Flipped customers-right-header">
+                  <strong class="m-3 text-center customer-table-column">{{Translate('CU Limit')}}</strong>
+                  <strong class="m-3 text-center customer-table-column">{{Translate('Inet Limit')}}</strong>
+                  <strong class="m-3 text-center customer-table-column">{{Translate('Open Spots')}}</strong>
+                  <strong class="m-3 text-center customer-table-column">{{Translate('Max Totals')}}</strong>
+                  <strong class="m-3 text-center customer-table-column">{{Translate('Max ML')}}</strong>
+                  <strong class="m-3 text-center customer-table-column">{{Translate('Max Dogs')}}</strong>
+                </div>
+              </div>
+              <div style="overflow-x: scroll" class="syncscroll bg-black" name="customerTable">
+                <div ng-repeat-start="cL in tableData track by $index" class="d-flex bg-black text-white" style="height: 60px" ng-show="cL.isTitle">
+                </div>
+                <div style="width: fit-content" class="d-flex" ng-class="{'even' : $index % 2 == 0, 'odd' : $index % 2 != 0}" ng-repeat-end>
+
+                  <input class="m-3 customer-table-column" ng-disabled="AgentInfo.ChangeWagerLimitFlag != 'Y'" type="text" ng-model="cL.EditedCULimitValue" placeholder="{{cL.CuLimit}}">
+
+                  <input class="m-3 customer-table-column" ng-disabled="AgentInfo.ChangeWagerLimitFlag != 'Y'" type="number" ng-model="cL.EditedInetLimitValue" placeholder="{{cL.InetLimit}}">
+
+                  <input class="m-3 customer-table-column" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y'" type="text" ng-model="cL.EditedOpenSpotsValue" placeholder="{{cL.OpenSpots}}">
+
+                  <input class="m-3 customer-table-column" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y'" type="text" ng-model="cL.EditedTotalsLimitValue" placeholder="{{cL.TotalsLimit}}">
+
+                  <input class="m-3 customer-table-column" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y'" type="text" ng-model="cL.EditedMaxDogsValue" placeholder="{{cL.MaxDogs}}">
+
+                  <input class="m-3 customer-table-column" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y'" type="text" ng-model="cL.EditedMoneylinesLimitValue" placeholder="{{cL.MoneylinesLimit}}">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer d-flex justify-content-center">
+        <button class="btn btn-success" ng-click="saveParlayTeamConfig()">{{Translate('Save')}}</button>
+      </div>
+    </div>
+
+  </div>
+</div>

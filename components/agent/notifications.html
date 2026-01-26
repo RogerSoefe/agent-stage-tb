@@ -1,0 +1,44 @@
+﻿
+<div class="row">
+
+  <div class="my-4">
+    <ul class="nav nav-tabs">
+      <li role="presentation" ng-click="notification.notificationType='agent'" ng-class="{active: notification.notificationType == 'agent'}"><a>{{Translate('Agent Notification')}}</a></li>
+      <li role="presentation" ng-click="notification.notificationType='customer'" ng-class="{active: notification.notificationType == 'customer'}"><a>{{Translate('Agent\'s Customer Notification')}}</a></li>
+    </ul>
+    <div class="tab-content  clearfix">
+      <form class="tab-pane" ng-class="{active: notification.notificationType == 'agent'}" style="" ng-submit="sendNotification()">
+        <div class="col-sm-12 col-lg-2 mt-5" ng-if="AgentInfo.EnableEditAccountsFlag == 'Y'">
+          <h3>{{Translate('Notification to agent')}}</h3>
+          <div class="form-row mb-4 mt-4">
+            <textarea id="txtAreaNotes" style="width: 80%;" rows="6" class="form-control ng-pristine ng-valid ng-touched" ng-model="notification.CommentsForCustomer" ng-disabled="AgentInfo.UpdateCommentsFlag != 'Y' || IsDisabled()"></textarea>
+          </div>
+          <label for="txtTempCreditAdjThru">{{Translate('Expiration:')}}</label>
+          <div class="date-picker">
+            <input type="text" class="form-control form-control-ios-fix" name="txtTempCreditAdjThru" ng-model="notification.CommentsForCstExpDateString" ng-disabled="AgentInfo.UpdateCommentsFlag != 'Y' || IsDisabled()" />
+          </div>
+          <small class="text-muted">{{Translate('Message will expire (stop displaying) at 12:00:01 A.M on selected date.')}}</small>
+          <button class="btn btn-success" type="submit">{{Translate('Save')}}</button>
+        </div>
+      </form>
+      <form class="tab-pane" ng-class="{active: notification.notificationType == 'customer'}" ng-submit="sendNotification()">
+        <div class="row">
+          <div class="col-sm-12 col-lg-2 mt-5" ng-if="AgentInfo.EnableEditAccountsFlag == 'Y'">
+            <h3>
+              {{Translate("Notification to all agent's customers")}}
+            </h3>
+            <div class="form-row mb-4 mt-4">
+              <textarea id="txtAreaNotes" style="width: 80%;" rows="6" class="form-control ng-pristine ng-valid ng-touched" ng-model="notification.CommentsForCustomer" ng-disabled="AgentInfo.UpdateCommentsFlag != 'Y' || IsDisabled()"></textarea>
+            </div>
+            <label for="txtTempCreditAdjThru">{{Translate('Expiration:')}}</label>
+            <div class="date-picker">
+              <input type="text" class="form-control form-control-ios-fix" name="txtTempCreditAdjThru" ng-model="notification.CommentsForCstExpDateString" ng-disabled="AgentInfo.UpdateCommentsFlag != 'Y' || IsDisabled()" />
+            </div>
+            <small class="text-muted">{{Translate('Message will expire (stop displaying) at 12:00:01 A.M on selected date.')}}</small>
+            <button class="btn btn-success" type="submit">{{Translate('Save')}}</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+﻿<div class="dashbwrapper">
+	<div class="allscrll chat-bottom-spacer" id="scrollBox">
+
+		<div class="row pt-3 pl-3 title-divider">
+			<div class="d-flex align-items-center">
+				<a ng-click="toggleBookmark('Pending Bets','#/openbets')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Pending Bets') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+				&nbsp;<h3>{{Translate('Pending Bets')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+			</div>
+		</div>
+
+		<grouped-open-bets source="dataSource" ng-if="sourceLoaded"
+		   show-header="true"
+		   show-actions="true"
+		   get-agent-parent="getAgentParent"
+		   format-customer="formatCustomer"
+		   format-date-time="FormatDateTime"
+		   display-time-from-date="DisplayTimeFromDate"
+		   is-mobile="IsMobile"
+		   raw-agents-list="rawAgentsList"
+		   add-session-data="addSessionData"
+		   get-session-data="getSessionData"
+		   customer-title="customerTitle"
+		   source-caller="sourceCaller"
+		   agent-Info="AgentInfo"
+				   agent-as-customer-info="AgentAsCustomerInfo" show-weeks="true"></grouped-open-bets>
+	</div>
+</div>

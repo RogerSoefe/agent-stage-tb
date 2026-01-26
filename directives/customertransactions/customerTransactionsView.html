@@ -1,0 +1,44 @@
+﻿
+<div class="allscrll chat-bottom-spacer">
+		<div ng-show="!AgentsTrans || AgentsTrans.length == 0">
+				<h3 ng-bind="Translate('No Transactions To Show')"></h3>
+		</div>
+
+		<div class="data-component" ng-repeat="ag in AgentsTrans track by $index">
+
+				<div class="row">
+						<div class="col-sm-12">
+								<h2 ng-bind="ag[0].AgentID | FormatCustomer"></h2>
+						</div>
+				</div>
+
+				<table id="agentSummaryTbl" class="tablesaw" data-tablesaw-sortable data-tablesaw-mode="swipe" data-tablesaw-minimap>
+						<thead class="header">
+								<tr>
+										<th class="tablesaw-cell-persist" style="max-width: 200px">{{Translate('Date')}}</th>
+										<th style="max-width: 500px">{{Translate('Description')}}</th>
+										<th style="max-width: 200px" class="text-right">{{Translate('Amount')}}</th>
+								</tr>
+						</thead>
+						<tbody>
+								<tr ng-if="ag.TotalC > 0" table-saw style="color: #0F4F73"><td colspan="4"><span style="font-weight: bold" ng-bind="Translate('Deposits')"></span></td></tr>
+								<tr ng-repeat="tr in ag | filter: {TranCode : 'C'} track by $index" table-saw>
+										<td><span ng-bind="tr.TranDateTimeString"></span></td>
+										<td id="D_1{{$index}}"><span ng-bind="tr.Description"></span></td>
+										<td id="P_{{$index}}" class="text-right" ng-class="{'num_pos':tr.TranCode == 'C'}"><span ng-bind="tr.Amount | formatNumber:false"></span></td>
+								</tr>
+								<tr ng-if="ag.TotalD > 0" table-saw style="color: #0F4F73"><td colspan="4"><span style="font-weight: bold" ng-bind="Translate('Withdrawals')"></span></td></tr>
+								<tr ng-repeat="tr in ag | filter: {TranCode : 'D'} track by $index" table-saw>
+										<td><span ng-bind="tr.TranDateTimeString"></span></td>
+										<td id="D_1{{$index}}"><span ng-bind="tr.Description"></span></td>
+										<td id="P_{{$index}}" class="text-right" ng-class="{'num_neg':tr.TranCode == 'D'}"><span ng-bind="(tr.Amount * -1) | formatNumber:false"></span></td>
+								</tr>
+						</tbody>
+				</table>
+				<hr style="margin: 5px" />
+				<div class="text-right">
+						<label ng-bind="Translate('Net Total: ') + (ag.Total | formatNumber:false)"></label>
+				</div>
+		</div>
+
+</div>

@@ -1,0 +1,200 @@
+﻿<div class="dashbwrapper">
+	<div id="customersDiv" class="allscrll chat-bottom-spacer">
+		<div class="row pt-3 pl-3 title-divider">
+			<div class="col-xs-12 no-padding">
+				<div class="d-flex align-items-center">
+					<a ng-click="toggleBookmark('Add Customer','#/addCustomer')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Add Customer') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+				</div>
+			</div>
+		</div>
+		<div class="row" ng-show="AgentAsCustomerInfo.AgentType == 'M'">
+			<div class="form-group">
+				<label for="aList">{{Translate('Choose an account:')}}</label>
+				<div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+					 ng-model="selectedAgent" ng-change="updateFields()"
+					 id="aList">
+					<div>
+						<span>{{ t.AgentBind }}</span>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+			</div>
+		</div>
+		<div class="row mt-4">
+			<h3 class="col-md-6 ng-binding" ng-bind="Translate('New Customer ID')"></h3>
+			<div class="col-md-2">
+				<input type="text" class="form-control" ng-change="ChangeLimit(sl)" ng-model="NewCustomer.CustomerId">
+			</div>
+		</div>
+
+		<hr />
+
+		<div class="form-row mt-4">
+			<div class="form-group col-xs-12 col-md-4">
+				<label for="inpuyHomePhone">{{Translate('Password')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="inpuyHomePhone" ng-model="NewCustomer.PayoutPassword" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100">
+			</div>
+		</div>
+		<div class="form-row">
+			<div class="form-group col-xs-12 col-md-4">
+				<label for="Name">{{Translate('First Name')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="Name" ng-model="NewCustomer.NameFirst" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="30">
+			</div>
+			<div class="form-group col-xs-6 col-md-4">
+				<label for="Ml">{{Translate('Ml')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="Ml" ng-model="NewCustomer.NameMI" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="1">
+			</div>
+			<div class="form-group col-xs-6 col-md-4">
+				<label for="Last">{{Translate('Last')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="Last" ng-model="NewCustomer.NameLast" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="150">
+			</div>
+		</div>
+
+		<div class="form-row">
+			<div class="form-group col-xs-8 col-md-8">
+				<label for="">{{Translate('Address:')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" name="" id="" ng-model="NewCustomer.Address" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100">
+			</div>
+			<div class="form-group col-xs-4 col-md-4">
+				<label for="">{{Translate('Email:')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" name="" id="" ng-model="NewCustomer.Email" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100">
+			</div>
+		</div>
+
+		<div class="form-row">
+			<div class="form-group col-xs-12 col-md-4">
+				<label for="City">{{Translate('City')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="City" ng-model="NewCustomer.City" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100">
+			</div>
+			<div class="form-group col-xs-6 col-md-4">
+				<label for="State">{{Translate('State')}}</label>
+				<select id="inputState" class="form-control form-control-ios-fix" ng-model="NewCustomer.State" ng-options="s.abrev as s.name for s in states" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()">
+				</select>
+			</div>
+			<div class="form-group col-xs-6 col-md-4">
+				<label for="Zip">{{Translate('Zip')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="Zip" ng-model="NewCustomer.Zip" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="15">
+			</div>
+		</div>
+
+		<div class="form-row">
+			<div class="form-group col-xs-12 col-md-4">
+				<label for="inputCurrency">{{Translate('Currency')}}</label>
+				<select id="inputCurrency" class="form-control form-control-ios-fix" ng-model="NewCustomer.Currency" ng-options="s.CurrencyName as s.CurrencyName for s in Currencies" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()">
+				</select>
+			</div>
+			<div class="form-group col-xs-6 col-md-4">
+				<label for="inputTimeZone">{{Translate('Time Zone')}}</label>
+				<select id="inputTimeZone" class="form-control form-control-ios-fix" ng-model="NewCustomer.TimeZone" ng-options="s.TzCode as s.TzName for s in TimeZoneList" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()">
+				</select>
+			</div>
+			<div class="form-group col-xs-6 col-md-4">
+				<label for="inputPriceType">{{Translate('Price Type')}}</label>
+				<select id="inputPriceType" class="form-control form-control-ios-fix" ng-model="NewCustomer.PriceType" ng-options="s.PtAbbreviation as s.PtName for s in PriceTypesList" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()">
+				</select>
+			</div>
+		</div>
+
+		<div class="form-row">
+			<div class="form-group col-xs-12 col-md-4">
+				<label for="inpuyHomePhone">{{Translate('Home Phone')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="inpuyHomePhone" ng-model="NewCustomer.HomePhone" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100" only-digits>
+			</div>
+			<div class="form-group col-xs-6 col-md-4">
+				<label for="inputOfficePhone">{{Translate('Office Phone')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="inputOfficePhone" ng-model="NewCustomer.BusinessPhone" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100" only-digits>
+			</div>
+			<div class="form-group col-xs-6 col-md-4">
+				<label for="inputFax">{{Translate('Fax')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="inputFax" ng-model="NewCustomer.Fax" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100" only-digits>
+			</div>
+		</div>
+
+		<div class="form-row">
+			<div class="form-group col-xs-6 col-md-4">
+				<label for="inputChar">{{Translate('Char % Book')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="inputChar" ng-model="NewCustomer.Percentbook" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100" only-digits>
+			</div>
+			<div class="form-group col-xs-6 col-md-4">
+				<label for="inputSettleFigure">{{Translate('Settle Figure')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="inputSettleFigure" ng-model="NewCustomer.SettleFigure" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100" only-digits>
+			</div>
+		</div>
+
+		<div class="form-row">
+			<div class="form-group col-xs-6 col-md-4">
+				<label for="wagerLimit">{{Translate('Wager Limit')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="wagerLimit" ng-model="NewCustomer.wagerLimit" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100" only-digits>
+			</div>
+			<div class="form-group col-xs-6 col-md-4">
+				<label for="creditLimit">{{Translate('Credit Limit')}}</label>
+				<input type="text" class="form-control form-control-ios-fix" id="creditLimit" ng-model="NewCustomer.creditLimit" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100" only-digits>
+			</div>
+		</div>
+
+		<div class="form-row">
+			<div class="form-group col-xs-12">
+				<strong ng-bind="Translate('Credit Options')"></strong>
+			</div>
+			<div class="form-group col-xs-3">
+				<label class="checkbox-inline">
+					<input type="checkbox" id="WeeklyLimitFlagBoolean" ng-model="NewCustomer.WeeklyLimitFlagBoolean" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()"> {{Translate('Weekly Limits')}}
+				</label>
+			</div>
+			<div class="form-group col-xs-3">
+				<label class="checkbox-inline">
+					<input type="checkbox" id="ZeroBalanceFlagBoolean" ng-model="NewCustomer.ZeroBalanceFlagBoolean" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()"> {{Translate('Zero Balance')}}
+				</label>
+			</div>
+			<div class="form-group col-xs-3">
+				<label class="checkbox-inline">
+					<input type="checkbox" id="ZeroBalPositiveOnlyFlagBoolean" ng-model="NewCustomer.ZeroBalPositiveOnlyFlagBoolean" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()"> {{Translate('Zero Bal Positive Figures Only')}}
+				</label>
+			</div>
+		</div>
+
+		<div class="form-row">
+			<div class="form-group col-xs-12">
+				<strong>Behaviour Options</strong>
+			</div>
+			<div class="form-group col-xs-3">
+				<label class="checkbox-inline">
+					<input type="checkbox" id="InstantActionFlagBoolean" ng-model="NewCustomer.InstantActionFlagBoolean" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()"> {{Translate('Always Show On Instant Action Panel')}}
+				</label>
+			</div>
+			<div class="form-group col-xs-3">
+				<label class="checkbox-inline">
+					<input type="checkbox" id="WiseActionFlagBoolean" ng-model="NewCustomer.WiseActionFlagBoolean" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()"> {{Translate('Wise Action')}}
+				</label>
+			</div>
+			<div class="form-group col-xs-3">
+				<label class="checkbox-inline">
+					<input type="checkbox" id="CustomerIsABotBoolean" ng-model="NewCustomer.CustomerIsABotBoolean" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()"> {{Translate('Customer Is A Bot')}}
+				</label>
+			</div>
+			<div class="form-group col-xs-3">
+				<label for="inputDelay">{{Translate('Sec To Delay Internet Confirmation')}}</label>
+				<input type="number" class="form-control form-control-ios-fix" id="inputDelay" ng-model="NewCustomer.ConfirmationDelay" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" maxlength="100">
+			</div>
+		</div>
+
+
+		<div class="form-row mb-4">
+			<label for="txtAreaNotes">{{Translate('Notes')}}:</label>
+			<textarea id="txtAreaNotes" style="width: 80%" rows="6" class="form-control" ng-model="NewCustomer.Comments" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()"></textarea>
+		</div>
+
+		<div class="form-row">
+			<div class="form-group col-xs-12">
+				<p>
+					<input type="button" class="btn btn-primary" value="Save" ng-click="InsertNewCustomer()" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()">
+					<label ng-bind="confirmationMsg" ng-show="confirmationMsg != ''"></label>
+				</p>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+
+

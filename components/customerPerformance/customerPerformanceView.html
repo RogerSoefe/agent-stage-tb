@@ -1,0 +1,177 @@
+﻿<div class="dashbwrapper">
+    <div class="allscrll chat-bottom-spacer" id="scrollBox">
+        <div class="row pt-3 pl-3 title-divider">
+            <div class="d-flex align-items-center">
+                <a ng-click="toggleBookmark('Customer Volume','#/customerPerformance')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Customer Volume') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+                &nbsp;<h3>{{Translate('Customer Volume')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+                &nbsp;<button class="btn btn-default ng-binding" ng-click="ExportData()" ng-bind="Translate('Export Data')"></button>
+            </div>
+        </div>
+        <div class="row">
+
+
+            <div class="col-xs-12 no-padding-print text-right my-2 pr-5">
+                <div class="date-picker">
+                    <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 5px; width: 100%">
+                        <b class="glyphicon glyphicon-calendar fa fa-calendar"></b><span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-2 data-filters hidden-print scroll-vertical">
+
+                <!--<div class="panel panel-default">
+                  <div class="panel-heading">
+                    <span ng-bind="Translate('Week')"></span>
+                  </div>
+                  <div class="panel-body">
+                    <select class="form-control" ng-model="selectedWeek" ng-change="getData()" ng-options="wR.DateRange for wR in WeeksRange"></select>
+                  </div>
+                </div>-->
+
+                <div class="panel panel-default" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+                    <div class="panel-heading">
+                        <span ng-bind="Translate('Choose an account')"></span>
+                    </div>
+                    <div class="panel-body">
+                        <div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+                             ng-model="$root.selectedAgent" ng-change="getData()"
+                             style="width:100%"
+                             id="agentsnList">
+                            <div>
+                                <span>{{ t.AgentBind }}</span>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default" id="spSportsCollapse">
+                    <div class="panel-heading">
+                        <b class="align-self-center" ng-bind="Translate('Select All')"></b>&nbsp;
+                        <label class="switch align-self-center">
+                            <input type="checkbox" ng-click="SelectAll(true, 'All');" ng-value="false" ng-model="AllOptionsSelected">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                </div>
+
+                <div class="panel panel-default" id="spSportsCollapse">
+                    <div class="panel-heading">
+                        <a href="javascript:;" data-toggle="collapse" data-target="#spSports" data-parent="#spSportsCollapse" ng-bind="Translate('Sports')"></a><br />
+                        <!--<input type="checkbox" class="form-check-input" id="chkWagersWithSameLeagueOnly" ng-model="Filters.WagersWithSameLeagueOnly" ng-change="" />
+                        <label class="form-check-label" for="chkWagersWithSameLeagueOnly" ng-bind="Translate('Wagers within same league only')"></label>-->
+                    </div>
+                    <div class="panel-collapse collapse" id="spSports">
+                        <div class="panel-body">
+                            <div class="form-check form-check-inline" ng-repeat="st in Filters.Sports | filter: FilterSports  | orderBy: 'SportType'">
+                                <input class="form-check-input" type="checkbox" ng-model="st.Selected" ng-change="SelectAll(st.SportType == 'All', 'Sports');" id="spt_{{$index}}">
+                                <label class="form-check-label" for="spt_{{$index}}" ng-bind="st.FullName"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default" id="spStraightsCollapse">
+                    <div class="panel-heading">
+                        <a href="javascript:;" data-toggle="collapse" data-target="#spStraights" data-parent="#spStraightsCollapse" ng-bind="Translate('Straights')"></a>
+                    </div>
+                    <div class="panel-collapse collapse" id="spStraights">
+                        <div class="panel-body">
+                            <div class="form-check form-check-inline" ng-repeat="st in Filters.StraightSports | orderBy: 'SportType'">
+                                <input class="form-check-input" type="checkbox" ng-model="st.Selected" ng-change="SelectAll(st.SportType == 'All', 'S');" id="s_spt_{{$index}}">
+                                <label class="form-check-label" for="s_spt_{{$index}}" ng-bind="st.FullName"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default" id="spParlaysCollapse">
+                    <div class="panel-heading">
+                        <a href="javascript:;" data-toggle="collapse" data-target="#spParlays" data-parent="#spParlaysCollapse" ng-bind="Translate('Parlays')"></a>
+                    </div>
+                    <div class="panel-collapse collapse" id="spParlays">
+                        <div class="panel-body">
+                            <div class="form-check form-check-inline" ng-repeat="st in Filters.ParlaySports | orderBy: 'SportType'">
+                                <input class="form-check-input" type="checkbox" ng-model="st.Selected" ng-change="SelectAll(st.SportType == 'All', 'P');" id="p_spt_{{$index}}">
+                                <label class="form-check-label" for="p_spt_{{$index}}" ng-bind="st.FullName"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default" id="spTeasersCollapse">
+                    <div class="panel-heading">
+                        <a href="javascript:;" data-toggle="collapse" data-target="#spTeasers" data-parent="#spTeasersCollapse" ng-bind="Translate('Teasers')"></a>
+                    </div>
+                    <div class="panel-collapse collapse" id="spTeasers">
+                        <div class="panel-body">
+                            <div class="form-check form-check-inline" ng-repeat="st in Filters.TeaserSports | orderBy: 'SportType'">
+                                <input class="form-check-input" type="checkbox" ng-model="st.Selected" ng-change="SelectAll(st.SportType == 'All', 'T');" id="t_spt_{{$index}}">
+                                <label class="form-check-label" for="t_spt_{{$index}}" ng-bind="st.FullName"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default" id="spPeriodsCollapse">
+
+                    <div class="panel-heading">
+                        <a href="javascript:;" data-toggle="collapse" data-target="#spPeriods" data-parent="#spPeriodsCollapse" ng-bind="Translate('Periods')"></a>
+                    </div>
+                    <div class="panel-collapse collapse" id="spPeriods">
+                        <div class="panel-body">
+                            <div class="form-check form-check-inline" ng-repeat="period in Filters.Periods">
+                                <input class="form-check-input" type="checkbox" ng-model="period.Selected" ng-change="SelectAll(period.PeriodDescription == 'All', 'Periods');">
+                                <label class="form-check-label" for="inlineCheckbox1" ng-bind="period.PeriodDescription"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default" id="spWagerTypeCollapse">
+                    <div class="panel-heading">
+                        <a href="javascript:;" data-toggle="collapse" data-target="#spWagerType" data-parent="#spWagerTypeCollapse" ng-bind="Translate('Wager Type')"></a>
+                    </div>
+                    <div class="panel-collapse collapse" id="spWagerType">
+                        <div class="panel-body">
+                            <div class="form-check form-check-inline" ng-repeat="wt in Filters.WagerTypes | orderBy: 'Index' track by $index ">
+                                <input class="form-check-input" type="checkbox" ng-model="wt.Selected" ng-change="SelectAll(wt.Code == 'A', 'W');">
+                                <label class="form-check-label" for="inlineCheckbox1" ng-bind="wt.Name"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-10">
+                <div class="row">
+                    <div class="col-xs-12">
+
+
+                        <table class="tablesaw summary">
+                            <thead>
+                                <tr>
+                                    <th>Customer Id</th>
+                                    <th ng-repeat="sport in Filters.Sports | filter : { Selected : true}" ng-bind="sport.SportSubType" class="text-right"></th>
+                                    <th class="text-right">Parlays</th>
+                                    <th class="text-right">Teasers</th>
+                                    <th class="text-right">Straights</th>
+                                    <th class="text-right">Action Reverse</th>
+                                    <th class="text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="row in VolumeReportInfo">
+                                    <td ng-bind="row.CustomerId"></td>
+                                    <td ng-repeat="sportInfo in row.SportsInfo track by $index" ng-bind="sportInfo | formatNumber" class="text-right"></td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

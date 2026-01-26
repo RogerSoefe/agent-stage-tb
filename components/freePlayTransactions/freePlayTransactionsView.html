@@ -1,0 +1,304 @@
+<div style="position: absolute; width: 100%; height: 100vh; background: black; opacity: 0.9; z-index: -1; display: none; justify-content: center" id="loadingAllTransactions">
+    <div class="align-self-center" style="width: 100px">
+        <img class="img-responsive" alt="gif" src="/admin/assets_core/img/loading.gif" />
+    </div>
+</div>
+
+<style>
+    /* Fix jQuery UI Datepicker z-index to appear above all elements */
+    .ui-datepicker {
+        z-index: 10000 !important;
+        position: absolute !important;
+    }
+
+    .ui-datepicker-header {
+        z-index: 10000 !important;
+    }
+
+    .ui-datepicker-calendar {
+        z-index: 10000 !important;
+    }
+
+    /* Ensure dropdown menus don't overlap datepicker */
+    .dropdown-menu {
+        z-index: 1000;
+    }
+
+    /* Fix table header text visibility */
+    .table thead.header th {
+        color: #ffffff !important;
+        background-color: #333333 !important;
+        font-weight: bold;
+    }
+
+    .table thead th {
+        color: #ffffff !important;
+    }
+
+    /* Ensure data-component and table elements stay in place with lower z-index */
+    .data-component {
+        position: relative;
+        z-index: 1;
+    }
+
+    .table-responsive,
+    .table-responsive-mobile {
+        position: relative;
+        z-index: 1;
+    }
+
+    .table {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 767px) {
+        .freeplay-filters .form-group {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .freeplay-filters label {
+            display: block;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .freeplay-filters .dropdown.custom-select {
+            width: 100% !important;
+        }
+
+        .freeplay-filters .form-control,
+        .freeplay-filters select {
+            width: 100% !important;
+        }
+
+        .table-responsive-mobile {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .pagination-mobile {
+            flex-direction: column !important;
+            align-items: center !important;
+        }
+
+            .pagination-mobile > div {
+                margin: 5px 0 !important;
+                width: 100%;
+                text-align: center;
+            }
+
+        .btn-group-mobile {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+            .btn-group-mobile button,
+            .btn-group-mobile span {
+                margin: 2px;
+            }
+    }
+
+    @media (max-width: 480px) {
+        .title-divider h3 {
+            font-size: 16px;
+        }
+
+        .table {
+            font-size: 13px;
+        }
+
+            .table th,
+            .table td {
+                padding: 8px 4px;
+            }
+
+        .btn {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+    }
+</style>
+
+<div class="dashbwrapper">
+    <div class="allscrll chat-bottom-spacer">
+        <div class="row pt-3 pl-3 title-divider">
+            <div class="d-flex align-items-center">
+                <a ng-click="toggleBookmark('Free Play Transactions','#/freePlayTransactions')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Free Play Transactions') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+                &nbsp;<h3>{{Translate('Free Play Transactions')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+            </div>
+        </div>
+
+        <div class="data-filters freeplay-filters">
+            <!-- First Row: Account and Player Selection -->
+            <div class="row">
+                <div class="col-xs-12 hidden-print">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-4" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+                            <div class="form-group mt-4">
+                                <label for="agentsnList">{{Translate('Choose an account:')}}</label>
+                                <div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+                                     ng-model="$root.selectedAgent" ng-change="getData()"
+                                     id="agentsnList">
+                                    <div>
+                                        <span>{{ t.AgentBind }}</span>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-4">
+                            <div class="form-group mt-4">
+                                <label for="playersList">{{Translate('Choose a player:')}}</label>
+                                <div custom-select="t as (t.label) for t in searchAgentCustomers($searchTerm) | filter : $searchTerm"
+                                     ng-model="selection.customer" ng-change="GetAgentCustomerTransactions()"
+                                     id="playersList">
+                                    <div>
+                                        <span>{{ t.label }}</span>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Second Row: Date Filters and Type -->
+            <div class="row">
+                <div class="col-xs-12 hidden-print">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-3">
+                            <div class="form-group mt-4">
+                                <label for="startDateInput">{{Translate('START DATE')}}</label>
+                                <input id="startDateInput" type="text" class="form-control" ng-model="Filters.startDate">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-3">
+                            <div class="form-group mt-4">
+                                <label for="endDateInput">{{Translate('END DATE')}}</label>
+                                <input id="endDateInput" type="text" class="form-control" ng-model="Filters.endDate">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-3">
+                            <div class="form-group mt-4">
+                                <label for="ddSport" ng-bind="Translate('Type') + ':'"></label>
+                                <select id="ddSport" class="form-control custom-dropdown"
+                                        ng-options="lineType.name for lineType in type"
+                                        ng-model="selectedType"
+                                        ng-change="GetAgentCustomerTransactions()">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div ng-show="!AgentsTrans || AgentsTrans.length == 0">
+            <h3 ng-bind="Translate('No Transactions To Show')"></h3>
+        </div>
+
+        <div class="data-component" ng-repeat="ag in AgentsTrans track by $index">
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <h2 ng-bind="ag[0].AgentID | FormatCustomer"></h2>
+                </div>
+            </div>
+
+            <div class="table-responsive table-responsive-mobile">
+                <table class="table table-striped table-bordered" style="margin-bottom: 0;">
+                    <thead>
+                        <tr style="
+    background-color: black;
+">
+                            <th style="white-space: nowrap;">{{Translate('Date')}}</th>
+                            <th>{{Translate('Customer')}}</th>
+                            <th>{{Translate('Description')}}</th>
+                            <th class="text-right" style="white-space: nowrap;">{{Translate('Amount')}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-if="ag.TotalC > 0" class="bg-success"><td colspan="4"><span style="font-weight: bold" ng-bind="Translate('Deposits')"></span></td></tr>
+                        <tr ng-repeat="tr in ag | filter: {TranCode : 'C'} track by $index">
+                            <td style="white-space: nowrap;"><span ng-bind="tr.TranDateTimeString"></span></td>
+                            <td><span ng-bind="tr.CustomerID | FormatCustomer"></span></td>
+                            <td><span ng-bind="tr.Description"></span></td>
+                            <td class="text-right" style="white-space: nowrap;"><span ng-bind="tr.Amount | formatNumber: false"></span></td>
+                        </tr>
+                        <tr ng-if="ag.TotalD > 0" class="bg-danger"><td colspan="4"><span style="font-weight: bold" ng-bind="Translate('Withdrawals')"></span></td></tr>
+                        <tr ng-repeat="tr in ag | filter: {TranCode : 'D'} track by $index">
+                            <td style="white-space: nowrap;"><span ng-bind="tr.TranDateTimeString"></span></td>
+                            <td><span ng-bind="tr.CustomerID | FormatCustomer"></span></td>
+                            <td><span ng-bind="tr.Description"></span></td>
+                            <td class="text-right" style="white-space: nowrap;"><span ng-bind="(tr.Amount * -1) | formatNumber: false"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr style="margin: 5px" />
+            <div class="text-right">
+                <label ng-bind="Translate('Net Total: ') + (ag.Total | formatNumber: false)"></label>
+            </div>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="row hidden-print" ng-if="pagination.totalRecords > 0">
+            <div class="col-xs-12">
+                <div class="pagination-controls text-center" style="margin: 20px 0;">
+                    <div class="pagination-mobile" style="display: inline-block;">
+                        <!-- Page Size Selector -->
+                        <div class="form-group" style="margin-right: 20px; margin-bottom: 10px;">
+                            <label for="pageSize">{{Translate('Records per page')}}:</label>
+                            <select id="pageSize" class="form-control" ng-model="pagination.pageSize" ng-change="changePageSize()" style="width: auto; display: inline-block; margin-left: 5px;">
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                            </select>
+                        </div>
+
+                        <!-- Pagination Info -->
+                        <div class="form-group" style="margin-right: 20px; margin-bottom: 10px;">
+                            <span>
+                                {{Translate('Showing')}}
+                                {{(pagination.currentPage - 1) * pagination.pageSize + 1}} -
+                                {{pagination.currentPage * pagination.pageSize > pagination.totalRecords ? pagination.totalRecords : pagination.currentPage * pagination.pageSize}}
+                                {{Translate('of')}} {{pagination.totalRecords}} {{Translate('records')}}
+                            </span>
+                        </div>
+
+                        <!-- Pagination Buttons -->
+                        <div class="btn-group btn-group-mobile" role="group">
+                            <button type="button" class="btn btn-default" ng-click="goToPage(1)" ng-disabled="pagination.currentPage == 1">
+                                <span class="glyphicon glyphicon-step-backward"></span>
+                            </button>
+                            <button type="button" class="btn btn-default" ng-click="previousPage()" ng-disabled="pagination.currentPage == 1">
+                                <span class="glyphicon glyphicon-chevron-left"></span>
+                            </button>
+
+                            <span style="padding: 6px 12px; display: inline-block;">
+                                {{Translate('Page')}} {{pagination.currentPage}} {{Translate('of')}} {{pagination.totalPages}}
+                            </span>
+
+                            <button type="button" class="btn btn-default" ng-click="nextPage()" ng-disabled="pagination.currentPage >= pagination.totalPages">
+                                <span class="glyphicon glyphicon-chevron-right"></span>
+                            </button>
+                            <button type="button" class="btn btn-default" ng-click="goToPage(pagination.totalPages)" ng-disabled="pagination.currentPage >= pagination.totalPages">
+                                <span class="glyphicon glyphicon-step-forward"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

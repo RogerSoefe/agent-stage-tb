@@ -1,0 +1,260 @@
+﻿<div class="dashbwrapper">
+    <div class="allscrll chat-bottom-spacer">
+        <div class="row pt-3 pl-3 title-divider">
+            <div class="d-flex align-items-center">
+                <a ng-click="toggleBookmark('Position By Game','#/agentposition')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Position By Game') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+                &nbsp;<h3>{{Translate('Position By Game')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+            </div>
+        </div>
+        <div class="data-filters">
+            <div class="row">
+                <div class="col-sm-6 col-xs-6 no-padding">
+                    <h3>{{Translate('Position By Game')}}</h3>
+                </div>
+                <div class="col-sm-6 col-xs-6 text-right no-padding">
+                    <div onclick="window.print();" class="print-action hidden-print">
+                        <h3>Print this</h3>
+                        <div class="print-custom-icon fa-2x">
+                            <i class="fas fa-print"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 ng-show="AllActiveSubSports.length == 0" ng-bind="Translate('No plays available')"></h2>
+
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group" ng-show="AllActiveSubSports.length != 0">
+                    <label class="hidden-xs" for="ddSports" ng-bind="Translate('Sub Sports')"></label>
+                    <select id="ddSports" class="custom-dropdown" ng-model="SelectedSubSport"
+                            ng-change="LoadGamePeriodInfoFromSport(SelectedSubSport.SportType, SelectedSubSport.SubSport, true)"
+                            ng-options="aS.SubSport.Title for aS in AllActiveSubSports"></select>
+                </div>
+            </div>
+
+            <div class="col-xs-6">
+                <span class="chckbx float-right">
+                    <input type="checkbox" id="activeOnly" ng-model="ReportFilters.ShowActiveOnly"
+                           class="form-control">
+                    <label for="activeOnly">Show Active Only</label>
+                </span>
+            </div>
+        </div>
+
+        <div class="data-component">
+            <div class="pg-report-cont">
+                <div class="" ng-show="(ActiveSports == null || ActiveSports.length == 0)"
+                     ng-bind="Translate('No Info To Show')"></div>
+                <div class="page-content inset">
+
+                    <div class="panel-group" id="gamesAccordion" ng-repeat="sSs in SelectedSports"
+                         ng-show="SelectedSports.length != 0">
+                        <div class="panel panel-default" id="{{'agPos.' + sSs.SportType + '.' + sSs.SportSubType}}"
+                             ng-show="sSs.PositionByGame != null">
+                            <div class="row">
+                                <div class="col-xs-3 bg-tertiary-color custom-table-title">
+                                    <a class="ng-binding" data-target="#subSport_{{$index}}" data-toggle="collapse"
+                                       data-parent="#gamesAccordion">
+                                        <span ng-bind="sSs.SportType + ' ' + sSs.SportSubType"></span>
+                                    </a>
+                                </div>
+                                <div class="col-xs-9 custom-table-periods">
+                                    <div ng-repeat="aP in sSs.AvailablePeriods"
+                                         ng-click="LoadGamePeriodInfoFromGamePeriod(sSs, aP, $event)"
+                                         ng-class="{ 'active': aP.Selected }"
+                                         id="{{'btn.' + sSs.SportType + '.' + sSs.SportSubType + '.' + aP.PeriodNumber}}">
+                                        <span>{{aP.PeriodDescription}} <i class="fa fa-chevron-right"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="height: auto;" class="panel-collapse in" id="subSport_{{$index}}">
+                                <div class="wagertypetitle">
+                                    <div class="row">
+                                        <div class="col-sm-12 col-lg-12 col-xl-12 no-padding-right">
+                                            <div class="row">
+                                                <div class="col-xs-5 col-sm-5 col-lg-4 col-xl-5 no-padding"></div>
+                                                <div class="col-xs-7 col-sm-7 col-lg-8 col-xl-7 no-padding">
+
+                                                    <div class="row">
+                                                        <div class="col-xs-4 col-sm-4 text-center text-xs-right wagertypetitle-divider no-padding-left">
+                                                            Spread
+                                                            <div class="row">
+                                                                <div class="col-sm-6 col-md-4 no-padding text-right hidden-xs">
+                                                                    <span class="line_limit" data-toggle="tooltip"
+                                                                          data-placement="bottom"
+                                                                          title="{{Translate('Shows the agent profit on both sides in a game')}}">{{Translate('Profit($)')}}</span>
+                                                                </div>
+                                                                <div class="col-xs-12 col-sm-6 col-md-4 no-padding text-right">
+                                                                    <span class="line_limit" data-toggle="tooltip"
+                                                                          data-placement="bottom"
+                                                                          title="{{Translate('Shows the volume on both sides in the game. The volume is calculated as the lower of the risk or the win amount on a wager')}}">{{Translate('Volume')}}</span>
+                                                                </div>
+                                                                <div class="col-md-4 no-padding text-right hidden-sm hidden-xs">
+                                                                    <span class="line_limit" data-toggle="tooltip"
+                                                                          data-placement="bottom"
+                                                                          title="{{Translate('Shows the actual number of wagers that have been placed on both sides')}}">{{Translate('Count')}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-xs-4 col-sm-4 text-center text-xs-right wagertypetitle-divider no-padding-left">
+                                                            Money Line
+                                                            <div class="row">
+                                                                <div class="col-sm-6 col-md-4 no-padding text-right hidden-xs">
+                                                                    <span class="line_limit" data-toggle="tooltip"
+                                                                          data-placement="bottom"
+                                                                          title="{{Translate('Shows the agent profit on both sides in a game.')}}">{{Translate('Profit($)')}}</span>
+                                                                </div>
+                                                                <div class="col-xs-12 col-sm-6 col-md-4 no-padding text-right">
+                                                                    <span class="line_limit" data-toggle="tooltip"
+                                                                          data-placement="bottom"
+                                                                          title="{{Translate('Shows the volume on both sides in the game. The volume is calculated as the lower of the risk or the win amount on a wager')}}">{{Translate('Volume')}}</span>
+                                                                </div>
+                                                                <div class="col-md-4 no-padding text-right hidden-sm hidden-xs">
+                                                                    <span class="line_limit" data-toggle="tooltip"
+                                                                          data-placement="bottom"
+                                                                          title="{{Translate('Shows the actual number of wagers that have been placed on both sides')}}">{{Translate('Count')}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-xs-4 col-sm-4 text-center text-xs-right wagertypetitle-divider no-padding-left">
+                                                            Totals
+                                                            <div class="row">
+                                                                <div class="col-sm-6 col-md-4 no-padding text-right hidden-xs">
+                                                                    <span class="line_limit" data-toggle="tooltip"
+                                                                          data-placement="bottom"
+                                                                          title="{{Translate('Shows the agent profit on both sides in a game.')}}">{{Translate('Profit($)')}}</span>
+                                                                </div>
+                                                                <div class="col-xs-12 col-sm-6 col-md-4 no-padding text-right">
+                                                                    <span class="line_limit" data-toggle="tooltip"
+                                                                          data-placement="bottom"
+                                                                          title="{{Translate('Shows the volume on both sides in the game. The volume is calculated as the lower of the risk or the win amount on a wager')}}">{{Translate('Volume')}}</span>
+                                                                </div>
+                                                                <div class="col-md-4 no-padding text-right hidden-sm hidden-xs">
+                                                                    <span class="line_limit" data-toggle="tooltip"
+                                                                          data-placement="bottom"
+                                                                          title="{{Translate('Shows the actual number of wagers that have been placed on both sides')}}">{{Translate('Count')}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <ul class="bettinglines">
+
+                                    <li ng-repeat="pG in sSs.PositionByGame | filter: FilterGames">
+
+                                        <div class="gameTitle text-center-xs" ng-if="pG.IsTitle"
+                                             ng-bind="FormatDateTime(pG.GameDate, 11, null, null)"></div>
+                                        <div class="gameLineInfo" ng-if="!pG.IsTitle">
+                                            <div class="row">
+
+                                                <div class="game-line col-sm-12 col-lg-12 col-xl-12 no-padding-right">
+
+
+                                                    <div class="row" ng-if="pG.DrawData">
+
+                                                        <div class="col-xs-5 col-sm-5 col-lg-4 col-xl-5 no-padding">
+                                                            <span ng-bind="DisplayTeam(pG.DrawData)"></span>
+                                                            <!--i style="color: #2A6D91;"></i-->
+                                                        </div>
+
+                                                        <div class="col-xs-7 col-sm-7 col-lg-8 col-xl-7 no-padding">
+                                                            <div class="row">
+                                                                <div class="col-xs-4 col-sm-4">
+                                                                    <div class="row">
+                                                                        <div class="col-sm-6 col-md-4 no-padding-left text-right"></div>
+
+                                                                        <div class="col-xs-12 col-sm-6 col-md-4 no-padding-left text-right"><span class="num_neg"></span></div>
+                                                                        <div class="col-md-4 no-padding-left text-right hidden-sm hidden-xs"><span class="num_neg"></span></div>
+
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xs-4 col-sm-4 no-padding-left">
+                                                                    <div class="row">
+                                                                        <div class="col-sm-6 col-md-4 no-padding text-right">
+                                                                            <a href=""
+                                                                               ng-click="GetGameActionByLineDraw(pG.Team1Data.TeamId, pG.Team2Data.TeamId, pG.DrawData, 'M', 'Money Line')"
+                                                                               onclick="return false"
+                                                                               data-toggle="modal"
+                                                                               data-target="#ModalAgentPos"
+                                                                               ng-class="{'num_zero' : pG.DrawData.MoneyLineCount == 0}">
+                                                                                <span ng-bind="CalculateProfit(pG.Team2Data, pG.Team1Data, sSs.SportType, sSs.SportSubType, 'D', pG.DrawData)"
+                                                                                      eval></span>
+                                                                            </a>
+                                                                        </div>
+
+                                                                        <div class="col-xs-12 col-sm-6 col-md-4 no-padding text-right" ng-bind="CalculateVolume(pG.DrawData, 'M')"><span class="num_neg"></span></div>
+                                                                        <div class="col-md-4 no-padding text-right hidden-sm hidden-xs" ng-bind="CalculateCount(pG.DrawData, 'M')"><span class="num_neg"></span></div>
+
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xs-4 col-sm-4">
+                                                                    <div class="row">
+                                                                        <div class="col-sm-6 col-md-4 no-padding-left text-right"></div>
+
+                                                                        <div class="col-xs-12 col-sm-6 col-md-4 no-padding-left text-right"><span class="num_neg"></span></div>
+                                                                        <div class="col-md-4 no-padding-left text-right hidden-sm hidden-xs"><span class="num_neg"></span></div>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="modal fade modal-wide modal-wide_agposition" id="ModalAgentPos">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" ng-bind="Translate('Agent Position by Line for') + ' '  + (AgentInfo.AgentID | FormatCustomer)"></h1>
+            </div>
+            <div class="modal-body">
+                <div ng-repeat="info in GameActionByLine">
+                    <h1 ng-bind="info.AgentID | FormatCustomer" ng-if="AgentAsCustomerInfo.AgentType == 'M'"></h1>
+                    <h2 ng-bind="LineTitle"></h2>
+
+                    <table width="100%" class="table-responsive">
+                        <tr>
+                            <th>{{Translate('Date')}}</th>
+                            <th>{{Translate('Customer ID')}}</th>
+                            <th>{{Translate('Wager Type')}}</th>
+                            <th>{{Translate('Chosen Team')}}</th>
+                            <th class="text-right">{{Translate('Line')}}</th>
+                            <th class="text-right">{{Translate('Amount')}}</th>
+                        </tr>
+                        <tr ng-repeat="g in info.Items track by $index">
+                            <td ng-bind="LineDate"></td>
+                            <td ng-bind="g.CustomerId | FormatCustomer"></td>
+                            <td ng-bind="g.WagerType"></td>
+                            <td ng-bind="g.ChosenTeamID"></td>
+                            <td class="text-right" ng-bind="FormatLine(g)"></td>
+                            <td class="text-right" ng-bind="g.VolumeAmount | formatNumber"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

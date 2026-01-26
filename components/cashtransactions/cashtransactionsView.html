@@ -1,0 +1,66 @@
+﻿<div class="dashbwrapper">
+    <div class="allscrll chat-bottom-spacer">
+        <div class="row pt-3 pl-3 title-divider">
+            <div class="d-flex align-items-center">
+                <a ng-click="toggleBookmark('Customers Transactions','#/alltransactions')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Customers Transactions') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+                &nbsp<h3 ng-if="AgentId==null">{{Translate('Cash Transactions')}}</h3>
+                     <h3 ng-if="AgentId!=null">{{Translate('Cash Transactions')}} {{Translate('for')}} {{AgentId | FormatCustomer}}</h3>
+            </div>
+        </div>
+        <div class="data-filters">
+            <div class="row">
+                <div class="col-sm-6">                    
+                </div>
+                <div class="col-sm-6 text-right">
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label>{{Translate('Filters}}</label>
+                            <select class="form-control" ng-model="ReportFilters.WeekNumber" ng-change="GetAgentCustomersCashTransactions()" ng-options="wR.DateRange for wR in WeeksRange"></select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="" ng-if="AgentCustomersTransactions.length == 0" ng-bind="">No Info To Show</div>
+
+        <div class="data-component">
+            <table id="cashTransactionsTbl" class="tablesaw" data-tablesaw-mode="swipe" data-tablesaw-mode-switch data-tablesaw-minimap>
+                <thead>
+                    <tr>
+                        <th>{{Translate('Customer')}}</th>
+                        <th>{{Translate('Date')}}</th>
+                        <th>{{Translate('Tran. Type')}}</th>
+                        <th>{{Translate('Desc')}}</th>
+                        <th class="text-right">{{Translate('Amount')}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="aCt in AgentCustomersTransactions">
+                        <td><span ng-bind="aCt.CustomerID | FormatCustomer"></span></td>
+                        <td><span ng-bind="DisplayDate(aCt.TranDateTimeString)"></span><br /><span ng-bind="DisplayTimeFromDate(aCt.TranDateTime)"></span></td>
+                        <td><span ng-show="aCt.TranCode == 'C'">{{Translate('Credit')}}</span><span ng-show="aCt.TranCode == 'D'">{{Translate('Debit')}}</span></td>
+                        <td><span ng-bind="aCt.Description"></span></td>
+                        <td class="text-right"><span ng-bind="aCt.Amount | formatNumber"></span></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td><span></span></td>
+                        <td><span></span></td>
+                        <td><span></span></td>
+                        <td><span ng-bind="Translate('Total')"></span></td>
+                        <td class="text-right"><span ng-bind="CalculateTotalForCashTransactions(-1)"></span></td>
+                    </tr>
+                    <tr>
+                        <td><span></span></td>
+                        <td><span></span></td>
+                        <td><span></span></td>
+                        <td><span ng-bind="Translate('Net Sum:')"></span></td>
+                        <td class="text-right"><span ng-bind="CalculateTotalForCashTransactions(1)"></span></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>﻿
+</div>

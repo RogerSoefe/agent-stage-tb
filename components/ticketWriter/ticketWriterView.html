@@ -1,0 +1,62 @@
+﻿<div class="row">
+  <div class="col-xs-12 py-5 d-flex justify-content-end" ng-show="showSite == true">
+    <button class="btn btn-default" ng-bind="Translate('Chose another customer')" ng-click="showSite = false"></button>
+  </div>
+
+</div>
+
+<div class="row mt-5" ng-show="showSite == false">
+
+
+  <h1 class="text-center pb-5" ng-bind="Translate('Open Customer')"></h1>
+
+
+  <div class="col-md-12 d-flex justify-content-center">
+
+    <form class="bg-white admin-login" ng-submit="openPlayerSite()">
+
+      <div class="form-group" ng-show="AgentAsCustomerInfo.AgentType == 'M'">
+        <label for="agentsnList">{{Translate('Choose an agent')}}</label>
+        <div custom-select="t as (t.AgentId ) for t in normalAgentsList | filter : $searchTerm" class="w-100"
+             ng-model="Selection.Agent" ng-change="updateAgentPlayers(Selection.Agent.AgentId)"
+             id="agentsnList">
+          <div>
+            <span>{{ t.AgentBind }}</span>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="agentsnList">{{Translate('Customer ID')}}</label>
+        <div custom-select="t as (t.label ) for t in agentPlayers | filter : $searchTerm" class="w-100"
+             ng-model="Selection.Customer" ng-change=""
+             id="agentsnList">
+          <div>
+            <span>{{ t.label }}</span>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+
+
+
+
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="{{Selection.Customer.password}}" disabled>
+      </div>
+      <div class="w-100 d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary w-100" ng-bind="Translate('Validate')"></button>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+
+<div class="row">
+  <div class="col-xs-12" ng-show="showSite == true">
+    <iframe src="" id="twFrame" style="min-width:100%; height:100vh"></iframe>
+  </div>
+
+</div>

@@ -1,0 +1,18 @@
+﻿<div class="col-sm-12 col-lg-6 mt-5" ng-if="AgentInfo.EnableEditAccountsFlag == 'Y'">
+  <div class="mt-4" style="display: grid; max-height: 100%; overflow-y: auto;">
+    <div ng-repeat="ts in actionListA">
+      <label ng-show="hideAction(ts.Name)">
+        <input type="checkbox" ng-show="hideAction(ts.Name)" ng-model="ts.checked" ng-change="toggleAction(ts)" ng-disabled="!allowedAction(ts.Name)"> {{Translate(ts.Name)}}
+      </label>
+    </div>
+  </div>
+</div>
+<div class="col-sm-12 col-lg-6 mt-5" ng-if="AgentInfo.EnableEditAccountsFlag == 'Y'">
+  <div class="mt-4" style="display: grid; max-height: 100%; overflow-y: auto;">
+    <div ng-repeat="ts in actionListB">
+    <label ng-show="hideAction(ts.Name)">
+      <input type="checkbox"  ng-model="ts.checked" ng-change="toggleAction(ts)" ng-disabled="!allowedAction(ts.Name)"> {{Translate(ts.Name)}}
+    </label>  
+    </div>
+  </div>
+</div>

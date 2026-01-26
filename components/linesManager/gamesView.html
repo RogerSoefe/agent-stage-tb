@@ -1,0 +1,255 @@
+﻿<div class="data-filters">
+  <div class="row">
+    <div class="col-xs-12 col-md-9 no-padding">
+      <form class="form-inline">
+        <div class="form-group">
+          <label class="" for="exampleInputName2">Sport</label>
+          <select class="form-control custom-dropdown"
+                  ng-options="sport.SportType for sport in Sports"
+                  ng-model="Selections.SportType"
+                  ng-change="Selections.SportSubType=Selections.SportType.SportSubTypes[0]; GetSportGameLines(true)">
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="" for="exampleInputName2">SubSport</label>
+          <select class="form-control custom-dropdown"
+                  ng-options="st.SportSubType for st in Selections.SportType.SportSubTypes"
+                  ng-model="Selections.SportSubType"
+                  ng-change="GetSportGameLines(false)">
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="" for="exampleInputName2">Period</label>
+          <select class="form-control custom-dropdown" ng-model="Selections.Period"
+                  ng-change="GetSportGameLines(false)"
+                  ng-options="p.PeriodDescription for p in Periods">
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="">Order by</label>
+          <select class="form-control custom-dropdown" ng-model="OrderByValue" ng-init="OrderByValue = 'Team1RotNum'">
+            <option value="Team1RotNum">{{Translate('Rotation')}}</option>
+            <option value="GameDateTimeString">{{Translate('Game Date')}}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button class="btn btn-default" ng-click="ShowEditDialog()">{{Translate('Sort Sports')}}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="data-component">
+
+  <div class="row sport-settings-header-row">
+    <div class="col col-md-3">
+      <label ng-bind="SelectedSport.SportType" class="d-inline"></label>
+      <input type="text" class="form-control d-inline search-filter white ng-valid ng-touched ng-dirty ng-valid-parse" placeholder="Search league..." ng-model="leagueFilter" />
+    </div>
+    <div class="col col-md-2">
+      <span ng-bind="Translate('Spread / Run Line Settings')"></span>
+      <br />
+      <input type="button" class="btn" value="Remove Spreads" ng-click="ClearShadeLines('S')" />
+    </div>
+    <div class="col col-md-2">
+      <span ng-bind="Translate('Money Line')"></span>
+      <br />
+      <input type="button" class="btn" value="Remove Money Lines" ng-click="ClearShadeLines('M')" />
+    </div>
+    <div class="col col-md-2">
+      <span ng-bind="Translate('Totals')"></span>
+      <br />
+      <input type="button" class="btn" value="Remove Totals" ng-click="ClearShadeLines('L')" />
+    </div>
+    <div class="col col-md-2">
+      <span ng-bind="Translate('Team Totals')"></span>
+      <br />
+      <input type="button" class="btn" value="Remove Team Totals" ng-click="ClearShadeLines('E')" />
+    </div>
+    <div class="col col-md-1">
+      <span ng-bind="Translate('Actions')"></span>
+    </div>
+  </div>
+</div>
+
+<div class="data-component">
+  <div class="row sport-settings-row" ng-repeat="gf in GamesInfo | filter:leagueFilter | orderBy: OrderByValue " ng-class="{'sport-changed': gf.Changed, 'agent-line': gf.CustProfile != '.', 'disabled-line': LineIsActive(gf)}">
+
+    <!--DATE HEADER-->
+    <div class="row">
+      <div class="col-md-12 d-flex justify-content-center bg-primary-color text-white" ng-bind="FormatDateTime(gf.GameDateTimeString, 17)"></div>
+    </div>
+
+    <!--TEAM 1 LINES-->
+    <div class="row">
+      <div class="col-md-1" ng-bind="gf.Team1RotNum"></div>
+      <div class="col-md-2" ng-bind="Translate(gf.Team1Id)"></div>
+      <!--Spread Team1 -->
+      <div class="col-md-2">
+        <div class="row">
+          <div class="col-md-6">
+            <input type="text" only-Numbers class="form-control" ng-model="gf.Spread1" ng-change="OnLineChange(gf, 'S', 'Pts', 1)" ng-disabled="LineIsActive(gf)" />
+          </div>
+          <div class="col-md-6">
+            <input type="text" class="form-control input-sm" ng-model="gf.SpreadAdj1" input-price-format ng-change="OnLineChange(gf, 'S', 'Adj', 1); clearSpread(gf, 1)" ng-disabled="LineIsActive(gf)" />
+          </div>
+        </div>
+      </div>
+      <!--Money Line Team1 -->
+      <div class="col-md-2">
+        <div class="row">
+          <div class="col-md-11 col-md-offset-1">
+            <input type="text" class="form-control input-sm" ng-model="gf.MoneyLine1" input-price-format ng-change="OnLineChange(gf, 'M', 'Adj', 1)" ng-disabled="LineIsActive(gf)" />
+          </div>
+        </div>
+      </div>
+      <!--Total Team1 -->
+      <div class="col-md-2">
+        <div class="row">
+          <div class="col-md-6">
+            <input type="text" only-Numbers class="form-control input-sm" ng-model="gf.TotalPoints" ng-change="OnLineChange(gf, 'L', 'Pts', 1)" ng-disabled="LineIsActive(gf)" />
+          </div>
+          <div class="col-md-6">
+            <input type="text" class="form-control input-sm" ng-model="gf.TtlPtsAdj1" input-price-format ng-change="OnLineChange(gf, 'L', 'Adj', 1); clearTotal(gf, 3)" ng-disabled="LineIsActive(gf)" />
+          </div>
+        </div>
+      </div>
+      <!--Team Total Team1 -->
+      <div class="col-md-2">
+        <div class="row">
+          <div class="col-md-6">
+            <input type="text" only-Numbers class="form-control input-sm" ng-model="gf.Team1TotalPoints" ng-change="OnLineChange(gf, 'E', 'Pts', 1)" ng-disabled="LineIsActive(gf)" />
+          </div>
+          <div class="col-md-6">
+            <input type="text" class="form-control input-sm center-block" ng-model="gf.Team1TtlPtsAdj1" input-price-format ng-change="OnLineChange(gf, 'E', 'Adj', 1); clearTotal(gf, 3)" ng-disabled="LineIsActive(gf)" />
+            <input type="text" class="form-control input-sm center-block" ng-model="gf.Team1TtlPtsAdj2" input-price-format ng-change="OnLineChange(gf, 'E', 'Adj', 3); clearTotal(gf, 3)" ng-disabled="LineIsActive(gf)" />
+          </div>
+        </div>
+      </div>
+      <!--Actions -->
+      <div class="col-md-1" style=" padding-left:5px;">
+        <button class="btn btn-sm btn-warning btn-block" ng-if="gf.CustProfile != '.'" ng-click="DeleteAgentGameLines(gf)" ng-bind="Translate('Remove Shade')" ng-disabled="LineIsActive(gf)"></button>
+        <button class="btn btn-sm btn-danger btn-block" ng-if="ClearShadeLinesBtnVisible(gf)" ng-click="ClearShadeLines('A', gf)" ng-bind="Translate('Remove Lines')" ng-disabled="LineIsActive(gf)"></button>
+      </div>
+
+
+    </div>
+
+    <!--TEAM 2 LINES-->
+    <div class="row">
+      <div class="col-md-1" ng-bind="gf.Team2RotNum"></div>
+      <div class="col-md-2" ng-bind="Translate(gf.Team2Id)"></div>
+      <!--Spread Team2 -->
+      <div class="col-md-2">
+        <div class="row">
+          <div class="col-md-6">
+            <input type="text" only-Numbers class="form-control" ng-model="gf.Spread2" ng-change="OnLineChange(gf, 'S', 'Pts', 2)" ng-disabled="LineIsActive(gf)" />
+          </div>
+          <div class="col-md-6">
+            <input type="text" class="form-control" ng-model="gf.SpreadAdj2" input-price-format ng-change="OnLineChange(gf, 'S', 'Adj', 2); clearSpread(gf, 1)" ng-disabled="LineIsActive(gf)" />
+          </div>
+        </div>
+      </div>
+      <!--Money Line Team2 -->
+      <div class="col-md-2">
+        <div class="row">
+          <div class="col-md-11 col-md-offset-1">
+            <input type="text" class="form-control" ng-model="gf.MoneyLine2" input-price-format ng-change="OnLineChange(gf, 'M', 'Adj', 2)" ng-disabled="LineIsActive(gf)" />
+          </div>
+        </div>
+      </div>
+      <!--Total Team2 -->
+      <div class="col-md-2">
+        <div class="row">
+          <div class="col-md-6"> </div>
+          <div class="col-md-6">
+            <input type="text" class="form-control" ng-model="gf.TtlPtsAdj2" input-price-format ng-change="OnLineChange(gf, 'L', 'Adj', 2); clearTotal(gf, 3)" ng-disabled="LineIsActive(gf)" />
+          </div>
+        </div>
+      </div>
+      <!--Team Total Team2 -->
+      <div class="col-md-2">
+        <div class="row">
+          <div class="col-md-6">
+            <input type="text" only-Numbers class="form-control input-sm" ng-model="gf.Team2TotalPoints" ng-change="OnLineChange(gf, 'E', 'Pts', 2)" ng-disabled="LineIsActive(gf)" />
+          </div>
+          <div class="col-md-6">
+            <input type="text" class="form-control input-sm center-block" ng-model="gf.Team2TtlPtsAdj1" input-price-format ng-change="OnLineChange(gf, 'E', 'Adj', 2); clearTotal(gf, 3)" ng-disabled="LineIsActive(gf)" />
+            <input type="text" class="form-control input-sm center-block" ng-model="gf.Team2TtlPtsAdj2" input-price-format ng-change="OnLineChange(gf, 'E', 'Adj', 4); clearTotal(gf, 3)" ng-disabled="LineIsActive(gf)" />
+          </div>
+        </div>
+      </div>
+      <!--Actions -->
+      <div class="col-md-1" style="padding-left:5px;">
+        <div ng-show="gf.CustProfile != '.'">
+          <label for="exampleInputEmail1" class="small">Shade type:</label>
+          <select id="exampleInputEmail1" class="form-control small" ng-change="ChangeLineLinkedToStoreFlag(gf)" ng-model="gf.LinkedToStoreFlag" ng-disabled="LineIsActive(gf)">
+            <option value="Y">{{Translate('Soft')}}</option>
+            <option value="N">{{Translate('Hard')}}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!--DRAW LINE-->
+    <div class="row">
+      <div class="col-md-5"></div>
+      <div class="col-md-2">
+        <div class="row" ng-if="SelectedSport.SportType == 'Soccer'">
+          <div class="col-md-11 col-md-offset-1">
+            <input type="text" class="form-control" ng-model="gf.MoneyLineDraw" input-price-format ng-change="OnLineChange(gf, 'D', 'Adj', 3)" ng-disabled="LineIsActive(gf)" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--
+          <div class="col-md-12">
+            <div class="row">
+              <div class="col-md-3">
+                <button class="btn btn-warning" ng-if="gf.CustProfile != '.'" ng-click="DeleteAgentGameLines(gf)" ng-bind="Translate('Remove Shaded Line')"></button>
+              </div>
+              <div class="col-md-3 col-centered" ng-if="1==0">
+                <div id="books-to-follow" class="form-group form-inline booksToFollow">
+                  <select id="exampleInputEmail5" class="form-control custom-dropdown" ng-change="BooksToFollowChange(gf)" ng-options="bookItem.BookID as bookItem.Name for bookItem in gf.BooksToFollow" ng-model="gf.SpreadFollowBookId">
+                    <option value="">NO AUTOMOVER</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-3 col-centered" ng-if="1==0">
+                <div id="books-to-follow" class="form-group form-inline booksToFollow">
+                  <select id="exampleInputEmail5" class="form-control custom-dropdown" ng-change="BooksToFollowChange(gf)" ng-options="bookItem.BookID as bookItem.Name for bookItem in gf.BooksToFollow" ng-model="gf.MoneylineFollowBookId">
+                    <option value="">NO AUTOMOVER</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-3 col-centered" ng-if="1==0">
+                <div id="books-to-follow" class="form-group form-inline books-to-follow">
+                  <select id="exampleInputEmail5" class="form-control custom-dropdown" ng-change="BooksToFollowChange(gf)" ng-options="bookItem.BookID as bookItem.Name for bookItem in gf.BooksToFollow" ng-model="gf.TotalPointsFollowBookId">
+                    <option value="">NO AUTOMOVER</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3" ng-show="gf.CustProfile != '.'">
+                <div class="form-group form-inline">
+                  <label for="exampleInputEmail1">Shade type:</label>
+                  <select id="exampleInputEmail1" class="form-control custom-dropdown" ng-change="ChangeLineLinkedToStoreFlag(gf)" ng-model="gf.LinkedToStoreFlag">
+                    <option value="Y">{{Translate('Soft')}}</option>
+                    <option value="N">{{Translate('Hard')}}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+    -->
+
+  </div>
+</div>

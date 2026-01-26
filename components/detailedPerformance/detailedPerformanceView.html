@@ -1,0 +1,12 @@
+﻿<div class="dashbwrapper">
+    <div class="allscrll chat-bottom-spacer">
+        <div class="row pt-3 pl-3 title-divider">
+            <div class="d-flex align-items-center">
+                <a ng-click="toggleBookmark('detailedPerformance','#/detailedPerformance')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('detailedPerformance') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+                &nbsp;<h3>{{Translate('detailedPerformance')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+            </div>
+        </div>
+        <performancecolumns version="'full'" mode="dual" all-agents-list="AllAgentsList" ng-if="AllAgentsList.length > 0" is-mobile="IsMobile"></performancecolumns>
+    </div>
+    </div>
+    <a href="detailedPerformanceView.html">detailedPerformanceView.html</a>

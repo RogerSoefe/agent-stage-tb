@@ -1,0 +1,422 @@
+﻿appModule.controller("agentExposureController", [
+    '$rootScope', '$scope', '$agentService', function ($rootScope, $scope, $agentService) {
+        $scope.AllActiveSubSports = [];
+        $scope.showProfit = false;
+        $scope.ShowAccuwagers = 0;
+        $scope.ReportFilters = {
+            WeekNumber: {},
+            ShowActiveOnly: true
+        };
+
+        $scope.dataSource = [];
+
+        $scope.SelectedSport = {
+            SportType: "",
+            SportSubType: "",
+            PeriodNumber: 0,
+            WeekNumber: 0,
+            AvailablePeriods: {},
+            PositionByGame: {}
+        };
+        $scope.ActiveSports = {};
+        $scope.SelectedSports = [];
+
+        $scope.Init = function () {
+            $scope.WeeksRange = $agentService.GetWeeksRange();
+            $scope.ReportFilters.WeekNumber = $scope.WeeksRange[0];
+            $scope.GetActivePeriodsAndSports();
+        };
+
+        $scope.GetActivePeriodsAndSports = function () {
+            $agentService.GetActivePeriodsAndSports($scope.ReportFilters.WeekNumber.Index, 1).then(async function (result) {
+                //console.log(result);
+                if (result.data.d.Data == null || result.data.d.Data.length == 0) return;
+                let rawData = result.data.d.Data;
+                let reorderNFL = rawData.filter(x => x.SportSubType == 'NFL');
+                let reorderCFB = rawData.filter(x => x.SportSubType == 'College Football');
+                let reorderNBA = rawData.filter(x => x.SportSubType == 'NBA');
+                let reorderCBB = rawData.filter(x => x.SportSubType == 'College Basketball');
+                let reorderMLB = rawData.filter(x => x.SportSubType == 'MLB');
+                let reorderNHL = rawData.filter(x => x.SportSubType == 'NHL');
+                let reorderOthers = rawData.filter(x => x.SportSubType != 'NFL' && x.SportSubType != 'College Football' && x.SportSubType != 'NBA' && x.SportSubType != 'College Basketball' && x.SportSubType != 'MLB' && x.SportSubType != 'NHL');
+                rawData = [...reorderNFL, ...reorderCFB, ...reorderNBA, ...reorderCBB, ...reorderMLB, ...reorderNHL, ...reorderOthers];
+                $scope.ActiveSports = DistinctActiveSports(rawData);
+                $scope.AllActiveSubSports.push({ SubSport: { Title: $scope.Translate('All'), Name: 'All' } });
+                $scope.ActiveSports.forEach(function (sport) {
+                    sport.SubSportsList.forEach(function (subSport) {
+                        subSport.Title = `${sport.SportType} - ${subSport.SportSubType}`;
+                        $scope.AllActiveSubSports.push({ SubSport: subSport, SportType: sport.SportType });
+                    })
+                });
+                $scope.SelectedSubSport = $scope.AllActiveSubSports[0];
+                $scope.DDBox = {
+                    ActiveSport: $scope.ActiveSports[0],
+                    ActiveSubSport: $scope.ActiveSports[0].SubSportsList[0]
+                };
+
+                for (var i = 0; i < $scope.ActiveSports.length; i++) {
+                    let activeSport = $scope.ActiveSports[i];
+                    for (var j = 0; j < activeSport.SubSportsList.length; j++) {
+                        let activeSubSport = activeSport.SubSportsList[j];
+                        await $scope.LoadGamePeriodInfoFromSport(activeSport.SportType, activeSubSport, false, 2);
+                    }
+                }
+            });
+        };
+
+        let currentSelection = {};
+
+        $scope.accuDataToggle = function () {
+            LoadInfo(currentSelection.sportTypeArg, currentSelection.sportSubTypeArg);
+        }
+
+        async function LoadInfo(sportTypeArg, sportSubTypeArg, clearSelectedSports = false) {
+            currentSelection = {};
+            if (sportSubTypeArg && !sportSubTypeArg.Name) {
+                currentSelection.sportTypeArg = sportTypeArg;
+                currentSelection.sportSubTypeArg = sportSubTypeArg;
+                LoadGamePeriodInfoFromSport(sportTypeArg, sportSubTypeArg, clearSelectedSports, 2);
+            } else {
+                $scope.SelectedSports = [];
+                for (var i = 0; i < $scope.ActiveSports.length; i++) {
+                    let activeSport = $scope.ActiveSports[i];
+                    for (var j = 0; j < activeSport.SubSportsList.length; j++) {
+                        let activeSubSport = activeSport.SubSportsList[j];
+                        await $scope.LoadGamePeriodInfoFromSport(activeSport.SportType, activeSubSport, false, 2);
+                    }
+                }
+            }
+        }
+
+        $scope.LoadInfo = LoadInfo;
+
+        async function LoadGamePeriodInfoFromSport(sportTypeArg, sportSubTypeArg, clearSelectedSports = false, accuWagers = false) {
+            if (typeof sportSubTypeArg === "undefined") return;
+            if (clearSelectedSports == true) $scope.SelectedSports = [];
+            let period = $scope.GetFirstAvailablePeriod(sportTypeArg, sportSubTypeArg.SportSubType);
+            var availablePeriods = $scope.GetAvailablePeriods(sportTypeArg, sportSubTypeArg.SportSubType);
+            var positionByGame = {};
+            var weekNumber = $scope.ReportFilters.WeekNumber;
+            let result = (await $agentService.GetAgentPositionByGame(sportTypeArg, sportSubTypeArg.SportSubType, period.PeriodNumber, weekNumber, 0));
+            positionByGame = GroupPositionInfo(result.data.d.Data);
+            var selectedSport = {
+                SportType: sportTypeArg,
+                SportSubType: sportSubTypeArg.SportSubType,
+                PeriodInfo: period,
+                WeekNumber: weekNumber,
+                AvailablePeriods: availablePeriods,
+                PositionByGame: positionByGame
+            };
+            selectedSport.SelectedPeriod = selectedSport.AvailablePeriods[0];
+            $scope.SelectedSports.push(selectedSport);
+            displayTooltips();
+            sportSubTypeArg.Selected = true;
+            $rootScope.safeApply();
+
+        }
+
+        $scope.GameIsOver = function (dateTime) {
+            return (new Date(dateTime)).getTime() < ($agentService.GetServerDateTime()).getTime();
+        }
+
+        $scope.LoadGamePeriodInfoFromSport = LoadGamePeriodInfoFromSport;
+
+        $scope.FilterGames = function (game) {
+            /*var gameTime;
+            let teamData = null;
+            if (!game.IsTitle)
+                teamData = game.Team1Data.straightsData.spreadData ? game.Team1Data.straightsData.spreadData : game.Team1Data.straightsData.moneyData ? game.Team1Data.straightsData.moneyData : game.Team1Data.straightsData.totalData ? game.Team1Data.straightsData.totalData : null;
+            if (teamData)
+                gameTime = (new Date(teamData.GameDateString)).toDateString();
+            else*/
+
+            return validateGameDate(game);
+        }
+
+        function validateGameDate(game) {
+            let filterDate = $agentService.GetServerDateTime();
+            var filterDateOption = $scope.SelectedDateFilterOption;
+            var gameDate;
+
+            let teamData = null;
+            if (!game.IsTitle)
+                teamData = game.Team1Data.straightsData.spreadData ? game.Team1Data.straightsData.spreadData : game.Team1Data.straightsData.moneyData ? game.Team1Data.straightsData.moneyData : game.Team1Data.straightsData.totalData ? game.Team1Data.straightsData.totalData : null;
+            if (teamData)
+                gameDate = (new Date(teamData.GameDateString)).toDateString();
+            else if (game.GameDateString)
+                gameDate = (new Date(game.GameDateString)).toDateString();
+            else if (game.GameDateTimeString)
+                gameDate = (new Date(game.GameDateTimeString)).toDateString();
+
+            if (filterDateOption != "Today") filterDate.setDate(filterDate.getDate() - 1);
+            filterDate = filterDate.toDateString();
+
+            if (!filterDateOption) {
+
+                if (filterDate == gameDate) return false;
+
+                return true;
+            }
+            return filterDate == gameDate;
+
+        }
+
+        $scope.FilterLeagues = function (league) {
+            return (league.PositionByGame ? league.PositionByGame.some(x => $scope.FilterGames(x, null)) : false) || league.AvailablePeriods.length > 1;
+        }
+
+        $scope.LoadGamePeriodInfoFromGamePeriod = function (sport, period) {
+            if (period.Selected)
+                return;
+            var weekNumber = $scope.ReportFilters.WeekNumber;
+            sport.PeriodInfo = period;
+            $agentService.GetAgentPositionByGame(sport.SportType, sport.SportSubType, period.PeriodNumber, weekNumber, 0).then(function (result) {
+                //console.log(result);
+                sport.PositionByGame = GroupPositionInfo(result.data.d.Data);
+                period.Selected = true;
+                for (i = 0; i < sport.AvailablePeriods.length; i++) {
+                    if (sport.AvailablePeriods[i].PeriodNumber != period.PeriodNumber) sport.AvailablePeriods[i].Selected = false;
+                }
+            });
+        };
+
+        $scope.GetWeekNumberInt = function (weekNumberObj) {
+            return weekNumberObj.Index;
+        };
+
+        var GroupPositionInfo = function (list) {
+            console.log(list);
+            if (!list || list.length == 0) return null;
+            var result = new Array();
+            var gameObj = { Team1Data: {}, Team2Data: {}, IsTitle: false, DrawData: null };
+            var holdGameNum = list[0].GameNum;
+            var holdGameDate = new Date(list[0].GameDateString).toDateString();
+
+            for (var j = 0; j < list.length; j++) {
+                var date = new Date(list[j].GameDateString).toDateString();
+
+                if (holdGameNum != list[j].GameNum) {
+                    result.push(gameObj);
+                    gameObj = { Team1Data: {}, Team2Data: {}, IsTitle: false, DrawData: null };
+                }
+                if ((j == 0 || holdGameDate != date) && list[j].TeamIdIdx == 1) {
+                    var gameDateObj = { GameDateString: list[j].GameDateString, IsTitle: true, Team1Data: null, Team2Data: null, DrawData: null };
+                    result.push(gameDateObj);
+                }
+                gameObj.GameNum = list[j].GameNum;
+                gameObj.FinishedGame = list[j].FinishedGame;
+                gameObj.GameDateTimeString = list[j].GameDateTimeString;
+
+                gameObj.Team1Data.straightsData = gameObj.Team1Data.straightsData ? gameObj.Team1Data.straightsData : {};
+                gameObj.Team1Data.parlaysData = gameObj.Team1Data.parlaysData ? gameObj.Team1Data.parlaysData : {};
+                gameObj.Team1Data.teasersData = gameObj.Team1Data.teasersData ? gameObj.Team1Data.teasersData : {};
+                gameObj.Team1Data.reverseData = gameObj.Team1Data.reverseData ? gameObj.Team1Data.reverseData : {};
+
+                gameObj.Team2Data.straightsData = gameObj.Team2Data.straightsData ? gameObj.Team2Data.straightsData : {};
+                gameObj.Team2Data.parlaysData = gameObj.Team2Data.parlaysData ? gameObj.Team2Data.parlaysData : {};
+                gameObj.Team2Data.teasersData = gameObj.Team2Data.teasersData ? gameObj.Team2Data.teasersData : {};
+                gameObj.Team2Data.reverseData = gameObj.Team2Data.reverseData ? gameObj.Team2Data.reverseData : {};
+
+                switch (list[j].TeamIdIdx) {
+                    case 1:
+                        gameObj.Team1Data.TeamId = list[j].TeamId.trim();
+
+                        gameObj.Team1Data.TeamRotNum = list[j].TeamRotNum;
+                        gameObj.Team1Data.straightsData.spreadData = (list[j].Type == 'S' || list[j].Type == 'M' || list[j].Type == 'L' || list[j].Type == 'E') && list[j].WagerType == 'S' ? list[j] : gameObj.Team1Data.straightsData.spreadData;
+                        gameObj.Team1Data.straightsData.moneyData = (list[j].Type == 'S' || list[j].Type == 'M' || list[j].Type == 'L' || list[j].Type == 'E') && list[j].WagerType == 'M' ? list[j] : gameObj.Team1Data.straightsData.moneyData;
+                        gameObj.Team1Data.straightsData.totalData = (list[j].Type == 'S' || list[j].Type == 'M' || list[j].Type == 'L' || list[j].Type == 'E') && list[j].WagerType == 'L' ? list[j] : gameObj.Team1Data.straightsData.totalData;
+
+                        gameObj.Team1Data.parlaysData.spreadData = list[j].Type == 'P' && list[j].WagerType == 'S' ? list[j] : gameObj.Team1Data.parlaysData.spreadData;
+                        gameObj.Team1Data.parlaysData.moneyData = list[j].Type == 'P' && list[j].WagerType == 'M' ? list[j] : gameObj.Team1Data.parlaysData.moneyData;
+                        gameObj.Team1Data.parlaysData.totalData = list[j].Type == 'P' && list[j].WagerType == 'L' ? list[j] : gameObj.Team1Data.parlaysData.totalData;
+
+                        gameObj.Team1Data.teasersData.spreadData = list[j].Type == 'T' && list[j].WagerType == 'S' ? list[j] : gameObj.Team1Data.teasersData.spreadData;
+                        gameObj.Team1Data.teasersData.moneyData = list[j].Type == 'T' && list[j].WagerType == 'M' ? list[j] : gameObj.Team1Data.teasersData.spreadData;
+                        gameObj.Team1Data.teasersData.totalData = list[j].Type == 'T' && list[j].WagerType == 'L' ? list[j] : gameObj.Team1Data.teasersData.totalData;
+
+
+                        gameObj.Team1Data.reverseData.spreadData = list[j].Type == 'I' && list[j].WagerType == 'S' ? list[j] : gameObj.Team1Data.reverseData.spreadData;
+                        gameObj.Team1Data.reverseData.moneyData = list[j].Type == 'I' && list[j].WagerType == 'M' ? list[j] : gameObj.Team1Data.reverseData.spreadData;
+                        gameObj.Team1Data.reverseData.totalData = list[j].Type == 'I' && list[j].WagerType == 'L' ? list[j] : gameObj.Team1Data.reverseData.totalData;
+
+                        break;
+                    case 2:
+                        gameObj.Team2Data.TeamId = list[j].TeamId.trim();
+
+                        gameObj.Team2Data.TeamRotNum = list[j].TeamRotNum;
+                        gameObj.Team2Data.straightsData.spreadData = (list[j].Type == 'S' || list[j].Type == 'M' || list[j].Type == 'L' || list[j].Type == 'E') && list[j].WagerType == 'S' ? list[j] : gameObj.Team2Data.straightsData.spreadData;
+                        gameObj.Team2Data.straightsData.moneyData = (list[j].Type == 'S' || list[j].Type == 'M' || list[j].Type == 'L' || list[j].Type == 'E') && list[j].WagerType == 'M' ? list[j] : gameObj.Team2Data.straightsData.moneyData;
+                        gameObj.Team2Data.straightsData.totalData = (list[j].Type == 'S' || list[j].Type == 'M' || list[j].Type == 'L' || list[j].Type == 'E') && list[j].WagerType == 'L' ? list[j] : gameObj.Team2Data.straightsData.totalData;
+
+                        gameObj.Team2Data.parlaysData.spreadData = list[j].Type == 'P' && list[j].WagerType == 'S' ? list[j] : gameObj.Team2Data.parlaysData.spreadData;
+                        gameObj.Team2Data.parlaysData.moneyData = list[j].Type == 'P' && list[j].WagerType == 'M' ? list[j] : gameObj.Team2Data.parlaysData.moneyData;
+                        gameObj.Team2Data.parlaysData.totalData = list[j].Type == 'P' && list[j].WagerType == 'L' ? list[j] : gameObj.Team2Data.parlaysData.totalData;
+
+                        gameObj.Team2Data.teasersData.spreadData = list[j].Type == 'T' && list[j].WagerType == 'S' ? list[j] : gameObj.Team2Data.teasersData.spreadData;
+                        gameObj.Team2Data.teasersData.moneyData = list[j].Type == 'T' && list[j].WagerType == 'M' ? list[j] : gameObj.Team2Data.teasersData.moneyData;
+                        gameObj.Team2Data.teasersData.totalData = list[j].Type == 'T' && list[j].WagerType == 'L' ? list[j] : gameObj.Team2Data.teasersData.totalData;
+
+                        gameObj.Team2Data.reverseData.spreadData = list[j].Type == 'I' && list[j].WagerType == 'S' ? list[j] : gameObj.Team2Data.reverseData.spreadData;
+                        gameObj.Team2Data.reverseData.moneyData = list[j].Type == 'I' && list[j].WagerType == 'M' ? list[j] : gameObj.Team2Data.reverseData.spreadData;
+                        gameObj.Team2Data.reverseData.totalData = list[j].Type == 'I' && list[j].WagerType == 'L' ? list[j] : gameObj.Team2Data.reverseData.totalData;
+                        break;
+                    case 3:
+                        gameObj.drawData = !gameObj.drawData ? list[j] : list[j].WagerType == 'M' ? list[j] : gameObj.drawData;
+                        break;
+                }
+                holdGameDate = date;
+                holdGameNum = list[j].GameNum;
+                if (j == list.length - 1) {
+                    result.push(gameObj);
+                }
+            }
+            return result;
+        };
+
+        $scope.GetAvailablePeriods = function (sportType, sportSubType) {
+            var availablePeriods = [];
+            for (var i = 0; i < $scope.ActiveSports.length; i++) {
+                if ($scope.ActiveSports[i].SportType == sportType) {
+                    for (var j = 0; j < $scope.ActiveSports[i].ObjectList.length; j++) {
+                        if ($scope.ActiveSports[i].ObjectList[j].SportSubType == sportSubType) {
+                            var period = { PeriodNumber: $scope.ActiveSports[i].ObjectList[j].PeriodNumber, PeriodDescription: $scope.ActiveSports[i].ObjectList[j].PeriodDescription, Selected: false };
+                            availablePeriods.push(period);
+                        }
+                    }
+                }
+            }
+            availablePeriods[0].Selected = true;
+            return availablePeriods;
+        };
+
+        $scope.GetFirstAvailablePeriod = function (sportType, sportSubType) {
+            if (!$scope.ActiveSports)
+                return -2;
+            for (var i = 0; i < $scope.ActiveSports.length; i++) {
+                if ($scope.ActiveSports[i].SportType == sportType) {
+                    for (var j = 0; j < $scope.ActiveSports[i].ObjectList.length; j++) {
+                        if ($scope.ActiveSports[i].ObjectList[j].SportSubType == sportSubType)
+                            return $scope.ActiveSports[i].ObjectList[j];
+                    }
+                }
+            }
+            return -1;
+        };
+
+        $scope.GetGameActionByLine = function (gameNum, chosenTeam, wagerSubType, wagerType, periodInfo) {
+            $agentService.GetOpenWagersByLine(gameNum, periodInfo.PeriodNumber, chosenTeam, wagerType, wagerSubType).then(function (result) {
+                $scope.dataSource = result.data.d.Data;
+            });
+        };
+
+        jQuery('#ModalAgentPos').on('hidden.bs.modal', function () {
+            $scope.dataSource = [];
+        })
+
+        $scope.GetGameActionByLineDraw = function (team1, team2, line, wagerType, wagerName, periodInfo) {
+
+
+            $agentService.GetOpenWagersByLine(line.GameNum, periodInfo.PeriodNumber, 'Draw (' + team1.trim() + ' vs ' + team2.trim() + ')', wagerType, wagerSubType).then(function (result) {
+                $scope.dataSource = result.data.d.Data;
+            });
+
+            $scope.AgentInfo = $agentService.AgentInfo;
+            $scope.LineTitle = line.TeamId + ' ' + wagerName;
+            $scope.LineDate = CommonFunctions.FormatDateTime(line.GameDateTime, 11);
+            $agentService.GetGameActionByLine(line.GameNum, periodInfo.PeriodNumber, 'Draw (' + team1.trim() + ' vs ' + team2.trim() + ')', wagerType).then(function (result) {
+                $scope.GameActionByLine = [];
+                var rawData = result.data.d.Data;
+                if (!rawData || rawData.length == 0) return;
+                var agentID = rawData[0].AgentID;
+                var groupedItems = new Array();
+                var groupedData = new Array();
+                for (var i = 0; i < rawData.length; i++) {
+                    if (agentID != rawData[i].AgentID) {
+                        groupedData.push({ Items: groupedItems, AgentID: groupedItems[0].AgentID });
+                        groupedItems = new Array();
+                        groupedItems.push(rawData[i]);
+                    } else {
+                        groupedItems.push(rawData[i]);
+                    }
+                    if (i == rawData.length - 1) {
+                        groupedData.push({ Items: groupedItems, AgentID: groupedItems[0].AgentID });
+                    }
+                    agentID = rawData[i].AgentID;
+                }
+                $scope.GameActionByLine = groupedData;
+            });
+        };
+
+        $scope.FormatLine = function (gameLine) {
+            return LineOffering.ConvertToHalfSymbol(gameLine.Line, gameLine.TotalPointsOU == '') + ' ' + (gameLine.Price > 0 ? '+' + gameLine.Price : gameLine.Price) + (gameLine.TotalPointsOU == "O" ? " OVER" : gameLine.TotalPointsOU == "U" ? " UNDER" : "");
+        };
+
+        $scope.FormatMaxMin = function (minLine, maxLine, count, char = '') {
+            const min = LineOffering.ConvertToHalfSymbol(minLine, char == '');
+            const max = LineOffering.ConvertToHalfSymbol(maxLine, char == '');
+            if (min == '' || max == '' || count == 0) return '-';
+            return min == max ? `${char}${min}` : `${char}${min}/${max}`
+        }
+
+        function DistinctActiveSports(list) {
+            var unique = {};
+            var distinctActiveSports = [];
+            for (var i in list) {
+                if (typeof (unique[list[i].SportType]) == "undefined") {
+                    var List = new Array();
+                    for (var j = 0; j < list.length; j++) {
+                        if (list[j].SportType == list[i].SportType) {
+                            List.push(list[j]);
+                        }
+                    }
+                    var distinctSubSports = $scope.DistinctSubSports(List);
+                    //var activePeriods = $scope.DistinctPeriods(List);
+                    var groupedSportsInfo = { SportType: list[i].SportType, SubSportsList: distinctSubSports, /*ActiveGamePeriods: activePeriods,*/ ObjectList: List };
+                    distinctActiveSports.push(groupedSportsInfo);
+                }
+                unique[list[i].SportType] = "";
+            }
+            return distinctActiveSports;
+        };
+
+        $scope.DistinctSubSports = function (list) {
+            var unique = {};
+            var distinctSubSports = [];
+            for (var i in list) {
+                if (typeof (unique[list[i].SportSubType]) == "undefined") {
+                    var sportSubType = { SportSubType: list[i].SportSubType };
+                    distinctSubSports.push(sportSubType);
+                }
+                unique[list[i].SportSubType] = "";
+            }
+            return distinctSubSports;
+        };
+
+        $scope.DisplayTeam = function (gameInfo) {
+            return String(gameInfo.TeamRotNum) + ' - ' + $scope.Translate(gameInfo.TeamId);
+        };
+
+
+        $scope.CalculateVolume = function (gameInfo, wagerType) {
+            var volume = 0.0;
+            switch (wagerType) {
+                case "S":
+                    volume = gameInfo.spreadData ? gameInfo.spreadData.SpreadWagered : 0;
+                    break;
+                case "M":
+                    volume = gameInfo.moneyData ? gameInfo.moneyData.MoneyLineWagered : 0;
+                    break;
+                case "L":
+                    volume = gameInfo.totalData ? gameInfo.totalData.TotalPointsWagered : 0;
+                    break;
+                case "I":
+                    volume = gameInfo.totalData ? gameInfo.totalData.TotalPointsWagered : 0;
+                    break;
+            }
+
+            return $scope.FormatMyNumber(volume, false, true);
+        };
+
+        $scope.Init();
+    }
+]);

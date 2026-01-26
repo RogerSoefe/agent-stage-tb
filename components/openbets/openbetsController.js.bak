@@ -1,0 +1,17 @@
+﻿appModule.controller("openbetsController", [
+	'$scope', '$agentService', '$rootScope', function ($scope, $agentService, $rootScope) {
+		$scope.dataSource = [];
+		async function Init() {
+						let endDate = new Date();
+						let startDate = new Date();
+						startDate.setDate(startDate.getDate() - 7);
+						let params = { customerId: 'All', mode: 2, startDate: startDate, endDate: endDate };
+			$scope.dataSource = (await $agentService.GetOpenBetsByCustomerId(params));
+			$rootScope.safeApply();
+			}
+
+		$scope.sourceCaller = function (params) {
+			return $agentService.GetOpenBetsByCustomerId(params);
+						}
+		Init();
+	}]);

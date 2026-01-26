@@ -1,0 +1,59 @@
+﻿<div class="dashbwrapper">
+	<div class="allscrll chat-bottom-spacer" id="scrollBox">
+
+		<div class="row pt-3 pl-3 title-divider">
+			<div class="d-flex align-items-center">
+				<a ng-click="toggleBookmark('Agent Billing','#/weeklyBilling')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Agent Billing') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+				&nbsp;<h3>{{Translate('Agent Billing')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+			</div>
+		</div>
+		<div class="data-filters hidden-print">
+
+			<div class="row data-component-summary">
+				<div class="col-xs-12 d-flex justify-content-center">
+					<div class="col-sm-3">
+						<div class="df-card">
+							<span>{{Translate('Head Amount')}}</span>
+							<h2 ng-bind="Summary.DistributionAmountPerHead | formatNumber" ng-class="{'num_neg' : Summary.DistributionAmountPerHead < 0}"></h2>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="form-group col-xs-6 no-padding" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+						<label for="agentsnList">{{Translate('Choose an account:')}}</label>
+						<div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+							 ng-model="$root.selectedAgent" ng-change="getData()"
+							 id="agentsnList">
+							<div>
+								<span>{{ t.AgentBind }}</span>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<form class="form-inline">
+							<div class="form-group">
+								<select class="form-control" ng-model="SelectedWeekNumber" ng-change="getData()" ng-options="wR.DateRange for wR in WeeksRange"></select>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="table-wrapper table-responsive">
+						<table datatable dt-instance="vm.dtInstance" dt-options="vm.dtOptions" dt-column-defs="vm.dtColumnDefs" class="custom-datatable" id="agentsWB">
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

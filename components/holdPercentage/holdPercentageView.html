@@ -1,0 +1,59 @@
+﻿<div class="dashbwrapper">
+	<div class="allscrll chat-bottom-spacer" id="scrollBox">
+		<div class="row pt-3 pl-3 title-divider">
+			<div class="d-flex align-items-center">
+				<a ng-click="toggleBookmark('Hold Percentage','#/holdPercentage')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Hold Percentage') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+				&nbsp;<h3>{{Translate('Hold Percentage')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+			</div>
+		</div>
+		<div class="data-filters hidden-print">
+			<div class="row">
+				<div class="col-xs-6 col-lg-4 hidden-print">
+					<form class="form-inline">
+						<div class="form-group float-left">
+							<label for="startDate">{{Translate('Start date')}}:</label>
+							<div class="date-picker">
+								<input id="startDate" type="text" class="form-control form-control-ios-fix" ng-model="Filter.startDate" ng-change="getData()" name="filterDate" />
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="col-xs-6 col-lg-4 hidden-print">
+					<form class="form-inline">
+						<div class="form-group float-left">
+							<label for="endDate">{{Translate('End date')}}:</label>
+							<div class="date-picker">
+								<input id="endDate" type="text" class="form-control form-control-ios-fix" ng-model="Filter.endDate" ng-change="getData()" name="filterDate" />
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="col-xs-12 col-lg-4 hidden-print">
+					<form class="form-inline">
+						<div class="form-group">
+							<div class="no-padding" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+								<label for="agentsnList">{{Translate('Choose an account:')}}</label>
+								<div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+									 ng-model="$root.selectedAgent" ng-change="getData()"
+									 id="agentsnList">
+									<div>
+										<span>{{ t.AgentBind }}</span>
+									</div>
+									<div class="clearfix"></div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="table-wrapper table-responsive">
+						<table datatable dt-instance="vm.dtInstance" dt-options="vm.dtOptions" dt-column-defs="vm.dtColumnDefs" class="custom-datatable">
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

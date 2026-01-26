@@ -1,0 +1,46 @@
+﻿<div class="dashbwrapper">
+	<div class="allscrll chat-bottom-spacer" id="scrollBox">
+		<div class="row pt-3 pl-3 title-divider">
+			<div class="d-flex align-items-center">
+				<a ng-click="toggleBookmark('Agents Manager','#/agentAccess')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Agent Manager') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+				&nbsp;<h3>{{Translate('Agents Manager')}}</h3>
+			</div>
+		</div>
+		<div class="row">
+
+      <div class="col-xs-6">
+        <div class="form-group col-xs-6 no-padding" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+          <label for="agentsnList">{{Translate('Choose an account:')}}</label>
+          <div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+               ng-model="$root.selectedAgent" ng-change="GetAgentInfo($root.selectedAgent.AgentId)"
+               id="agentsnList">
+            <div>
+              <span>{{ t.AgentBind }}</span>
+            </div>
+            <div class="clearfix"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="col-xs-6 d-flex justify-content-end mb-4">
+        <button type="button" class="btn btn-default mt-4" ng-click="toggleCollapse()">{{Translate('Toggle Tree')}}</button>
+      </div>
+    </div>
+
+    <div class="row">
+						<div class="col-xs-12 d-flex justify-content-center mb-4">
+								<a href="#/addAgent" ng-show="AgentInfo.AddNewAccountFlag == 'Y'"><button type="button" class="btn btn-success mt-4">{{Translate('Add Agents')}}</button></a>
+						</div>
+    </div>
+
+    <div class="row">
+			<div class="col-xs-12">
+				<div ui-tree id="tree-root" data-nodrag style="height:100%!important">
+					<agent-tree agents-list="agentList" ng-if="agentList" open-agent-manager="OpenAgentManager"></agent-tree>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>

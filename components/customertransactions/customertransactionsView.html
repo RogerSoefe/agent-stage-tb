@@ -1,0 +1,72 @@
+﻿<div class="data-filters">
+    <div class="row">
+        <div class="col-sm-6">
+            <h2 ng-show="ReportFilters.IsRootAgent == true">{{Translate('Transactions')}}</h2>
+            <h2 ng-show="ReportFilters.IsRootAgent == false">{{Translate('Transactions')}} {{Translate('for')}} {{ReportFilters.CustomerId | FormatCustomer}}</h2>
+            <h3 ng-show="selected" ng-bind="DisplayShowingLabel()"></h3>
+        </div>
+        <div class="col-sm-6 text-right">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label>Filters</label>
+                    <select class="form-control" ng-model="ReportFilters.WeekNumber" ng-change="GetCustomerTransactions()" ng-options="wR.DateRange for wR in WeeksRange"></select><br/>
+                    <span><label>{{Translate('Show Cash Transactions Only')}}<input type="checkbox" ng-model="ReportFilters.ShowCashTransOnly" id="chbShowCashTransOnly"></label></span><br/>
+                </div><br/>
+                <div class="form-group">
+                    <span><label>{{Translate('View Transactions for the past 30 Days')}}<input type="checkbox" ng-model="showLast30Days" id="chbShowLast30Days" ng-click= "GetCustomerTransactions(30, $event)" ng-checked="IsSelected('ShowLast30Days')"></label></span><br/>
+                    <span><label>{{Translate('View Transactions for the past 60 Days')}}<input type="checkbox" ng-model="showLast60Days" id="chbShowLast60Days" ng-click= "GetCustomerTransactions(60, $event)" ng-checked="IsSelected('ShowLast60Days')"></label></span><br/>
+                    <span><label>{{Translate('View Transactions for the past 90 Days')}}<input type="checkbox" ng-model="showLast90Days" id="chbShowLast90Days" ng-click= "GetCustomerTransactions(90, $event)" ng-checked="IsSelected('ShowLast90Days')"></label></span><br/>
+                    <span><label>{{Translate('View All Transactions')}}<input type="checkbox" ng-model="showAllTransactions" id="chbShowAllTransactions" ng-click= "GetCustomerTransactions(-1, $event)" ng-checked="IsSelected('ShowAllTransactions')"></label></span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="" ng-show="CustomerTransactions.length == 0" ng-bind="">{{Translate('No Info To Show')}}</div>
+
+<div class="data-component">
+    <table id="custTransactionsTbl" class="tablesaw" data-tablesaw-mode="swipe" data-tablesaw-mode-switch data-tablesaw-minimap>
+        <thead>
+            <tr>
+                <th>{{Translate('DOCUMENT')}}</th>
+                <th>{{Translate('DATE')}}</th>
+                <th>{{Translate('TYPE')}}</th>
+                <th>{{Translate('CREDIT/DEBIT')}}</th>
+                <th>{{Translate('BAL')}}</th>
+                <th>{{Translate('WAGER DETAILS')}}</th>
+            </tr>
+        </thead>
+        <tr ng-repeat="cT in CustomerTransactions" ng-show="ShowCashTransOnly(cT)">
+            <td><span ng-bind="cT.DocumentNumber"></span></td>
+            <td><span ng-bind="DisplayDate(cT.TranDateTimeString)"></span>&nbsp;<span ng-bind="DisplayTimeFromDate(cT.TranDateTimeString)"></span></td>
+            <td><span ng-bind="WriteTransactionDesc(cT)"></span>&nbsp;<span ng-if="cT.GradeNum != null" ng-bind="ShowWonLost(cT)"></span></td>
+            <td><span ng-show="cT.TranCode=='D'"><span ng-bind="'-'"></span><span ng-bind="cT.Amount | formatNumber"></span></span><span ng-show="cT.TranCode=='C'"><span ng-bind="'+'"></span><span ng-bind="cT.Amount | formatNumber"></span></span></td>
+            <td><span ng-bind="cT.EndBalance | formatNumber"></span></td>
+            <td><button ng-if="cT.GradeNum != null" role="button" data-toggle="collapse" href="#alltrans_{{$index}}" aria-expanded="false" aria-controls="collapseExample" class="btn btn-small btn-graded" ng-bind="'VIEW GRADED RESULTS'" ng-click="ShowGradeResults(cT)"></button>
+                <section>
+	                <div class="collapse" id="alltrans_{{$index}}">
+		                <div ng-repeat="wi in cT.WagerItems">
+                            <div class="graded-data-detail">
+                                <button class="icon_viewresults" onclick="changeIcon(this)" type="button" data-toggle="collapse" data-target="#resultsf_{{$parent.$index}}_{{$index}}" aria-expanded="false" aria-controls="collapseExample"></button>
+				                <strong ng-if="wi.Outcome == 'L'" ng-class="num_neg" ng-bind="'LOST' + ' '"></strong>
+                                <strong ng-if="wi.Outcome == 'W'" ng-class="num_pos" ng-bind="'WON' + ' '"></strong>
+                                <span ng-bind="wi.Description + ' ' + wi.WagerType"></span>
+				                <div ng-show="wi.WagerType !='G'" class="collapse" id="resultsf_{{$parent.$index}}_{{$index}}">
+					                <b ng-bind="'Game Results' +':'"></b>
+					                <span ng-bind="ScoredPtsHeader(wi)"></span>
+					                <br />
+					                <span ng-bind="WriteTeamsScores(wi)"></span>
+					                <br />
+					                <span ng-bind="WriteWinner(wi)"></span>
+				                </div>
+			                </div>
+		                </div>
+	                </div>
+                </section>
+
+
+            </td>
+        </tr>
+    </table>
+</div>

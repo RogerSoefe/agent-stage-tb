@@ -1,0 +1,25 @@
+﻿<div style="position: absolute; width: 100%; height: 100vh; background: black; opacity: 0.9; z-index: -1; display: none; justify-content: center" id="loadingGifCustomerIP">
+		<div class="align-self-center" style="width: 100px">
+				<img class="img-responsive" alt="gif" src="/admin/assets_core/img/loading.gif" />
+		</div>
+</div>
+<div class="dashbwrapper">
+	<div class="allscrll chat-bottom-spacer" id="scrollBox">
+		<div class="row pt-3 pl-3 title-divider">
+			<div class="d-flex align-items-center">
+				<a ng-click="toggleBookmark('Customer IP Compare','#/customerIPGlobalCompare')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Hold Percentage') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+				&nbsp;<h3>{{Translate('Customer IP Compare')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+			</div>
+		</div>
+		<div class="data-filters hidden-print">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="table-wrapper table-responsive w-100">
+						<table datatable dt-instance="vm.dtInstance" dt-options="vm.dtOptions" dt-column-defs="vm.dtColumnDefs" class="custom-datatable">
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

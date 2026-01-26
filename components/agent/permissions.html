@@ -1,0 +1,24 @@
+﻿<div class="col-sm-12 col-lg-4 mt-5">
+  <h3>{{Translate('Icons')}}</h3>
+  <div class="mt-4" style="display: grid; max-height: 100%; overflow-y: auto;">
+    <label ng-repeat="ts in icons">
+      <input type="checkbox" ng-model="ts.checked" ng-change="toggleAction(ts)"> {{Translate(ts.Name)}}
+    </label>
+  </div>
+</div>
+<div class="col-sm-12 col-lg-4 mt-5">
+  <h3>{{Translate('Customer Control Panel')}}</h3>
+  <div class="mt-4" style="display: grid; max-height: 100%; overflow-y: auto;">
+    <label ng-repeat="ts in customerPanel">
+      <input type="checkbox" ng-model="ts.checked" ng-change="toggleAction(ts)"> {{Translate(ts.Name)}}
+    </label>
+  </div>
+</div>
+<div class="col-sm-12 col-lg-4 mt-5">
+  <h3>{{Translate('Agent Control Panel')}}</h3>
+  <div class="mt-4" style="display: grid; max-height: 100%; overflow-y: auto;">
+    <label ng-repeat="ts in agentPanel">
+      <input type="checkbox" ng-model="ts.checked" ng-change="toggleAction(ts)"> {{Translate(ts.Name)}}
+    </label>
+  </div>
+</div>

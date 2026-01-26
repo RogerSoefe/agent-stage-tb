@@ -1,0 +1,2070 @@
+appModule.factory('$agentService', ['$http', '$rootScope', '$translatorService', function ($http, $rootScope, $translatorService) {
+
+  var caller = new ServiceCaller($http, null, 'AgentService');
+  var agentService = {};
+
+  agentService.DailyFigures = null;
+  agentService.CashTransactionList = null;
+  agentService.TransactionList = null;
+  agentService.CasinoTransactionList = null;
+  agentService.CasinoTransactionList = null;
+  agentService.GroupedOpenBets = null;
+  agentService.TransactionList = null;
+  agentService.TransactionListSummary = null;
+  agentService.Restrictions = null;
+  agentService.ResetSessionTimer = false;
+
+  // View state management
+  agentService.compactHeader = false;
+  agentService.viewSettings = { orderByDate: false };
+
+  agentService.setCompactHeader = function (value) {
+    agentService.compactHeader = value;
+    $rootScope.$broadcast('compactHeaderChanged', value);
+  };
+
+  agentService.getCompactHeader = function () {
+    return agentService.compactHeader;
+  };
+
+  agentService.setViewSettings = function (settings) {
+    agentService.viewSettings = settings;
+  };
+
+  agentService.getViewSettings = function () {
+    return agentService.viewSettings;
+  };
+
+  _pages = {};
+  _sliderImages = [];
+
+  agentService.GetNonPostedCasinoPlaysArchive = function (customerId, dailyFigureDate, systemId = null) {
+    return caller.POST({ customerId, dailyFigureDate: CommonFunctions.FormatDateTime(dailyFigureDate, 4), systemId }, 'GetNonPostedCasinoPlaysArchive', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+
+  agentService.LoadPage = function (pageId, lang) {
+
+    if (lang) lang = lang.toLowerCase();
+    else lang = "";
+
+    if (_pages[pageId]) {
+      var deferred = $q.defer();
+      deferred.resolve(_pages[pageId]);
+      return deferred.promise;
+    }
+
+    return caller.GET(SETTINGS.CmsSite + 'wp-json/wp/v2/pages/' + pageId + '?lang=' + lang).then(function (result) {
+      _pages[pageId] = result.data;
+      return result.data;
+    });
+
+
+  };
+
+  agentService.GetSliderImages = function () {
+    if (!SETTINGS.ShowSliders) return;
+    return caller.GET(SETTINGS.CmsSite + 'wp-json/wp/v2/media?_fields=source_url&order=desc').then(function (result) {
+      var r = result.data;
+      var arr = [];
+      for (var i = 0; i < r.length; i++) {
+        if (r[i].source_url && r[i].source_url.indexOf("slider") !== -1) {
+          r[i].source_url += "?v=" + appVersion;
+          arr.push(r[i]);
+        }
+      }
+      if (arr.length == 1) arr.push(arr[0]);
+      _sliderImages = arr;
+      return arr;
+    });
+  }
+
+
+  agentService.GetBetSvcSystemID = function () {
+    return caller.POST({}, 'GetBetSvcSystemID', null, true).then(function (s) {
+      return s.data.d;
+    });
+  };
+
+
+  agentService.GetCustomerGlobalLimits = function (params) {
+    return caller.POST(params, 'GetCustomerGlobalLimits', null, true).then(function (s) {
+      return s.data.d;
+    });
+  };
+
+
+  agentService.SaveCustomerGlobalLimits = function (params) {
+    return caller.POST({ globalLimits: params }, 'SaveCustomerGlobalLimits', null, true).then(function (s) {
+      return s.data.d;
+    });
+  };
+
+
+  agentService.Verify2FAQRCode = function (pin) {
+    return caller.POST({ pin }, 'Verify2FAQRCode', null, true).then(function (s) {
+      return s.data.d;
+    });
+  };
+
+  agentService.Get2FAQRCode = function () {
+    return caller.POST({}, 'Get2FAQRCode', null, true).then(function (s) {
+      return s.data.d;
+    });
+  };
+
+  agentService.GetTrackierPublisherReport = function (params) {
+    return caller.POST(params, 'GetTrackierPublisherReport', null, false).then(function (s) {
+      return s;
+    });
+  };
+
+  agentService.DeleteFreePlay = function (params) {
+    return caller.POST(params, 'DeleteFreePlay', null, false).then(function (s) {
+      return s;
+    });
+  };
+
+  agentService.GetCustomerPerformanceFiltered = function (params) {
+    return caller.POST(params, 'GetCustomerPerformanceFiltered', null, false).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetCampaignCustomersInfoPaging = function (params) {
+    return caller.POST(params, 'GetCampaignCustomersInfoPaging', null, false).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.PosibleBots = function (params) {
+    return caller.POST(params, 'PosibleBots', null, false).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.InsertCampaign = function (params) {
+    return caller.POST(params, 'InsertCampaign', null, false).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+
+  agentService.UpdateCampaign = function (params) {
+    return caller.POST(params, 'UpdateCampaign', null, false).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+
+  agentService.GetAgentCampaigns = function (params) {
+    return caller.POST(params, 'GetAgentCampaigns', null, false).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+
+  agentService.GetTrackierUrlLink = function () {
+    return caller.POST({}, 'GetTrackierUrlLink', null, false).then(function (s) {
+      return s.data.d.Result.Data;
+    });
+  };
+
+  agentService.GetPlayerTotals = function (params) {
+    return caller.POST(params, 'GetPlayerTotals', null, false).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetNoActivyPlayerByAgent = function (params) {
+    return caller.POST(params, 'GetNoActivyPlayerByAgent', null, false).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetCustomerPerformanceByPeriod = function (params) {
+    return caller.POST(params, 'GetCustomerPerformanceByPeriod', null, false).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetFreePlayTransactions = function (params) {
+    return caller.POST(params, 'GetFreePlayTransactions', null, false).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.BeatTheLineReport = function (params) {
+    return caller.POST(params, 'BeatTheLineReport', null, false).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.UpdateCustGlobalTeamWagerLimit = function (params) {
+    return caller.POST(params, 'UpdateCustGlobalTeamWagerLimit', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetCustGlobalTeamWagerLimit = function (params) {
+    return caller.POST(params, 'GetCustGlobalTeamWagerLimit', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetCustomerTransactionsWithBalance = function (params) {
+    return caller.POST(params, 'GetCustomerTransactionsWithBalance', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetCustomersPerformanceByDateRangeAndSport = function (params) {
+    return caller.POST(params, 'GetCustomersPerformanceByDateRangeAndSport', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetPerformanceByDateRangeAndSport = function (params) {
+    return caller.POST(params, 'GetPerformanceByDateRangeAndSport', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetTicketWriterUrl = function (params) {
+    return caller.POST(params, 'GetTicketWriterUrl', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+
+  agentService.ChangeMasterAgent = function (params) {
+    return caller.POST(params, 'ChangeMasterAgent', null, true).then(function (s) {
+      return s.data.d;
+    });
+  };
+
+
+  agentService.UpdateCustomerMessage = function (params) {
+    return caller.POST(params, 'UpdateCustomerMessage', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetCustomersPerformanceByDateRangeAndSport = function (params) {
+    return caller.POST(params, 'GetCustomersPerformanceByDateRangeAndSport', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+  agentService.UpdateCustomerActiveStatus = function (params) {
+    return caller.POST(params, 'UpdateCustomerActiveStatus', null, true).then(function (s) {
+      return s.data.d;
+    });
+  };
+
+  agentService.GetCustomerDetailedLimits = function (params) {
+    return caller.POST(params, 'GetCustomerDetailedLimits', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetCustomerMapActivity = function (params) {
+    return caller.POST(params, 'GetCustomerMapActivity', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetCustomerIPGlobalCompare = function (params) {
+    return caller.POST(params, 'GetCustomerIPGlobalCompare', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetCustomerPerformanceBySportAndPeriod = function (params) {
+    return caller.POST(params, 'GetCustomerPerformanceBySportAndPeriod', null, true).then();
+  };
+
+  agentService.GetCustomerListByAgentId = function (params) {
+    return caller.POST(params, 'GetCustomerListByAgentId', null, true).then();
+  };
+
+  agentService.InsertNewAgent = function (params) {
+    return caller.POST(params, 'InsertNewAgent', null, true).then(function (s) {
+      return s;
+    });
+  };
+
+  agentService.GetCustomerAnalytics = function (params) {
+    return caller.POST(params, 'GetCustomerAnalytics', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.SendNotification = function (params) {
+    return caller.POST(params, 'SendNotification', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.SaveCustomerParlayLimits = function (customerId, params) {
+    return caller.POST({ customerId: customerId, parlayLimit: params }, 'SaveCustomerParlayLimits', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetCustomerParlayLimits = function (params) {
+    return caller.POST(params, 'GetCustomerParlayLimits', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.UpdateRestrictedActionParam = function (params) {
+    return caller.POST(params, 'UpdateRestrictedActionParam', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetAgentCommunicationTypes = function (params) {
+    return caller.POST(params, 'GetAgentCommunicationTypes', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetCommunicationTypes = function (params) {
+    return caller.POST(params, 'GetCommunicationTypes', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetContestLines = function (data) {
+    return caller.POST(data,
+      'GetContestLines', null, true).then(function (result) {
+        return result;
+      });
+  };
+
+  agentService.AddAgentCommunicationTypes = function (params) {
+    params.notes = params.notes || '';
+    return caller.POST(params, 'AddAgentCommunicationTypes', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.DeleteAgentCommunicationTypes = function (params) {
+    return caller.POST(params, 'DeleteAgentCommunicationTypes', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetGradedBetsByCustomerId = function (params) {
+    return caller.POST(params, 'GetGradedBetsByCustomerId', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetNewCustomersInfo = function (params) {
+    return caller.POST(params, 'GetNewCustomersInfo', null, true);
+  };
+
+  agentService.GetAvailablePeriodsBySport = function (params) {
+    return caller.POST(params, 'GetAvailablePeriodsBySport', null, true);
+  };
+
+  agentService.ChangeAgentToCustomer = function (params) {
+    return caller.POST(params, 'ChangeAgentToCustomer', null, true);
+  };
+
+  agentService.GetActions = function (params) {
+    return caller.POST(params, 'GetActions', null, true);
+  };
+
+  agentService.RestrictAction = function (params) {
+    return caller.POST(params, 'RestrictAction', null, true);
+  };
+
+  agentService.AllowAction = function (params) {
+    return caller.POST(params, 'AllowAction', null, true);
+  };
+
+  agentService.GetTotalCustomers = function (params) {
+    return caller.POST(params, 'GetTotalCustomers', null, true);
+  };
+
+  agentService.DeleteTransaction = function (params) {
+    return caller.POST(params, 'DeleteTransaction', null, true);
+  };
+
+  agentService.GetDeletedWagers = function (params) {
+    return caller.POST(params, 'GetDeletedWagers', null, true);
+  };
+
+  agentService.GetCountersByAgentId = function (params) {
+    return caller.POST(params, 'GetCountersByAgentId', null, true);
+  };
+
+  agentService.GetCountersByAgentIdV2 = function (params) {
+    return caller.POST(params, 'GetCountersByAgentIdV2', null, true);
+  };
+
+  agentService.DeleteWager = function (params) {
+    return caller.POST(params, 'DeleteWager', null, true);
+  };
+
+  agentService.GetHoldPercentage = function (params) {
+    return caller.POST(params, 'GetHoldPercentage', null, true);
+  };
+
+  agentService.GetCustomerPerformance = function (params) {
+    return caller.POST(params, 'GetCustomerPerformance', null, true);
+  };
+
+  agentService.GetScores = function (dateTime, weekNum, finalOnly = false) {
+    return caller.POST({ dateTimeS: dateTime, weekNum: weekNum, finalOnly: finalOnly }, 'GetScores', null, true);
+  };
+
+  agentService.GetSubSportTypesBySportType = function (sportType) {
+    return caller.POST({ sportType: sportType }, 'GetSubSportTypesBySportType', null, true);
+  };
+
+  agentService.Login = function (credentials) {
+    return caller.POST(credentials, 'Login', null, true);
+  };
+
+  agentService.PreviousLogin = function () {
+    return caller.POST({}, 'PreviousLogin', null, true);
+  };
+
+  agentService.GetAgentHierarchy = function () {
+    return caller.POST({}, 'GetAgentHierarchy', null, true);
+  };
+
+  agentService.ImpersonateLogin = function (credentials) {
+    return caller.POST(credentials, 'ImpersonateLogin', null, true);
+  };
+
+  agentService.GetSpecificAgentAsCustomerInfo = function (params) {
+    return caller.POST(params, 'GetSpecificAgentAsCustomerInfo', null, true);
+  };
+
+
+
+  agentService.GetAgent = function () {
+    return caller.POST({}, 'GetAgentInfo', null, true).then(function (result) {
+      agentService.AgentInfo = result.data.d.Data;
+      CommonFunctions.CustomerTimeZone = agentService.AgentInfo.TimeZone;
+    });
+  };
+
+  agentService.GetAgentAsCustomer = function () {
+    return caller.POST({}, 'GetAgentAsCustomerInfo', null, true).then(function (result) {
+      if (result.data.d.Data) {
+        agentService.AgentAsCustomerInfo = result.data.d.Data.AgentAsCustomerInfo;
+        agentService.Restrictions = result.data.d.Data.Restrictions;
+        agentService.Settings = result.data.d.Data.Settings;
+        $translatorService.ChangeLanguage(agentService.Settings.WebLanguage);
+      }
+    });
+  };
+
+  agentService.GetAgentInetSessionLog = function (params) {
+    return caller.POST(params, 'GetAgentInetSessionLog', null, true).then();
+  };
+
+  agentService.GetCustomerInetSessionLog = function (params) {
+    return caller.POST(params, 'GetCustomerInetSessionLog', null, true).then();
+  };
+
+  agentService.GetInetSessionLog = function (params) {
+    return caller.POST(params, 'GetInetSessionLog', null, false).then();
+  };
+
+  agentService.GetAgentInfo = function (agentId) {
+    return caller.POST({ agentId: agentId }, 'GetAgent', null, true).then();
+  };
+
+  agentService.GetCustomerAsAgentInfo = function (params) {
+    return caller.POST(params, 'GetCustomerAsAgentInfo', null, true).then();
+  };
+
+  agentService.UpdateAgentPassword = function (params) {
+    return caller.POST(params, 'UpdateAgentPassword', null, true).then();
+  };
+
+
+  agentService.UpdateAgent = function (params) {
+    return caller.POST(params, 'UpdateAgent', null, true).then();
+  };
+
+  agentService.GetCUSessionLog = function (params) {
+    return caller.POST(params, 'GetCUSessionLog', null, true).then();
+  };
+
+  agentService.GetAgentsCurrentBalance = function () {
+    return caller.POST({}, 'GetAgentsCurrentBalance', null, true).then();
+  };
+
+  agentService.GetAgentPlayersHierarchy = function (agentId) {
+    return caller.POST({ agentId }, 'GetAgentPlayersHierarchy', null, true).then();
+  };
+
+  agentService.GetAgentPlayers = function (agentId, search = '', count = 5000) {
+    return caller.POST({ agentId: agentId, search, count }, 'GetAgentPlayers', null, true).then();
+  };
+
+  agentService.SendPackage = function (data) {
+    return caller.POST(data, 'SendPackage', null, true).then();
+  };
+
+  agentService.SendWagerLimitsPackage = function (data) {
+    return caller.POST(data, 'SendWagerLimitsPackage', null, true).then();
+  };
+
+  agentService.LogWritter = function (a, b) {
+    return caller.POST({ operation: a, data: b }, 'LogWritter', null, true).then();
+  };
+
+  agentService.TrackStatus = function () {
+    return caller.POST({ resetSessionTimer: agentService.ResetSessionTimer }, 'TrackStatus', null, true).then();
+  };
+
+  agentService.LiveTickerFilters = {
+    WagerType: {},
+    WagerAmount: {},
+    SportType: {},
+  };
+
+  agentService.InsertNewCustomer = function (data) {
+    return caller.POST(data, 'InsertNewCustomer', null, true).then();
+  };
+
+  var _Transaction = function (transaction) {
+    return {
+      Amount: transaction.Amount,
+      AmountLost: transaction.AmountLost,
+      AmountWagered: transaction.AmountWagered,
+      ARLink: transaction.ARLink,
+      AmountWon: transaction.AmountWon,
+      CurrentBalance: transaction.CurrentBalance,
+      Comments: transaction.Comments,
+      Description: transaction.Description,
+      DocumentNumber: transaction.DocumentNumber,
+      EnteredBy: transaction.EnteredBy,
+      FreePlayFlag: transaction.FreePlayFlag,
+      HoldAmount: transaction.HoldAmount,
+      ItemWagerType: transaction.ItemWagerType,
+      Items: transaction.Items,
+      Outcome: transaction.Outcome,
+      PeriodDescription: transaction.PeriodDescription,
+      ShortDesc: transaction.ShortDesc,
+      SportSubType: transaction.SportSubType,
+      SportType: transaction.SportType,
+      SystemID: transaction.SystemID,
+      Team1ID: transaction.Team1ID,
+      Team1Score: transaction.Team1Score,
+      Team2ID: transaction.Team2ID,
+      Team2Score: transaction.Team2Score,
+      TranCode: transaction.TranCode,
+      TranDateTime: transaction.TranDateTime,
+      TranDateTimeString: transaction.TranDateTimeString,
+      AcceptedDateTime: transaction.AcceptedDateTime,
+      AcceptedDateTimeString: transaction.AcceptedDateTimeString,
+      EventTimeString: transaction.EventTimeString,
+      TranType: transaction.TranType,
+      WagerNumber: (transaction.WagerNumber ? '-' + transaction.WagerNumber : ''),
+      WagerType: transaction.WagerType,
+      WinnerID: transaction.WinnerID,
+      TotalPicks: transaction.TotalPicks,
+      TeaserName: transaction.TeaserName,
+      IsTransaction: transaction.TranType == 'D' || transaction.TranType == 'C'
+    };
+  };
+
+  var _newWagerItem = function (wager) {
+    return {
+      Comments: (wager.Comments == null || wager.Comments === '' ? null : wager.Comments),
+      Description: wager.Description,
+      ShortDesc: wager.ShortDesc,
+      FreePlayFlag: wager.FreePlayFlag,
+      SportType: wager.SportType,
+      PeriodDescription: wager.PeriodDescription,
+      Team1Score: wager.Team1Score,
+      Team2Score: wager.Team2Score,
+      Team1ID: wager.Team1ID,
+      Team2ID: wager.Team2ID,
+      Outcome: (wager.Outcome == "W" ? 'WON' : wager.Outcome == "L" ? 'LOST' : wager.Outcome == "X" ? 'PUSH' : ''),
+      Result: (wager.Outcome == "X" ? 'PUSH' : (wager.Outcome == "W" || wager.TranType == "W" ? 'WON' : 'LOST')),
+      WagerType: wager.WagerType,
+      WinnerID: wager.WinnerID,
+      EventDateTime: wager.EventDateTime,
+      EnteredBy: wager.EnteredBy,
+      TeaserName: wager.TeaserName,
+      EventTimeString: wager.EventTimeString
+    };
+  };
+  agentService.newWagerItem = _newWagerItem;
+
+  agentService.AddCustomerMessage = function (a, b, c, d, e) {
+    return caller.POST({ customerId: a, msgExpirationDateTime: b, priority: c, msgSubject: d, msgBody: e }, 'AddCustomerMessage').then();
+  };
+
+  agentService.GetCustomersList = function (a) {
+    if (!a) a = 0;
+    return caller.POST({ weekNumber: a }, 'GetCustomersInfo', null, true).then(function (result) {
+      agentService.AgentsList = agentService.GroupCustomersByAgent(result.data.d.Data);
+      $rootScope.$broadcast('CustomersListUpdated');
+    });
+  };
+
+  agentService.GetCustomersInfoPaging = function (params) {
+    params.custIdOrder = params.custIdOrder || 0;
+    params.balOrder = params.balOrder || 0;
+    params.postUp = params.postUp || false;
+    return caller.POST(params, 'GetCustomersInfoPaging', null, true).then();
+  };
+
+  agentService.GetCustomersDailyFigures = function (a, agentId, pageCount, start, onlyActive, hierarchyOrder = true) {
+    return caller.POST({ weekNumber: a, agentId: agentId, pageCount: pageCount, start: start, onlyActive: onlyActive, hierarchyOrder: hierarchyOrder }, 'GetCustomersDailyFigures').then();
+  };
+
+  agentService.GetCustomersDailyFiguresPaging = function (params) {
+    return caller.POST(params, 'GetCustomersDailyFiguresPaging').then();
+  };
+
+  agentService.GetAgentsDailyFiguresSummary = function (params) {
+    return caller.POST(params, 'GetAgentsDailyFiguresSummary').then();
+  };
+
+  agentService.GetAgentsDailyFiguresPaging = function (params) {
+    return caller.POST(params, 'GetAgentsDailyFiguresPaging').then();
+  };
+
+  agentService.GetCustDailyFigureByAgentDashboard = function (a, b = null) {
+    return caller.POST({ weekNumber: a, agentId: b }, 'GetCustDailyFigureByAgentDashboard').then();
+  };
+
+  agentService.GetCustomerBalance = function (a) {
+    return caller.POST({ customerId: a }, 'GetCustomerBalance', null, true).then();
+  };
+
+  agentService.GetActivePlayersCount = function (a) {
+    return caller.POST({}, 'GetActivePlayersCount', null, true).then();
+  };
+
+  agentService.GetWinLossByWeek = function (a) {
+    return caller.POST({ weekNumber: a }, 'GetWinLossByWeek').then();
+  };
+
+  agentService.GetCustomerDailyFigures = function (a, b, c) {
+    caller.POST({ 'customerId': a, 'weekOffset': b, 'currencyCode': c }, 'GetCustomerDailyFigures').then(function (result) {
+      agentService.DailyFigures = result.data.d.Data;
+      if (agentService.DailyFigures.ZeroBalance != null)
+        agentService.DailyFigures.ZeroBalance = CommonFunctions.RoundNumber(agentService.DailyFigures.ZeroBalance);
+      for (var i = 0; i < agentService.DailyFigures.ValuesPerDay.length; i++) {
+        agentService.DailyFigures.ValuesPerDay[i].ThisDate = CommonFunctions.FormatDateTime(agentService.DailyFigures.ValuesPerDay[i].ThisDate, 1); // timezone is temp, fix *
+
+        if (agentService.DailyFigures.ValuesPerDay[i].CashInOut != null)
+          agentService.DailyFigures.ValuesPerDay[i].CashInOut = CommonFunctions.RoundNumber(agentService.DailyFigures.ValuesPerDay[i].CashInOut);
+
+        if (agentService.DailyFigures.ValuesPerDay[i].WinLoss != null)
+          agentService.DailyFigures.ValuesPerDay[i].WinLoss = CommonFunctions.RoundNumber(agentService.DailyFigures.ValuesPerDay[i].WinLoss);
+
+        if (agentService.DailyFigures.ValuesPerDay[i].CasinoWinLoss != null)
+          agentService.DailyFigures.ValuesPerDay[i].CasinoWinLoss = CommonFunctions.RoundNumber(agentService.DailyFigures.ValuesPerDay[i].CasinoWinLoss);
+      }
+      $rootScope.$broadcast('dailyFiguresLoaded');
+    });
+    actualWeek = b;
+  };
+
+  agentService.GetAgentPerformance = function (a, b, c) {
+    return caller.POST({ period: a, wagerType: b, customerId: c }, 'GetAgentPerformance').then();
+  };
+  agentService.GetAgentPerformanceInColumns = function (params) {
+    return caller.POST(params, 'GetAgentPerformanceInColumns').then();
+  };
+
+  agentService.GetPerformanceBySport = function (params) {
+    return caller.POST(params, 'GetPerformanceBySport').then();
+  };
+
+  agentService.GetAgentCashTransactions = function (a, b) {
+    return caller.POST({ weekNumber: a, agentId: b }, 'GetAgentCashTransactions').then();
+  };
+
+  agentService.GetAgentCustomersCashTransactions = function (a, b, c = null, d = null) {
+    return caller.POST({ agentId: a, weekNumber: b, startDate: c, endDate: d }, 'GetAgentCustomersCashTransactions').then();
+  };
+
+  agentService.GetCashTransactionsByDate = function (a, b) {
+    return caller.POST({ 'customerId': a, 'date': CommonFunctions.FormatDateTime(b, 4) }, 'GetCashTransactionsByDate').then(function (result) {
+      agentService.CashTransactionList = groupTransactions(result.data.d.Data);
+      $rootScope.$broadcast('cashTransactionsLoaded');
+    });
+  };
+
+  agentService.GetAgentsList = function () {
+    return caller.POST({}, 'GetAgentsList', null, true).then();
+  };
+
+  agentService.GetCustomerTransactions = function (a, b) {
+    return caller.POST({ customerId: a, weekNumber: b }, 'GetCustomerTransactions').then();
+  };
+
+  agentService.GetCustomerTransactionListByDate = function (a, b, c) {
+    var groupedItems = null;
+    var holdDocumentNumber = null;
+    var holdWagerNumber = null;
+    return caller.POST({ 'customerId': a, 'date': CommonFunctions.FormatDateTime(b, 4), 'includeCasino': c }, 'GetCustomerTransactionListByDate').then(function (result) {
+      agentService.TransactionList = groupTransactions(result.data.d.Data);
+      $rootScope.$broadcast('transactionListByDateLoaded');
+    });
+  };
+
+  function groupTransactions(rawData) {
+    var allTransactions = rawData;
+    var groupedTransactions = new Array();
+
+    if (allTransactions != null && allTransactions.length > 0) {
+
+      groupedTransactions = new Array();
+      groupedItems = new Array();
+      holdDocumentNumber = allTransactions[0].DocumentNumber;
+      holdWagerNumber = allTransactions[0].WagerNumber;
+
+      for (var i = 0; i < allTransactions.length; i++) {
+        if (holdDocumentNumber != allTransactions[i].DocumentNumber || holdWagerNumber != allTransactions[i].WagerNumber) {
+          groupedTransactions.push(_Transaction(allTransactions[i - 1]));
+          if (groupedTransactions.length > 0 && groupedItems != null && groupedItems.length > 0)
+            groupedTransactions[groupedTransactions.length - 1].Items = groupedItems;
+          groupedItems = new Array();
+          groupedItems.push(_newWagerItem(allTransactions[i]));
+        } else {
+          groupedItems.push(_newWagerItem(allTransactions[i]));
+        }
+        holdDocumentNumber = allTransactions[i].DocumentNumber;
+        holdWagerNumber = allTransactions[i].WagerNumber;
+        if (i == allTransactions.length - 1) {
+          groupedTransactions.push(_Transaction(allTransactions[i]));
+          groupedTransactions[groupedTransactions.length - 1].Items = groupedItems;
+        }
+      }
+    }
+    return groupedTransactions;
+  }
+
+  agentService.GetCustomerTransactionListByDaysProm = function (a, b) {
+    return caller.POST({ 'customerId': a, 'numDays': b }, 'GetCustomerTransactionListByDays');
+  };
+
+  agentService.GetCustomerTransactionListByDateRange = function (a, b, c) {
+    return caller.POST({ 'customerId': a, 'startDate': b, 'endDate': c }, 'GetCustomerTransactionListByDateRange');
+  };
+
+  agentService.GetCustomerTransactionListByDays = function (a, b) {
+    var groupedItems = null;
+    var holdDocumentNumber = null;
+    var holdWagerNumber = null;
+    caller.POST({ 'customerId': a, 'numDays': b }, 'GetCustomerTransactionListByDays').then(function (result) {
+
+      var allTransactions = result.data.d.Data;
+      var groupedTransactions = new Array();
+      var accumTran = 0;
+
+      if (allTransactions != null && allTransactions.length > 0) {
+
+        groupedTransactions = new Array();
+        groupedItems = new Array();
+        holdDocumentNumber = allTransactions[allTransactions.length - 1].DocumentNumber;
+        holdWagerNumber = allTransactions[allTransactions.length - 1].WagerNumber;
+
+        for (var i = allTransactions.length - 1; i >= 0; i--) {
+          if (holdDocumentNumber != allTransactions[i].DocumentNumber || holdWagerNumber != allTransactions[i].WagerNumber) {
+            groupedTransactions.push(allTransactions[i + 1]);
+            if (groupedTransactions.length > 0 && groupedItems != null && groupedItems.length > 0)
+              groupedTransactions[groupedTransactions.length - 1].Items = groupedItems;
+            groupedItems = new Array();
+            groupedItems.push(_newWagerItem(allTransactions[i]));
+            if (i < allTransactions.length - 1) groupedTransactions[groupedTransactions.length - 1].CurrentBalance = groupedTransactions[groupedTransactions.length - 1].CurrentBalance + accumTran;
+            accumTran += groupedTransactions[groupedTransactions.length - 1].TranCode == "C" ? groupedTransactions[groupedTransactions.length - 1].Amount * -1 : groupedTransactions[groupedTransactions.length - 1].Amount;
+
+
+          } else {
+            groupedItems.push(_newWagerItem(allTransactions[i]));
+          }
+          holdDocumentNumber = allTransactions[i].DocumentNumber;
+          holdWagerNumber = allTransactions[i].WagerNumber;
+          if (i == 0) {
+            groupedTransactions.push(allTransactions[i]);
+            groupedTransactions[groupedTransactions.length - 1].Items = groupedItems;
+            groupedTransactions[groupedTransactions.length - 1].CurrentBalance = groupedTransactions[groupedTransactions.length - 1].CurrentBalance + accumTran;
+          }
+        }
+      }
+      agentService.TransactionList = groupedTransactions;
+
+      $rootScope.$broadcast('transactionListLoaded');
+    });
+  };
+
+  agentService.GetAgentTransactionListByDays = function (a) {
+    caller.POST({ 'numDays': a }, 'GetAgentTransactionListByDays').then(function (result) {
+
+      var allTransactions = result.data.d.Data;
+      var accumTran = null;
+      if (allTransactions != null && allTransactions.length > 0) {
+        for (var i = allTransactions.length - 1; i >= 0; i--) {
+          var e = allTransactions[i];
+          if (accumTran) e.CurrentBalance += accumTran;
+          accumTran += e.TranCode == "C" ? e.Amount * -1 : e.Amount;
+          e.Won = e.TranCode == "C" ? e.Amount : 0;
+          e.Lost = e.TranCode == "D" ? e.Amount * -1 : 0;
+          e.TranDateTimeString = CommonFunctions.FormatDateTime(e.TranDateTimeString, 4);
+        };
+      }
+      agentService.TransactionListSummary = allTransactions;
+
+      $rootScope.$broadcast('transactiontListSummaryLoaded');
+    });
+  };
+
+  agentService.GetCasinoTransactionsByDate = function (a, b) {
+    caller.POST({ 'customerId': a, 'date': CommonFunctions.FormatDateTime(b, 4) }, 'GetCasinoTransactionsByDate', null, true).then(function (result) {
+      var casinoTransactions = result.data.d.Data;
+      if (casinoTransactions != null && casinoTransactions.length > 0) {
+        agentService.CasinoTransactionList = [];
+        for (var i = 0; i < casinoTransactions.length; i++) {
+          agentService.CasinoTransactionList.push(_Transaction(casinoTransactions[i]));
+        }
+      } else {
+        agentService.CasinoTransactionList = [];
+      }
+      $rootScope.$broadcast('casinoTransactionsLoaded');
+
+    });
+  };
+
+  agentService.GetCustomerTransactionByGradeNumber = function (a) {
+    return caller.POST({ gradeNumber: a }, 'GetCustomerTransactionByGradeNumber').then();
+  };
+
+  agentService.GetAgentDistribution = function (params) {
+    return caller.POST(params, 'GetAgentDistribution').then();
+  };
+
+  agentService.GetMasterSheet = function (params) {
+    return caller.POST(params, 'GetMasterSheet').then();
+  };
+
+
+  agentService.GetAgentCustomersList = function () {
+    return caller.POST({}, 'GetAgentCustomersList').then();
+  };
+
+  agentService.GetSportTypesList = function () {
+    return caller.POST({}, 'GetSportTypesList').then();
+  };
+
+  agentService.GetContestsList = function () {
+    return caller.POST({}, 'GetContestsList').then();
+  };
+
+  agentService.GetSports = function () {
+    return caller.POST({}, 'GetSports').then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetOpenBetsByCustomerId = function (params) {
+    return caller.POST(params, 'GetOpenBetsByCustomerId').then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetCustomerInfo = function (params) {
+    return caller.POST(params, 'GetCustomerInfo').then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetCustomerOpenBets = function (a, b, c, d, e, f) {
+    return caller.POST({ customerId: a, wagerType: b, continueOnPush: c, checkForAR: d, sportType: e, noProps: f }, 'GetCustomerOpenBets').then();
+  };
+
+  agentService.GetCustomersIdWithOpenBets = function (noProps) {
+    return caller.POST({ noProps: noProps }, 'GetCustomersIdWithOpenBets').then();
+  };
+
+  agentService.GetParlaysSpecs = function () {
+    return caller.POST({}, 'GetParlaysSpecs').then();
+  };
+
+  agentService.GetTeaserSpecs = function () {
+    return caller.POST({}, 'GetTeaserSpecs').then();
+  };
+
+  agentService.GetCustomerTeaserSpecs = function (customerId) {
+    return caller.POST({ customerId: customerId }, 'GetCustomerTeaserSpecs').then();
+  };
+
+  agentService.AddCustomerTeaserInfo = function (customerId, teaserName) {
+    return caller.POST({ customerId: customerId, teaserName: teaserName }, 'AddCustomerTeaserInfo').then();
+  };
+
+  agentService.DeleteCustomerTeaserInfo = function (customerId, teaserName) {
+    return caller.POST({ customerId: customerId, teaserName: teaserName }, 'DeleteCustomerTeaserInfo').then();
+  };
+
+  agentService.GetCostToSellPointsByCustomer = function (customerId) {
+    return caller.POST({ customerId: customerId }, 'GetCostToSellPointsByCustomer').then();
+  };
+
+  agentService.GetCostToBuyPointsByCustomer = function (customerId) {
+    return caller.POST({ customerId: customerId }, 'GetCostToBuyPointsByCustomer').then();
+  };
+
+  agentService.AddCostToBuyPointsByCustomer = function (cbp) {
+    return caller.POST({ cbp: cbp }, 'AddCostToBuyPointsByCustomer').then();
+  };
+
+  agentService.AddCostToSellPointsByCustomer = function (csp) {
+    return caller.POST({ csp: csp }, 'AddCostToSellPointsByCustomer').then();
+  };
+
+  agentService.GetCustomerTeaserSpecs = function (customerId) {
+    return caller.POST({ customerId: customerId }, 'GetCustomerTeaserSpecs').then();
+  };
+
+  agentService.GetSports = function () {
+    return caller.POST({}, 'GetSports').then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.UpdateCustomerParlayName = function (customerId, parlayName) {
+    return caller.POST({ customerId: customerId, parlayName: parlayName }, 'UpdateCustomerParlayName').then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  agentService.GetCustomerPendingBets = function (a) {
+    var groupedItems = null;
+    var holdTicketNumber = null;
+    var holdWagerNumber = null;
+    return caller.POST({ 'customerId': a }, 'GetCustomerPendingBets').then(function (result) {
+
+      var allOpenBets = result.data.d.Data;
+      var groupedOpenBets = new Array();
+
+      if (allOpenBets != null && allOpenBets.length > 0) {
+
+        groupedOpenBets = new Array();
+        groupedItems = new Array();
+        holdTicketNumber = allOpenBets[0].TicketNumber;
+        holdWagerNumber = allOpenBets[0].WagerNumber;
+
+        for (var i = 0; i < allOpenBets.length; i++) {
+          if (holdTicketNumber != allOpenBets[i].TicketNumber || holdWagerNumber != allOpenBets[i].WagerNumber) {
+            groupedOpenBets.push(allOpenBets[i - 1]);
+            if (groupedOpenBets.length > 0 && groupedItems != null && groupedItems.length > 0)
+              groupedOpenBets[groupedOpenBets.length - 1].Items = groupedItems;
+            groupedItems = new Array();
+            groupedItems.push(_newWagerItem(allOpenBets[i]));
+          } else {
+            groupedItems.push(_newWagerItem(allOpenBets[i]));
+          }
+          holdTicketNumber = allOpenBets[i].TicketNumber;
+          holdWagerNumber = allOpenBets[i].WagerNumber;
+
+          if (i == allOpenBets.length - 1) {
+            groupedOpenBets.push(allOpenBets[i]);
+            groupedOpenBets[groupedOpenBets.length - 1].Items = groupedItems;
+          }
+        }
+      }
+      agentService.GroupedOpenBets = groupedOpenBets;
+      $rootScope.$broadcast('openBetsLoaded');
+    });
+  };
+
+  agentService.UpdateCustomerAccess = function (a, b, c) {
+    return caller.POST({ customerId: a, accessCode: b, accessValue: c }, 'UpdateCustomerAccess').then();
+  };
+
+  agentService.UpdateCustomer = function (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z,
+    instantActionFlag, confirmationDelay, commentsForCustomer = null, commentsForCustomerExpDate = null, notifyBetsToAgent = false, email = null, country = null) {
+
+    var data = {
+      customerId: a, password: b, firstName: c, middleName: d, lastName: e, address: f, state: g, city: h, zip: i, agentComments: j, birthday: null,
+      Currency: l, TimeZone: m, PriceType: n, HomePhone: o,
+      BusinessPhone: p, Fax: q, PayoutPassword: r,
+      Percentbook: s, SettleFigure: t,
+      CasinoActive: u,
+      ZeroBalanceFlag: v,
+      ZeroBalPositiveOnlyFlag: w,
+      WeeklyLimitFlag: x,
+      WiseActionFlag: y,
+      CustomerIsABot: z,
+      InstantActionFlag: instantActionFlag,
+      confirmationDelay: confirmationDelay, commentsForCustomer: commentsForCustomer, commentsForCustomerExpDate: commentsForCustomerExpDate, notifyBetsToAgent: notifyBetsToAgent, email: email, country: country
+    };
+    return caller.POST(data, 'UpdateCustomer').then();
+  };
+
+  agentService.UpdateCustomerObj = function (customer) {
+    return caller.POST({ customer }, 'UpdateCustomerObj').then(s => {
+      return s.data.d;
+    });
+  };
+
+  agentService.UpdateCustomerOffering = function (data) {
+    return caller.POST(data, 'UpdateCustomerOffering').then();
+  }
+
+  agentService.GetCurrencies = function () {
+    return caller.POST({}, 'GetCurrencies');
+  }
+
+  agentService.GetWeeksRange = function (useCustomerMaxWeeks, closeDayOfWeek) {
+    if (!agentService.AgentInfo || (!agentService.AgentInfo.CloseDayOfWeek && !closeDayOfWeek)) return;
+    closeDayOfWeek = closeDayOfWeek || agentService.AgentInfo.CloseDayOfWeek;
+    var weeksArray = new Array();
+    var maxWeeks = 53;
+    if (useCustomerMaxWeeks && agentService.AgentAsCustomerInfo && agentService.AgentAsCustomerInfo.MaxWeeksDFAndPerformance)
+      maxWeeks = agentService.AgentAsCustomerInfo.MaxWeeksDFAndPerformance > 53 ? 53 : agentService.AgentAsCustomerInfo.MaxWeeksDFAndPerformance;
+    for (var i = 0; i < maxWeeks; i++) {
+      weeksArray.push({ DateRange: CommonFunctions.WeekbyDatesRange(i, agentService.GetServerDateTime(), closeDayOfWeek), Index: i });
+    }
+    return weeksArray;
+  };
+
+  agentService.GetFullWeeksRange = function () {
+    var weeksArray = new Array();
+    for (var i = 0; i < 53; i++) {
+      weeksArray.push({ DateRange: CommonFunctions.WeekbyFullDatesRange(i), Index: i });
+    }
+    return weeksArray;
+  };
+
+  agentService.GetActiveContests = function (a, b = 0) {
+    return caller.POST({ weekNumber: a, onlyPendings: b }, 'GetActiveContests', null, true).then();
+  };
+
+  agentService.GetActivePeriodsAndSports = function (a, b = 0, c = 0) {
+    return caller.POST({ weekNumber: a, onlyPendings: b, dateMode: c }, 'GetActivePeriodsAndSports', null, true).then();
+  };
+
+  agentService.GetAgentPositionByGame = function (a, c, d, e, f) {
+    return caller.POST({ sportTypeJson: JSON.stringify(a), periodNumber: c, weekNum: d.Index, mode: e }, 'GetAgentPositionByGame', null, true).then();
+  };
+
+
+  agentService.GetAgentPositionByGameV2 = function (a, c, d, e, f) {
+    return caller.POST({ sportTypeJson: JSON.stringify(a), periodNumber: c, weekNum: d.Index, mode: e, dateMode: f }, 'GetAgentPositionByGameV2', null, true).then();
+  };
+
+  agentService.GetAgentPositionByContest = function (a, b, c, d, e) {
+    return caller.POST({ contestType: a, contestType2: b, contestType3: c, weekNum: d, mode: e }, 'GetAgentPositionByContest', null, true).then();
+  };
+
+  agentService.GetDailyFigureDatesRange = function () {
+    return caller.POST({}, 'GetDatesSinceCloseOfWeek', null, true).then();
+  };
+
+  agentService.InsertCustomerTransaction = function (a, b, c, d, e, f, g, h) {
+    return caller.POST({ customerId: a, tranCode: b, tranType: c, amount: d, paymentBy: e, description: f, dailyFigureDate: g, freePlayTransaction: h }, 'InsertCustomerTransaction').then(function (s) {
+      return s.data.d;
+    });
+  };
+
+  agentService.ChangeCustomerSettleFigure = function (a, b, c) {
+    return caller.POST({ customerId: a, settleFigure: b }, 'ChangeCustomerSettleFigure').then();
+  };
+
+  agentService.ChangeCustomerCreditLimit = function (a, b, c) {
+    return caller.POST({ customerId: a, creditLimit: b, tempCreditAdjExpDate: c }, 'ChangeCustomerCreditLimits').then();
+  };
+
+  agentService.ChangeCustomerTempCreditLimit = function (a, b, c) {
+    return caller.POST({ customerId: a, creditLimit: b, tempCreditAdjExpDate: CommonFunctions.FormatDateTime(c, 4) }, 'ChangeCustomerTempCreditLimits').then();
+  };
+
+  agentService.ChangeCustomerQuickLimit = function (a, b, c) {
+    return caller.POST({ customerId: a, quickLimit: b }, 'ChangeCustomerQuickLimits').then();
+  };
+
+  agentService.ChangeCustomerTempQuickLimit = function (a, b, c) {
+    return caller.POST({ customerId: a, quickLimit: b, tempQuickAdjExpDate: CommonFunctions.FormatDateTime(c, 4) }, 'ChangeCustomerTempQuickLimits').then();
+  };
+
+  agentService.GetLiveTickerInfo = function (a, b, sportType, minutesAgo) {
+    if (!minutesAgo) {
+      minutesAgo = "0";
+    }
+    return caller.POST({ wagerTypeIdx: a, wagerAmtsIdx: b, sportType, minutesAgo }, 'GetLiveTickerInfo').then(function (result) {
+      var liveTickerInfo = buildLiveTickerInfoObject(result.data.d.Data);
+
+      agentService.LiveTickerInfo = liveTickerInfo.wagers;
+      agentService.LiveTickerSportTypes = liveTickerInfo.sportTypes;
+    });
+  };
+
+  agentService.GetGameActionByLine = function (gameNum, periodNum, chosenTeamId, wagerType) {
+    return caller.POST({ 'gameNum': gameNum, 'periodNum': periodNum, 'chosenTeamId': chosenTeamId, 'wagerType': wagerType }, 'GetGameActionByLine').then();
+  };
+
+  agentService.GetOpenWagersByLine = function (gameNum, periodNum, chosenTeamId, wagerType, wagerSubType, totalPointsOU = null) {
+    return caller.POST({ 'gameNum': gameNum, 'periodNum': periodNum, 'chosenTeamId': chosenTeamId, 'wagerType': wagerType, 'wagerSubType': wagerSubType, 'totalPointsOU': totalPointsOU }, 'GetOpenWagersByLine').then();
+  };
+
+  agentService.GetOpenContestByLine = function (contestanNum, contestantNum) {
+    return caller.POST({ 'contestantNum': contestanNum, 'contestantName': contestantNum }, 'GetOpenContestByLine').then();
+  };
+
+  agentService.GetWagersByLine = function (gameNum, periodNum, chosenTeamId, wagerType, wagerSubType, totalPointsOU) {
+    return caller.POST({
+      'gameNum': gameNum, 'periodNum': periodNum, 'chosenTeamId': chosenTeamId, 'wagerType': wagerType, 'wagerSubType': wagerSubType, 'totalPointsOU': totalPointsOU
+    }, 'GetWagersByLine').then();
+  };
+
+  agentService.GetDetailWagerLimits = function (userId, sportType, period) {
+    return caller.POST({ 'userId': userId, 'sportType': sportType, 'period': period }, 'GetSportSettingsAndWagerLimits', null, true).then();
+  };
+
+  agentService.UpdateCustomerSportsLimits = function (cuSpread = 0, inetSpread = 0, cuMoney = 0, inetMoney = 0, cuTotal = 0, inetTotal = 0, cuTeamTotal = 0, inetTeamTotal = 0,
+
+    spreadEL,
+    moneyEL,
+    totalEL,
+    teamTotalEL,
+
+    spreadELTime,
+    moneyELTime,
+    totalELTime,
+    teamTotalELTime,
+
+    spreadHideLimitTime,
+    moneyLineHideLimitTime,
+    totalPointsHideLimitTime,
+    teamTotalPointsHideLimitTime,
+
+    spreadMaxMoneyLine,
+    moneyLineMaxMoneyLine,
+    totalPointsMaxMoneyLine,
+    teamTotalPointsMaxMoneyLine,
+
+    spreadMaxParlayBet,
+    moneyLineMaxParlayBet,
+    totalPointsMaxParlayBet,
+
+    spreadParlayDenied,
+    moneyParlayDenied,
+    totalPointsParlayDenied,
+
+    spreadCorrelatedParlayDenied,
+    moneyLineCorrelatedParlayDenied,
+    totalPointsCorrelatedParlayDenied,
+
+    spreadCuVigDicountPercent = 0,
+    spreadCuVigDiscountInetExpDateString = '',
+    spreadCuVigDiscountInetPercent = 0,
+    spreadCuVigDiscountExpDateString = '',
+    moneyLineCuVigDicountPercent = 0,
+    moneyLineCuVigDiscountInetExpDateString = '',
+    moneyLineCuVigDiscountInetPercent = 0,
+    moneyLineCuVigDiscountExpDateString = '',
+    totalPointsCuVigDicountPercent = 0,
+    totalPointsCuVigDiscountInetExpDateString = '',
+    totalPointsCuVigDiscountInetPercent = 0,
+    totalPointsCuVigDiscountExpDateString = '',
+    teamTotalPointsCuVigDicountPercent = 0,
+    teamTotalPointsCuVigDiscountInetExpDateString = '',
+    teamTotalPointsCuVigDiscountInetPercent = 0,
+    teamTotalPointsCuVigDiscountExpDateString = '',
+    period, sportType, sportSubType, customerId, spreadfixedFlatPrice, totalPointsfixedFlatPrice, teamTotalPointsfixedFlatPrice, spreadDenied, moneyLineDenied, totalPointsDenied, teamTotalPointsDenied,
+    spreadIsIncrease,
+    moneyIsIncrease,
+    totalPointsIsIncrease,
+    teamTotalPointsIsIncrease) {
+    return caller.POST({
+      sportLimits: {
+        'CuSpread': cuSpread, 'InetSpread': inetSpread, 'CuMoney': cuMoney, 'InetMoney': inetMoney, 'CuTotal': cuTotal, 'InetTotal': inetTotal, 'CuTeamTotal': cuTeamTotal, 'InetTeamTotal': inetTeamTotal,
+
+        spreadEL,
+        moneyEL,
+        totalEL,
+        teamTotalEL,
+
+        spreadELTime,
+        moneyELTime,
+        totalELTime,
+        teamTotalELTime,
+        spreadHideLimitTime,
+        moneyLineHideLimitTime,
+        totalPointsHideLimitTime,
+        teamTotalPointsHideLimitTime,
+
+        spreadMaxMoneyLine,
+        moneyLineMaxMoneyLine,
+        totalPointsMaxMoneyLine,
+        teamTotalPointsMaxMoneyLine,
+
+        spreadMaxParlayBet,
+        moneyLineMaxParlayBet,
+        totalPointsMaxParlayBet,
+
+        spreadParlayDenied,
+        moneyParlayDenied,
+        totalPointsParlayDenied,
+
+        spreadCorrelatedParlayDenied,
+        moneyLineCorrelatedParlayDenied,
+        totalPointsCorrelatedParlayDenied,
+        'Period': period, 'SportType': sportType, 'SportSubType': sportSubType.trim(), 'CustomerId': customerId, 'SpreadfixedFlatPrice': spreadfixedFlatPrice,
+        'TotalPointsfixedFlatPrice': totalPointsfixedFlatPrice, 'TeamTotalPointsfixedFlatPrice': teamTotalPointsfixedFlatPrice,
+        'SpreadDenied': spreadDenied, 'MoneyLineDenied': moneyLineDenied, 'TotalPointsDenied': totalPointsDenied, 'TeamTotalPointsDenied': teamTotalPointsDenied,
+        'SpreadCuVigDicountPercent': spreadCuVigDiscountInetPercent,
+        'SpreadCuVigDiscountInetExpDateString': spreadCuVigDiscountInetExpDateString,
+        'SpreadCuVigDiscountInetPercent': spreadCuVigDiscountInetPercent,
+        'SpreadCuVigDiscountExpDateString': spreadCuVigDiscountInetExpDateString,
+        'MoneyLineCuVigDicountPercent': moneyLineCuVigDiscountInetPercent,
+        'MoneyLineCuVigDiscountInetExpDateString': moneyLineCuVigDiscountInetExpDateString,
+        'MoneyLineCuVigDiscountInetPercent': moneyLineCuVigDiscountInetPercent,
+        'MoneyLineCuVigDiscountExpDateString': moneyLineCuVigDiscountInetExpDateString,
+        'TotalPointsCuVigDicountPercent': totalPointsCuVigDiscountInetPercent,
+        'TotalPointsCuVigDiscountInetExpDateString': totalPointsCuVigDiscountInetExpDateString,
+        'TotalPointsCuVigDiscountInetPercent': totalPointsCuVigDiscountInetPercent,
+        'TotalPointsCuVigDiscountExpDateString': totalPointsCuVigDiscountInetExpDateString,
+        'TeamTotalPointsCuVigDicountPercent': teamTotalPointsCuVigDiscountInetPercent,
+        'TeamTotalPointsCuVigDiscountInetExpDateString': teamTotalPointsCuVigDiscountInetExpDateString,
+        'TeamTotalPointsCuVigDiscountInetPercent': teamTotalPointsCuVigDiscountInetPercent,
+        'TeamTotalPointsCuVigDiscountExpDateString': teamTotalPointsCuVigDiscountInetExpDateString,
+        spreadIsIncrease,
+        moneyIsIncrease,
+        totalPointsIsIncrease,
+        teamTotalPointsIsIncrease
+      }
+    }, 'UpdateCustomerSportsLimits');
+  };
+
+  function addToArrayIfNotExists(array, value) {
+    if (!value) value = "Other";
+    for (var i = 0; i < array.length; i++) {
+      if (array[i] == value) return;
+    }
+    array.push(value);
+  }
+
+  var SportTypes = [];
+
+  function buildLiveTickerInfoObject(rawData) {
+    //agentService.LiveTickerFilters.SportType = sportTypeArray(rawData);
+    var wagerTypeCode = null;
+    var wagerAmountCode = null;
+
+    if (agentService.LiveTickerFilters.WagerType) {
+      wagerTypeCode = typeof agentService.LiveTickerFilters.WagerType.Index === "undefined" ? 0 : agentService.LiveTickerFilters.WagerType.Index;
+    }
+
+    if (agentService.LiveTickerFilters.WagerAmount) {
+      wagerAmountCode = typeof agentService.LiveTickerFilters.WagerAmount.Index === "undefined" ? 0 : agentService.LiveTickerFilters.WagerAmount.Index;
+    }
+
+    var wagers = [];
+    var WagerItems = new Array();
+    var WagerItem = {};
+    //var LiveTickerInfo = [];
+    var calledDateTime = agentService.GetServerDateTime();
+    if (rawData) {
+      var holdTicketNumber;
+      var holdWagerNumber;
+      for (var i = 0; i < rawData.length; i++) {
+
+
+        if (window.webConfig.AgentBetTickerSession) {
+          var r = rawData[i];
+
+          var cst = r.CustomerId.trim();
+          var agid = r.AgentID.trim();
+          r.CustomerId = "XXX" + (cst.Length >= 3 ? cst.substring(cst.Length - 2) : "");
+          r.AgentID = "XXX" + (agid.Length >= 3 ? agid.substring(agid.Length - 2) : "");
+          r.TicketNumber = "XXX";
+          r.WagerNumber = "XXX";
+          r.Clerk = "XXX";
+        }
+
+        addToArrayIfNotExists(SportTypes, rawData[i].SportType.trim());
+
+        if ((holdTicketNumber != parseInt(rawData[i].TicketNumber)) ||
+          (holdTicketNumber == parseInt(rawData[i].TicketNumber) && holdWagerNumber != parseInt(rawData[i].WagerNumber))) {
+          WagerItems = new Array();
+          var Wager = {
+            TicketNumber: rawData[i].TicketNumber,
+            WagerNumber: rawData[i].WagerNumber,
+            CustomerId: rawData[i].CustomerId,
+            WiseActionFlag: rawData[i].WiseActionFlag,
+            PostedDateTimeString: rawData[i].PostedDateTimeString,
+            TicketWriter: rawData[i].TicketWriter,
+            WagerType: rawData[i].WagerType,
+            AmountWagered: rawData[i].AmountWagered,
+            ToWinAmount: rawData[i].ToWinAmount,
+            Description: rawData[i].Description,
+            ShowedDateTime: calledDateTime,
+            ARLink: rawData[i].ARLink,
+            ContinueOnPushFlag: rawData[i].ContinueOnPushFlag,
+            FreePlayFlag: rawData[i].FreePlayFlag,
+            WagerStatus: rawData[i].WagerStatus,
+            TotalPicks: rawData[i].TotalPicks
+          };
+          Wager.WagerItems = [];
+          if (rawData[i].GameNum != null) {
+            var WagerItem = {
+              ItemNumber: rawData[i].ItemNumber,
+              GameNum: rawData[i].GameNum,
+              GameDateTime: rawData[i].GameDateTime,
+              SportType: rawData[i].SportType,
+              SportSubType: rawData[i].SportSubType,
+              ItemWagerType: rawData[i].ItemWagerType,
+              AdjSpread: rawData[i].AdjSpread,
+              AdjTotalPoints: rawData[i].AdjTotalPoints,
+              TotalPointsOU: rawData[i].TotalPointsOU,
+              FinalMoney: rawData[i].FinalMoney,
+              Team1ID: rawData[i].Team1ID,
+              Team1RotNum: rawData[i].Team1RotNum,
+              Team2ID: rawData[i].Team2ID,
+              Team2RotNum: rawData[i].Team2RotNum,
+              ChosenTeamID: rawData[i].ChosenTeamID,
+              Outcome: rawData[i].Outcome,
+              ItemAmountWagered: rawData[i].ItemAmountWagered,
+              ItemToWinAmount: rawData[i].ItemToWinAmount,
+              TeaserPoints: rawData[i].TeaserPoints,
+              GradeNum: rawData[i].GradeNum,
+              Store: rawData[i].Store,
+              CustProfile: rawData[i].CustProfile,
+              PeriodNumber: rawData[i].PeriodNumber,
+              PeriodDescription: rawData[i].PeriodDescription,
+              FinalAmountWagered: rawData[i].FinalAmountWagered,
+              FinalAmountWon: rawData[i].FinalAmountWon,
+              OriginatingTicketNumber: rawData[i].OriginatingTicketNumber,
+              AdjustableOddsFlag: rawData[i].AdjustableOddsFlag,
+              ListedPitcher1: rawData[i].ListedPitcher1,
+              ListedPitcher2: rawData[i].ListedPitcher2,
+              Pitcher1ReqFlag: rawData[i].Pitcher1ReqFlag,
+              Pitcher2ReqFlag: rawData[i].Pitcher2ReqFlag,
+              GradeMoney: rawData[i].GradeMoney,
+              GradeToWinAmount: rawData[i].GradeToWinAmount,
+              PercentBook: rawData[i].PercentBook,
+              VolumeAmount: rawData[i].VolumeAmount,
+              ShowOnChartFlag: rawData[i].ShowOnChartFlag,
+              DailyFigureDate: rawData[i].DailyFigureDate,
+              CurrencyCode: rawData[i].CurrencyCode,
+              ValueDate: rawData[i].ValueDate,
+              ArchiveFlag: rawData[i].ArchiveFlag,
+              LayoffFlag: rawData[i].LayoffFlag,
+              AgentID: rawData[i].AgentID,
+              EasternLine: rawData[i].EasternLine,
+              FreePlayFlag: rawData[i].FreePlayFlag,
+              WiseActionFlag: rawData[i].WiseActionFlag,
+              OrigSpread: rawData[i].OrigSpread,
+              OrigTotalPoints: rawData[i].OrigTotalPoints,
+              OrigMoney: rawData[i].OrigMoney,
+              FinalDecimal: rawData[i].FinalDecimal,
+              FinalNumerator: rawData[i].FinalNumerator,
+              FinalDenominator: rawData[i].FinalDenominator,
+              OrigDecimal: rawData[i].OrigDecimal,
+              OrigNumerator: rawData[i].OrigNumerator,
+              OrigDenominator: rawData[i].OrigDenominator,
+              PriceType: rawData[i].PriceType,
+              GradeDecimal: rawData[i].GradeDecimal,
+              GradeNumerator: rawData[i].GradeNumerator,
+              GradeDenominator: rawData[i].GradeDenominator,
+              AhResultFlag: rawData[i].AhResultFlag,
+              Description: rawData[i].Description
+            };
+            WagerItems.push(WagerItem);
+            Wager.WagerItems = WagerItems;
+          }
+          wagers.push(Wager);
+        } else if (rawData[i].GameNum != null) { //apend Item to wager
+          var WagerItem = {
+            ItemNumber: rawData[i].ItemNumber,
+            GameNum: rawData[i].GameNum,
+            GameDateTime: rawData[i].GameDateTime,
+            SportType: rawData[i].SportType,
+            SportSubType: rawData[i].SportSubType,
+            ItemWagerType: rawData[i].ItemWagerType,
+            AdjSpread: rawData[i].AdjSpread,
+            AdjTotalPoints: rawData[i].AdjTotalPoints,
+            TotalPointsOU: rawData[i].TotalPointsOU,
+            FinalMoney: rawData[i].FinalMoney,
+            Team1ID: rawData[i].Team1ID,
+            Team1RotNum: rawData[i].Team1RotNum,
+            Team2ID: rawData[i].Team2ID,
+            Team2RotNum: rawData[i].Team2RotNum,
+            ChosenTeamID: rawData[i].ChosenTeamID,
+            Outcome: rawData[i].Outcome,
+            ItemAmountWagered: rawData[i].ItemAmountWagered,
+            ItemToWinAmount: rawData[i].ItemToWinAmount,
+            TeaserPoints: rawData[i].TeaserPoints,
+            GradeNum: rawData[i].GradeNum,
+            Store: rawData[i].Store,
+            CustProfile: rawData[i].CustProfile,
+            PeriodNumber: rawData[i].PeriodNumber,
+            PeriodDescription: rawData[i].PeriodDescription,
+            FinalAmountWagered: rawData[i].FinalAmountWagered,
+            FinalAmountWon: rawData[i].FinalAmountWon,
+            OriginatingTicketNumber: rawData[i].OriginatingTicketNumber,
+            AdjustableOddsFlag: rawData[i].AdjustableOddsFlag,
+            ListedPitcher1: rawData[i].ListedPitcher1,
+            ListedPitcher2: rawData[i].ListedPitcher2,
+            Pitcher1ReqFlag: rawData[i].Pitcher1ReqFlag,
+            Pitcher2ReqFlag: rawData[i].Pitcher2ReqFlag,
+            GradeMoney: rawData[i].GradeMoney,
+            GradeToWinAmount: rawData[i].GradeToWinAmount,
+            PercentBook: rawData[i].PercentBook,
+            VolumeAmount: rawData[i].VolumeAmount,
+            ShowOnChartFlag: rawData[i].ShowOnChartFlag,
+            DailyFigureDate: rawData[i].DailyFigureDate,
+            CurrencyCode: rawData[i].CurrencyCode,
+            ValueDate: rawData[i].ValueDate,
+            ArchiveFlag: rawData[i].ArchiveFlag,
+            LayoffFlag: rawData[i].LayoffFlag,
+            AgentID: rawData[i].AgentID,
+            EasternLine: rawData[i].EasternLine,
+            FreePlayFlag: rawData[i].FreePlayFlag,
+            WiseActionFlag: rawData[i].WiseActionFlag,
+            OrigSpread: rawData[i].OrigSpread,
+            OrigTotalPoints: rawData[i].OrigTotalPoints,
+            OrigMoney: rawData[i].OrigMoney,
+            FinalDecimal: rawData[i].FinalDecimal,
+            FinalNumerator: rawData[i].FinalNumerator,
+            FinalDenominator: rawData[i].FinalDenominator,
+            OrigDecimal: rawData[i].OrigDecimal,
+            OrigNumerator: rawData[i].OrigNumerator,
+            OrigDenominator: rawData[i].OrigDenominator,
+            PriceType: rawData[i].PriceType,
+            GradeDecimal: rawData[i].GradeDecimal,
+            GradeNumerator: rawData[i].GradeNumerator,
+            GradeDenominator: rawData[i].GradeDenominator,
+            AhResultFlag: rawData[i].AhResultFlag,
+            Description: rawData[i].Description
+          };
+          wagers[wagers.length - 1].WagerItems.push(WagerItem);
+
+        }
+        holdTicketNumber = parseInt(rawData[i].TicketNumber);
+        holdWagerNumber = parseInt(rawData[i].WagerNumber);
+      }
+    }
+    return {
+      wagers: wagers,
+      sportTypes: SportTypes
+    };
+  };
+
+  agentService.IncludeWager = function (wager, wagerTypeCode, wagerAmountCode) {
+
+    var wagerType = wager.WagerType;
+    var wagerAmount = wager.AmountWagered;
+
+    var wagerTypes;
+    if (wagerTypeCode == 1)
+      wagerTypes = 'SLME';
+    else
+      wagerTypes = 'SLMEPTI';
+
+    if (wagerTypes.indexOf(wagerType) < 0) {
+      return false;
+    }
+
+    switch (wagerAmountCode) {
+      case 0:
+        return true;
+      case 1:
+        if (wagerAmount / 100 > 0 && wagerAmount / 100 <= 1000)
+          return true;
+        else
+          return false;
+      case 2:
+        if (wagerAmount / 100 > 1000 && wagerAmount / 100 <= 9999.99)
+          return true;
+        else
+          return false;
+    }
+    return true;
+  };
+
+  agentService.ExcludeWager = function (wagerInfoItem, deletedWagers) {
+    if (deletedWagers == null || deletedWagers.length == 0)
+      return false;
+    for (var i = 0; i < deletedWagers.length; i++) {
+      var ticketNumber = deletedWagers[i].TicketNumber;
+      var wagerNumber = deletedWagers[i].WagerNumber;
+      if (parseInt(ticketNumber) == parseInt(wagerInfoItem.TicketNumber) && parseInt(wagerNumber) == parseInt(wagerInfoItem.WagerNumber))
+        return true;
+    }
+    return false;
+  };
+
+  agentService.PrependWagersToBetTicker = function (raw) {
+    var latestRawData = raw.data;
+    agentService.TotalPlayers = raw.userCount;
+    var insertedWagers = [];
+    var deletedWagers = [];
+    var i;
+    if (Array.isArray(latestRawData)) {
+      for (i = 0; i < latestRawData.length; i++) {
+        if (latestRawData[i].Inserted == true) {
+          insertedWagers.push(latestRawData[i]);
+        } else {
+          deletedWagers.push(latestRawData[i]);
+        }
+      }
+    }
+    else {
+      if (latestRawData.Inserted == true) {
+        insertedWagers.push(latestRawData);
+      } else {
+        deletedWagers.push(latestRawData);
+      }
+    }
+    var tmpNewLiveTickerInfo = buildLiveTickerInfoObject(insertedWagers).wagers;
+
+    if (agentService.LiveTickerInfo == null || agentService.LiveTickerInfo.length == 0) {
+      agentService.LiveTickerInfo = tmpNewLiveTickerInfo;
+    }
+    else {
+      for (i = 0; i < agentService.LiveTickerInfo.length; i++) {
+
+        if (!excludeWager(agentService.LiveTickerInfo[i], deletedWagers)) {
+          tmpNewLiveTickerInfo.push(agentService.LiveTickerInfo[i]);
+        }
+      }
+      agentService.LiveTickerInfo = tmpNewLiveTickerInfo;
+    }
+
+    if (agentService.LiveTickerInfo) {
+      $rootScope.$broadcast('NewWagersFound');
+    }
+  };
+
+  agentService.DisplayWagerTypeName = function (wager) {
+    let twriter = wager.TicketWriter || wager.EnteredBy;
+    let wagerTypeName = '';
+    if (wager.WagerType === 'G') return twriter;
+    if (wager.SystemID) return wager.SystemID;
+    if (!wager.SystemID && twriter.trim() !== 'Sportsbook' && twriter.trim() !== 'Main' && twriter.trim() !== 'Mobile') wagerTypeName = 'Phone - ';
+    if (!wager.SystemID && twriter.trim() !== 'Sportsbook' && twriter.trim() == 'Props-Builder') {
+      wagerTypeName = 'Props Builder';
+      return wagerTypeName;
+    }
+    var Items = [
+      {
+        Name: "Contest",
+        Code: "C"
+      }, {
+        Name: "Spread",
+        Code: "S"
+      }, {
+        Name: "Money Line",
+        Code: "M"
+      }, {
+        Name: "Total Points",
+        Code: "L"
+      }, {
+        Name: "Team Totals",
+        Code: "E"
+      }, {
+        Name: "Parlay",
+        Code: "P"
+      }, {
+        Name: "Teaser",
+        Code: "T"
+      }, {
+        Name: "If Bet",
+        Code: "I"
+      }, {
+        Name: "Manual Play",
+        Code: "A"
+      }
+    ];
+    for (var i = 0; i < Items.length; i++) {
+      if (wager.WagerType === Items[i].Code) {
+        if (wager.ARLink == 1) {
+          wagerTypeName += 'Action Reverse';
+          return wagerTypeName;
+        } else {
+          wagerTypeName += Items[i].Name + ' ' + (wager.WagerType == 'T' && wager.TeaserName ? wager.TeaserName : wager.WagerType == 'I' && wager.ContinueOnPushFlag == 'Y' ? ' or Push' : '');
+          return wagerTypeName;
+        }
+
+      }
+    }
+    wagerTypeName += wager.EnteredBy || '';
+    return wagerTypeName;
+  };
+
+
+  agentService.WagerTypes = {
+    Items: [
+      {
+        Name: "Contest",
+        Code: "C"
+      }, {
+        Name: "Spread",
+        Code: "S"
+      }, {
+        Name: "Money Line",
+        Code: "M"
+      }, {
+        Name: "Total Points",
+        Code: "L"
+      }, {
+        Name: "Team Totals",
+        Code: "E"
+      }, {
+        Name: "Parlay",
+        Code: "P"
+      }, {
+        Name: "Teaser",
+        Code: "T"
+      }, {
+        Name: "If Bet",
+        Code: "I"
+      }, {
+        Name: "Casino",
+        Code: "G"
+      }
+    ],
+    GetByCode: function (code, teaserName) {
+      for (var i = 0; i < this.Items.length; i++) {
+        if (code === this.Items[i].Code) return this.Items[i].Name + ' ' + (code == 'T' && teaserName ? teaserName : '');
+      }
+      return null;
+    },
+
+    GetByName: function (name) {
+      for (var i = 0; i < this.Items.length; i++) {
+        if (name === this.Items[i].Name) return this.Items[i].Code;
+      }
+      return null;
+    }
+
+  };
+
+  agentService.KillTheSession = function () {
+    return caller.POST({}, 'Logout').then(function () {
+      CommonFunctions.RedirecToPage(SETTINGS.LoginSite);
+    });
+  };
+
+  agentService.DisplayPeriod = function (periodRange, strDate) {
+    var customFormmattedDate = "";
+    var datePart;
+    var monthPart;
+    var dayOfWeekPart;
+    var firstDate;
+    var secondDate;
+    switch (periodRange) {
+      case "D":
+        if (strDate.indexOf(" ") < 0) return "";
+        datePart = strDate.split(" ")[0];
+        dayOfWeekPart = strDate.split(" ")[1];
+        customFormmattedDate = dayOfWeekPart.substring(0, 3) + " " + datePart.split("/")[1] + " " + agentService.GetMonthName(datePart.split("/")[0] - 1);
+        //"10/04/2016 Tuesday"
+        break;
+      case "W":
+        if (strDate.indexOf("-") < 0) return "";
+        firstDate = strDate.split("-")[0];
+        secondDate = strDate.split("-")[1];
+        if (secondDate != null) {
+          //customFormmattedDate = agentService.GetDayOfWeekName(firstDate);
+          customFormmattedDate += " " +
+            firstDate.split("/")[1] + " " + agentService.GetMonthName(firstDate.split("/")[0] - 1) + " to ";
+          //customFormmattedDate += agentService.GetDayOfWeekName(secondDate);
+          customFormmattedDate += " " +
+            +secondDate.split("/")[1] + " " + agentService.GetMonthName(secondDate.split("/")[0] - 1);
+        }
+        //"05/09/2016 - 05/15/2016"
+        break;
+      case "M":
+        if (strDate.indexOf(" ") < 0) return "";
+        datePart = strDate.split(" ")[0];
+        monthPart = strDate.split(" ")[1];
+        customFormmattedDate = datePart + " " + monthPart.substring(0, 3);
+        //"2015 October"
+        break;
+      case "Y":
+        customFormmattedDate = strDate;
+        break;
+    }
+    return customFormmattedDate;
+  };
+
+  agentService.GetMonthName = function (idx) {
+    return CommonFunctions.GetMonthName(idx);
+  };
+
+  agentService.GetDayOfWeekName = function (date) {
+    return CommonFunctions.GetDayOfWeekName(date);
+  };
+
+  agentService.GetWeekDayName = function (idx, closeDayOfWeek) {
+    if (!agentService.AgentInfo) return;
+    closeDayOfWeek = closeDayOfWeek || agentService.AgentInfo.CloseDayOfWeek
+    idx = closeDayOfWeek == 2 ? idx : idx + 1;
+    if (idx > 6) idx = idx - 7;
+    var weekday = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    return String(weekday[idx]).toUpperCase();
+  };
+
+  agentService.GetPerformanceTotal = function (performanceObj) {
+    var total = 0;
+    if (!performanceObj)
+      return 0;
+    for (var i = 0; i < performanceObj.length; i++) {
+      var ap = performanceObj[i];
+      if (ap.LostSelected) total += ap.Lost;
+      if (ap.WonSelected) total += ap.Won;
+    }
+    return total;
+  };
+
+  agentService.GetMonthNameFromDate = function (startingDate, endingDate) {
+    var month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var retMonth = month[$agentService.GetServerDateTime().getMonth()];
+    if (startingDate) {
+      startingDate = new Date(parseInt(startingDate.substr(6)));
+      endingDate = new Date(parseInt(endingDate.substr(6)));
+      retMonth = month[startingDate.getMonth()].toUpperCase();
+      if (startingDate.getMonth() != endingDate.getMonth()) {
+        retMonth += " / " + month[endingDate.getMonth()].toUpperCase();
+      }
+    }
+    return retMonth.toUpperCase();
+  };
+
+  agentService.GetDayFigure = function (custDf, dayIdx, breakoutSportsAndCasinos) {
+    /*
+         Sunday is 0, Monday is 1
+     */
+    var dayFigure = 0;
+    if (custDf == null)
+      return dayFigure;
+    switch (dayIdx) {
+      case 0:
+        dayFigure = (custDf.AmountWonSunday - custDf.AmountLostSunday);
+        custDf.df0 = (dayFigure + (custDf.AmountWonCasinoSunday - custDf.AmountLostCasinoSunday)) * 100;
+        custDf.NoData0 = custDf.PlaysCountMonday == 0;
+        if (!breakoutSportsAndCasinos) {
+          dayFigure += (custDf.AmountWonCasinoSunday - custDf.AmountLostCasinoSunday);
+          custDf.NoData0 = custDf.AmountWonCasinoSunday == 0 && custDf.AmountLostCasinoSunday == 0;
+        }
+        custDf.NoData0 = custDf.NoData0 && dayFigure == 0;
+        custDf.dFData0 = dayFigure * 100;
+        break;
+      case 1:
+        dayFigure = (custDf.AmountWonMonday - custDf.AmountLostMonday);
+        custDf.df1 = (dayFigure + (custDf.AmountWonCasinoMonday - custDf.AmountLostCasinoMonday)) * 100;
+        custDf.NoData1 = custDf.PlaysCountMonday == 0;
+        if (!breakoutSportsAndCasinos) {
+          dayFigure += (custDf.AmountWonCasinoMonday - custDf.AmountLostCasinoMonday);
+          custDf.NoData1 = custDf.AmountWonCasinoMonday == 0 && custDf.AmountLostCasinoMonday == 0;
+        }
+        custDf.NoData1 = custDf.NoData1 && dayFigure == 0;
+        custDf.dFData1 = dayFigure * 100;
+        break;
+      case 2:
+        dayFigure = (custDf.AmountWonTuesday - custDf.AmountLostTuesday);
+        custDf.df2 = (dayFigure + (custDf.AmountWonCasinoTuesday - custDf.AmountLostCasinoTuesday)) * 100;
+        custDf.NoData2 = custDf.PlaysCountMonday == 0;
+        if (!breakoutSportsAndCasinos) {
+          dayFigure += (custDf.AmountWonCasinoTuesday - custDf.AmountLostCasinoTuesday);
+          custDf.NoData2 = custDf.AmountWonCasinoTuesday == 0 && custDf.AmountLostCasinoTuesday == 0;
+        }
+        custDf.NoData2 = custDf.NoData2 && dayFigure == 0;
+        custDf.dFData2 = dayFigure * 100;
+        break;
+      case 3:
+        dayFigure = (custDf.AmountWonWednesday - custDf.AmountLostWednesday);
+        custDf.df3 = (dayFigure + (custDf.AmountWonCasinoWednesday - custDf.AmountLostCasinoWednesday)) * 100;
+        custDf.NoData3 = custDf.PlaysCountMonday == 0;
+        if (!breakoutSportsAndCasinos) {
+          dayFigure += (custDf.AmountWonCasinoWednesday - custDf.AmountLostCasinoWednesday);
+          custDf.NoData3 = custDf.AmountWonCasinoWednesday == 0 && custDf.AmountLostCasinoWednesday == 0;
+        }
+        custDf.NoData3 = custDf.NoData3 && dayFigure == 0;
+        custDf.dFData3 = dayFigure * 100;
+        break;
+      case 4:
+        dayFigure = (custDf.AmountWonThursday - custDf.AmountLostThursday);
+        custDf.df4 = (dayFigure + (custDf.AmountWonCasinoThursday - custDf.AmountLostCasinoThursday)) * 100;
+        custDf.NoData4 = custDf.PlaysCountMonday == 0;
+        if (!breakoutSportsAndCasinos) {
+          dayFigure += (custDf.AmountWonCasinoThursday - custDf.AmountLostCasinoThursday);
+          custDf.NoData4 = custDf.AmountWonCasinoThursday == 0 && custDf.AmountLostCasinoThursday == 0;
+        }
+        custDf.NoData4 = custDf.NoData4 && dayFigure == 0;
+        custDf.dFData4 = dayFigure * 100;
+        break;
+      case 5:
+        dayFigure = (custDf.AmountWonFriday - custDf.AmountLostFriday);
+        custDf.df5 = (dayFigure + (custDf.AmountWonCasinoFriday - custDf.AmountLostCasinoFriday)) * 100;
+        custDf.NoData5 = custDf.PlaysCountMonday == 0;
+        if (!breakoutSportsAndCasinos) {
+          dayFigure += (custDf.AmountWonCasinoFriday - custDf.AmountLostCasinoFriday);
+          custDf.NoData5 = custDf.AmountWonCasinoFriday == 0 && custDf.AmountLostCasinoFriday == 0;
+        }
+        custDf.NoData5 = custDf.NoData5 && dayFigure == 0;
+        custDf.dFData5 = dayFigure * 100;
+        break;
+      case 6:
+        dayFigure = (custDf.AmountWonSaturday - custDf.AmountLostSaturday);
+        custDf.df6 = (dayFigure + (custDf.AmountWonCasinoSaturday - custDf.AmountLostCasinoSaturday)) * 100;
+        custDf.NoData6 = custDf.PlaysCountMonday == 0;
+        if (!breakoutSportsAndCasinos) {
+          dayFigure += (custDf.AmountWonCasinoSaturday - custDf.AmountLostCasinoSaturday);
+          custDf.NoData6 = custDf.AmountWonCasinoSaturday == 0 && custDf.AmountLostCasinoSaturday == 0;
+        }
+        custDf.NoData6 = custDf.NoData6 && dayFigure == 0;
+        custDf.dFData6 = dayFigure * 100;
+        break;
+    }
+    return dayFigure * 100; //CommonFunctions.FormatNumber(dayFigure, divideFig, true);
+  };
+
+  agentService.GetCasinoFigure = function (custDf, dayIdx) {
+    var casinoDayFigure = 0;
+    if (custDf == null)
+      return casinoDayFigure;
+    switch (dayIdx) {
+      case 0:
+        casinoDayFigure = (custDf.AmountWonCasinoSunday - custDf.AmountLostCasinoSunday);
+        //custDf.NoData0 = custDf.AmountWonCasinoSunday == 0 && custDf.AmountLostCasinoSunday == 0;
+        break;
+      case 1:
+        casinoDayFigure = (custDf.AmountWonCasinoMonday - custDf.AmountLostCasinoMonday);
+        //custDf.NoData1 = custDf.AmountWonCasinoMonday == 0 && custDf.AmountLostCasinoMonday == 0;
+        break;
+      case 2:
+        casinoDayFigure = (custDf.AmountWonCasinoTuesday - custDf.AmountLostCasinoTuesday);
+        //custDf.NoData2 = custDf.AmountWonCasinoTuesday == 0 && custDf.AmountLostCasinoTuesday == 0;
+        break;
+      case 3:
+        casinoDayFigure = (custDf.AmountWonCasinoWednesday - custDf.AmountLostCasinoWednesday);
+        //custDf.NoData3 = custDf.AmountWonCasinoWednesday == 0 && custDf.AmountLostCasinoWednesday == 0;
+        break;
+      case 4:
+        casinoDayFigure = (custDf.AmountWonCasinoThursday - custDf.AmountLostCasinoThursday);
+        //custDf.NoData4 = custDf.AmountWonCasinoThursday == 0 && custDf.AmountLostCasinoThursday == 0;
+        break;
+      case 5:
+        casinoDayFigure = (custDf.AmountWonCasinoFriday - custDf.AmountLostCasinoFriday);
+        //custDf.NoData5 = custDf.AmountWonCasinoFriday == 0 && custDf.AmountLostCasinoFriday == 0;
+        break;
+      case 6:
+        casinoDayFigure = (custDf.AmountWonCasinoSaturday - custDf.AmountLostCasinoSaturday);
+        //custDf.NoData6 = custDf.AmountWonCasinoSaturday == 0 && custDf.AmountLostCasinoSaturday == 0;
+        break;
+    }
+    return casinoDayFigure * 100; //CommonFunctions.FormatNumber(casinoDayFigure, divideFig, true);
+  };
+
+  agentService.GetDailyFigureDate = function (dayIdx, startingDate, getRaw = false) {
+    if (!agentService.AgentInfo) return;
+    dayIdx = dayIdx == 0 ? 6 : dayIdx - 1;
+    if (startingDate != null) {
+      let date = new Date(startingDate);
+      date.setDate(date.getDate() + dayIdx);
+      return getRaw ? date : `${date.getMonth() + 1}/${date.getDate()}`;
+    }
+    return '';
+  };
+
+  function includeWager(wager, wagerTypeCode, wagerAmountCode) {
+
+    var wagerType = wager.WagerType;
+    var wagerAmount = wager.AmountWagered;
+
+    var wagerTypes;
+    if (wagerTypeCode == 1)
+      wagerTypes = 'GSLME';
+    else
+      wagerTypes = 'GSLMEPTIC';
+
+    if (wagerTypes.indexOf(wagerType) < 0) {
+      return false;
+    }
+
+    switch (wagerAmountCode) {
+      case 0:
+        return true;
+      case 1:
+        if (wagerAmount / 100 > 0 && wagerAmount / 100 <= 1000)
+          return true;
+        else
+          return false;
+      case 2:
+        if (wagerAmount / 100 > 1000 && wagerAmount / 100 <= 9999.99)
+          return true;
+        else
+          return false;
+    }
+    return true;
+  };
+
+  function excludeWager(wagerInfoItem, deletedWagers) {
+    if (deletedWagers == null || deletedWagers.length == 0)
+      return false;
+    for (var i = 0; i < deletedWagers.length; i++) {
+      var ticketNumber = deletedWagers[i].TicketNumber;
+      var wagerNumber = deletedWagers[i].WagerNumber;
+      if (parseInt(ticketNumber) == parseInt(wagerInfoItem.TicketNumber) && parseInt(wagerNumber) == parseInt(wagerInfoItem.WagerNumber))
+        return true;
+    }
+    return false;
+  };
+
+  agentService.GroupCustomersByAgent = function (rawData) {
+    var returnedData = [];
+    var holdAgentId = null;
+    if (rawData) {
+      for (var i = 0; i < rawData.length; i++) {
+        for (var j = 0; j < rawData[i].length; j++) {
+          var agData = rawData[i][j];
+          if (holdAgentId != agData.AgentId) {
+            var CustomersData = new Array();
+            var AgentData = { AgentId: agData.AgentId };
+            agData.WageringActiveSwitch = agData.WageringActive ? true : false;
+            CustomersData.push(agData);
+            AgentData.CustomersList = CustomersData;
+            returnedData.push(AgentData);
+          }
+          else {
+            agData.WageringActiveSwitch = agData.WageringActive ? true : false;
+            returnedData[returnedData.length - 1].CustomersList.push(agData);
+          }
+          holdAgentId = agData.AgentId;
+        }
+      }
+    }
+    return returnedData;
+  };
+
+  agentService.GetSportGameLinesAndPriceOffering = function (agentId, sportType, sportSubType, periodNumber) {
+    return caller.POST({ agentId: agentId, sportType: sportType, sportSubType: sportSubType, periodNumber: periodNumber }, 'GetSportGameLinesAndPriceOffering', null, true).then();
+  };
+
+  agentService.SaveGameLine = function (gameline, custProfile) {
+    return caller.POST({
+      store: gameline.Store,
+      custProfile: custProfile,
+      periodNumber: gameline.PeriodNumber,
+      gameNum: gameline.GameNum,
+      spread1: gameline.Spread1,
+      spread2: gameline.Spread2,
+      spreadAdj1: gameline.SpreadAdj1,
+      spreadAdj2: gameline.SpreadAdj2,
+      totalPoints: gameline.TotalPoints,
+      ttlPtsAdj1: gameline.TtlPtsAdj1,
+      ttlPtsAdj2: gameline.TtlPtsAdj2,
+      moneyLine1: gameline.MoneyLine1,
+      moneyLine2: gameline.MoneyLine2,
+      moneyLineDraw: gameline.MoneyLineDraw,
+      team1TotalPoints: gameline.Team1TotalPoints,
+      team1TtlPtsAdj1: gameline.Team1TtlPtsAdj1,
+      team1TtlPtsAdj2: gameline.Team1TtlPtsAdj2,
+      team2TotalPoints: gameline.Team2TotalPoints,
+      team2TtlPtsAdj1: gameline.Team2TtlPtsAdj1,
+      team2TtlPtsAdj2: gameline.Team2TtlPtsAdj2,
+      spreadFollowBookId: gameline.SpreadFollowBookId || -1,
+      moneylineFollowBookId: gameline.MoneylineFollowBookId || -1,
+      totalPointsFollowBookId: gameline.TotalPointsFollowBookId || -1
+    }, 'SaveGameLine', null, true).then();
+  };
+
+  agentService.SaveContestLine = function (contestLine, custProfile) {
+    return caller.POST({
+      store: contestLine.Store,
+      custProfile: custProfile,
+      contestantNum: contestLine.ContestantNum,
+      moneyLine: contestLine.MoneyLine,
+      thresholdLine: contestLine.ThresholdLine
+    }, 'SaveContestLine', null, true).then();
+  };
+
+  agentService.RemoveShadeGameLines = function (store, custProfile, periodNumber, gameNum, sportType, sportSubType, wagerType) {
+    var data = {
+      store: store,
+      custProfile: custProfile,
+      gameNum: gameNum,
+      periodNumber: periodNumber,
+      sportType: sportType,
+      sportSubType: sportSubType,
+      wagerType: wagerType
+    };
+    return caller.POST(data, 'RemoveShadeGameLines', null, true).then();
+  };
+
+  agentService.RemoveShadeContestLines = function (store, custProfile, contestNum, contestantNum) {
+    var data = {
+      store: store,
+      custProfile: custProfile,
+      contestNum: contestNum,
+      contestantNum: contestantNum
+    };
+    return caller.POST(data, 'RemoveShadeContestLines', null, true).then();
+  };
+
+  agentService.DeleteAgentGameLine = function (gameNum, periodNumber, store, custProfile, sportType, sportSubType) {
+    return caller.POST({ gameNum: gameNum, periodNumber: periodNumber, store: store, custProfile: custProfile, sportType: sportType, sportSubType: sportSubType }, 'DeleteAgentGameLine', null, true).then();
+  };
+
+  agentService.DeleteAgentContestLine = function (contestNum, contestantNum, store, custProfile) {
+    return caller.POST({ contestNum: contestNum, contestantNum: contestantNum, store: store, custProfile: custProfile }, 'DeleteAgentContestLine', null, true).then();
+  };
+
+  agentService.GetFreePlayListByDays = function (a, b) {
+
+    return caller.POST({ customerId: a, numDays: b }, 'GetFreePlayListByDays', null, true).then();
+  };
+
+  agentService.GetFreePlayListByDateRange = function (a, b, c) {
+
+    return caller.POST({ customerId: a, startDate: b, endDate: c }, 'GetFreePlayListByDateRange', null, true).then();
+  };
+
+  agentService.ChangeLineLinkedToStoreFlag = function (gameLine) {
+    return caller.POST({ gameNum: gameLine.GameNum, periodNumber: gameLine.PeriodNumber, store: gameLine.Store, custProfile: gameLine.CustProfile, linkedToStoreFlag: gameLine.LinkedToStoreFlag }, 'ChangeLineLinkedToStoreFlag', null, true).then();
+  };
+
+  agentService.ChangeContestLineLinkedToStoreFlag = function (contestLine) {
+    return caller.POST({ contestantNum: contestLine.ContestantNum, store: contestLine.Store, custProfile: contestLine.CustProfile, linkedToStoreFlag: contestLine.LinkedToStoreFlag }, 'ChangeContestLineLinkedToStoreFlag', null, true).then();
+  };
+
+  agentService.GetDBFollowedBooksBySport = function (a, b, c) {
+    return caller.POST({ sportType: a, sportSubSportType: b, periodNumber: c }, 'GetDBFollowedBooksBySport', null, true).then();
+  };
+
+  agentService.SyncWithServerDateTime = function () {
+    return caller.POST({}, 'GetServerDateTime', null, true).then(function (result) {
+      var sdate = CommonFunctions.SysDate(result.data.d.Data);
+      agentService.ServerClienTime = sdate;
+      return agentService.ServerClienTime;
+
+    });
+  };
+
+  agentService.GetServerDateTime = function () {
+    return agentService.ServerClienTime;
+  };
+
+  agentService.deleteNotification = function (params) {
+    return caller.POST(params, 'deleteNotification', null, true).then(function (s) {
+      return s.data.d.Data;
+    });
+  };
+
+  return agentService;
+
+}]);

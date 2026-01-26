@@ -1,0 +1,160 @@
+﻿<!--div ng-controller="customerController">
+
+    <div class="modal-header">
+<button type="button" class="close" ng-click="CloseDialog()" id="closeButton">&times;</button-->
+<div class="row">
+	<div class="col-xs-12 mb-5">
+		<h1 ng-bind="TitleCustomer()"></h1>
+				<ul class="nav nav-pills mt-4" ng-if="!IsMobile">
+						<li ng-class="{active : SelectedTab == 8}" ng-if="AgentInfo.EnableEditAccountsFlag=='Y'"><a class="btn btn-small btn-report-modal" role="pill" data-toggle="pill" ng-click="SetCustomerOption(8)">{{Translate('Quick Actions')}}</a></li>
+						<li ng-if="AgentInfo.ChangeWagerLimitFlag=='Y'" ng-class="{active : SelectedTab == 6}"><a class="btn btn-small btn-report-modal" role="pill" data-toggle="pill" ng-click="SetCustomerOption(6)">{{Translate('General Limits')}}</a></li>
+						<li ng-class="{active : SelectedTab == 0}" ng-if="AgentInfo.EnableEditAccountsFlag=='Y'"><a class="btn btn-small btn-report-modal" role="pill" data-toggle="pill" ng-click="SetCustomerOption(0)">{{Translate('Personal Info')}}</a></li>
+						<li ng-class="{active : SelectedTab == 1}"><a class="btn btn-small btn-report-modal" aria-controls="performance" role="pill" data-toggle="pill" ng-click="SetCustomerOption(1)">{{Translate('Performance')}}</a></li>
+						<li ng-if="AgentInfo.EnableEditAccountsFlag=='Y'" ng-class="{active : SelectedTab == 9}"><a class="btn btn-small btn-report-modal" aria-controls="performance" role="pill" data-toggle="pill" ng-click="SetCustomerOption(9)">{{Translate('Communications')}}</a></li>
+						<li ng-if="AgentInfo.EnableEditAccountsFlag=='Y'" ng-class="{active : SelectedTab == 10}"><a class="btn btn-small btn-report-modal" aria-controls="performance" role="pill" data-toggle="pill" ng-click="SetCustomerOption(10)">{{Translate('Features')}}</a></li>
+						<li ng-class="{active : SelectedTab == 2}" ng-if="AgentInfo.EnterTransactionFlag=='Y' || AgentInfo.ChangeCreditLimitFlag=='Y' || AgentInfo.ChangeTempCreditFlag =='Y' || AgentInfo.SuspendWageringFlag=='Y' || AgentInfo.UpdateCommentsFlag=='Y' || AgentInfo.ChangeWagerLimitFlag=='Y'"><a ng-show="ActionsVisible()" class="btn btn-small btn-report-modal" role="pill" data-toggle="pill" ng-click="SetCustomerOption(2)">{{Translate('Transactions')}}</a></li>
+						<li ng-class="{active : SelectedTab == 3}"><a class="btn btn-small btn-report-modal" role="pill" data-toggle="pill" ng-click="SetCustomerOption(3)">{{Translate('Daily Figures')}}</a></li>
+			<li ng-class="{active : SelectedTab == 4}"><a id="tbOpenBets" class="btn btn-small btn-report-modal" role="pill" data-toggle="pill" ng-click="SetCustomerOption(4)">{{Translate('Pending Bets')}}</a></li>
+      <li ng-if="AgentInfo.EnableVigSetupFlag=='Y'" ng-class="{active : SelectedTab == 13}"><a id="vigLimits" class="btn btn-small btn-report-modal" role="pill" data-toggle="pill" ng-click="SetCustomerOption(13)">{{Translate('VigLimits')}}</a></li>
+						<li><a  class="btn btn-small btn-report-modal" role="pill" data-toggle="pill" href="#/sportslimits">{{Translate('Sports Limits')}}</a></li>
+						<!--<li ng-class="{active : SelectedTab == 5}"><a class="btn btn-small btn-report-modal" role="pill" data-toggle="pill" ng-click="SetCustomerOption(5)">{{Translate('All Transactions')}}</a></li>-->
+						<!--<li ng-class="{active : SelectedTab == 7}"><a class="btn btn-small btn-report-modal" role="pill" data-toggle="pill" ng-click="SetCustomerOption(7)">{{Translate('Free Play ')}}</a></li>-->
+				</ul>
+								<select ng-if="IsMobile" class="form-control" ng-model="SelectedTab" ng-change="SetCustomerOption(SelectedTab)">
+										<option value="8" ng-if="AgentInfo.EnableEditAccountsFlag=='Y'">{{Translate('Quick Actions')}}</option>
+										<option value="0" ng-if="AgentInfo.EnableEditAccountsFlag=='Y'">{{Translate('Personal Info')}}</option>
+										<option value="1" ng-if="AgentInfo.EnterTransactionFlag=='Y' || AgentInfo.ChangeCreditLimitFlag=='Y' || AgentInfo.ChangeTempCreditFlag =='Y' || AgentInfo.SuspendWageringFlag=='Y' || AgentInfo.UpdateCommentsFlag=='Y' || AgentInfo.ChangeWagerLimitFlag=='Y'">{{Translate('Performance')}}</option>
+										<option value="2" ng-if="ActionsVisible()">{{Translate('Transactions.')}}</option>
+										<option value="3">{{Translate('Daily Figures')}}</option>
+										<option value="4">{{Translate('Pending Bets')}}</option>
+										<option value="6" ng-if="AgentInfo.ChangeWagerLimitFlag=='Y'">{{Translate('General Limits')}}</option>
+										<!--<option value="7">{{Translate('Free Play')}}</option>-->
+										<option ng-if="AgentInfo.EnableEditAccountsFlag=='Y'" value="9">{{Translate('Communications')}}</option>
+										<option ng-if="AgentInfo.EnableEditAccountsFlag=='Y'" value="10">{{Translate('Features')}}</option>
+      <option ng-if="AgentInfo.EnableVigSetupFlag=='Y'" value="13">{{Translate('VIG Limits')}}</option>
+<option value="12">{{Translate('Sport Limits')}}</option>
+								</select>
+	</div>
+</div>
+<!--/div>
+    <div class="modal-body"-->
+<div class="tab-content" style="width: 100%;">
+		<div ng-if="AgentInfo.EnableEditAccountsFlag=='Y'" role="tabpanel" class="tab-pane" id="modal-pesonal-info" ng-class="{'active' : SelectedTab == 8}" ng-include="quickActionsTemplate">
+
+
+		</div>
+
+		<div ng-if="AgentInfo.EnableEditAccountsFlag=='Y'" role="tabpanel" class="tab-pane" id="modal-pesonal-info" ng-include="personalInfoTemplate" ng-class="{'active' : SelectedTab == 0}"></div>
+
+		<div role="tabpanel" class="tab-pane" ng-class="{'active' : SelectedTab == 1}" id="modal-performance">
+				<performance version="'modal'" customer-id="SelectedCustomer.CustomerId" mode="'dual'" all-agents-list="AllAgentsList" ng-if="SelectedTab == 1" is-mobile="IsMobile" is-customer="true"></performance>
+		</div>
+
+		<div role="tabpanel" class="tab-pane" id="modal-actions" ng-class="{'active' : SelectedTab == 2}">
+				<!--<div class="cust_dropdown">
+					<span ng-bind="Translate('Current balance: ')"></span><strong ng-bind="SelectedCustomer.CurrentBalance | formatNumber"></strong>
+					<span ng-bind="Translate('Available balance: ')"></span><strong ng-bind="CustomerBalance.AvailableBalance | formatNumber"></strong>
+				</div>-->
+				<cust-actions customer="SelectedCustomer" agent-info="AgentInfo" format-date-time="FormatDateTime" fire-swal="fireSwal" ng-if="SelectedTab == 2"
+																		update-customer-balance="UpdateCustomerBalance(customerId, currentBalance)" delete-transaction="DeleteTransaction" transaction-is-this-week="transactionIsThisWeek"
+																		update-customer-password="UpdateCustomer(customer)" free-play-mode="false" is-mobile="IsMobile" wager-type="WagerType"></cust-actions>
+		</div>
+
+		<div role="tabpanel" class="tab-pane" id="modal-daily-figures" ng-include="dailyFigureTemplate" ng-class="{'active' : SelectedTab == 3}"></div>
+
+  <div role="tabpanel" class="tab-pane" id="modal-open-bets" ng-class="{'active' : SelectedTab == 4}">
+
+    <h1 class="text-center" ng-if="!openBetsSource || openBetsSource.length == 0" ng-bind="Translate('No pending bets')"></h1>
+
+    <open-bets source="openBetsSource" ng-if="SelectedTab == 4 && openBetsSource.length > 0"
+               show-header="false"
+               show-actions="true"
+               get-agent-parent="getAgentParent"
+               format-customer="formatCustomer"
+               format-date-time="FormatDateTime"
+               display-time-from-date="DisplayTimeFromDate"
+               is-mobile="IsMobile"
+               raw-agents-list="rawAgentsList"
+               add-session-data="addSessionData"
+               get-session-data="getSessionData"
+               customer-title="customerTitle"
+               source-caller="sourceCaller"
+               agent-Info="AgentInfo"
+               agent-as-customer-info="AgentAsCustomerInfo"></open-bets>
+
+  </div>
+
+		<div role="tabpanel" class="tab-pane px-3" id="modal-all-transactions" ng-include="allTransactionsTemplate" ng-class="{'active' : SelectedTab == 5}"></div>
+
+		<div role="tabpanel" class="tab-pane" id="modal-all-transactions" ng-include="offeringsTemplate" ng-class="{'active' : SelectedTab == 6}"></div>
+
+		<div role="tabpanel" class="tab-pane px-3" id="modal-all-transactions" ng-include="freePlayTransactionsTemplate" ng-class="{'active' : SelectedTab == 7}"></div>
+
+		<div role="tabpanel" class="tab-pane" id="modal-all-transactions" ng-include="communicationTemplate" ng-class="{'active' : SelectedTab == 9}"></div>
+
+		<div role="tabpanel" class="tab-pane" id="modal-all-transactions" ng-include="featuresTemplate" ng-class="{'active' : SelectedTab == 10}"></div>
+
+  <div role="tabpanel" class="tab-pane" ng-include="historyTemplate" ng-class="{'active' : SelectedTab == 12}" ng-if="SelectedTab == 12"></div>
+  <div role="tabpanel" class="tab-pane" ng-include="vigLimitsTemplate" ng-class="{'active' : SelectedTab == 13}" ng-if="SelectedTab == 13"></div>
+
+</div>
+
+<div class="modal fade" ng-class="ModalClass" id="commDialog" role="dialog"
+					data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog">
+				<!-- Modal content-->
+						<div class="modal-content scroll-vertical">
+								<div class="modal-header">
+										<b class="modal-title float-left" ng-bind="Translate('Communication')"></b>
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">×</span>
+										</button>
+								</div>
+								<div class="modal-body" style="height: 400px">
+
+										<div class="row">
+												<div class="col-xs-4 col-lg-4">
+														<select ng-options="ac as ac.Name for ac in availableCommunication" ng-model="commObj.selected" ng-change=""></select>
+												</div>
+												<div class="col-xs-8 col-lg-4">
+														<input type="text" class="form-control form-control-ios-fix" id="Last" ng-model="commObj.value" ng-disabled="AgentInfo.EnableEditAccountsFlag != 'Y' || IsDisabled()" maxlength="150" placeholder="{{Translate('tel or email')}}">
+												</div>
+												<div class="col-xs-12 col-lg-4">
+														<input type="button" class="form-control form-control-ios-fix" ng-disabled="AgentInfo.EnableEditAccountsFlag!= 'Y' || IsDisabled()" ng-click="addToGrid()" value="{{Translate('Add To Grid')}}">
+												</div>
+										</div>
+										<div class="row mt-5">
+												<table class="tablesaw summary" data-tablesaw-sortable data-tablesaw-mode="swipe" data-tablesaw-minimap>
+														<thead class='header'>
+																<tr>
+																		<th>{{Translate('Name')}}</th>
+																		<th>{{Translate('Value')}}</th>
+																		<th>{{Translate('Action')}}</th>
+																</tr>
+														</thead>
+														<tbody>
+																<tr ng-repeat="cl in commList  track by $index" table-saw>
+																		<td>
+																				<span ng-bind="cl.Name"></span>
+																		</td>
+																		<td>
+																				<span ng-bind="cl.Value"></span>
+																		</td>
+																		<td>
+																				<button ng-click="deleteAgentCommunicationTypes(cl.Id)">{{Translate('Delete')}}</button>
+																		</td>
+																</tr>
+														</tbody>
+												</table>
+										</div>
+										<div class="row" ng-if="commObj.selected.Name == 'Telegram'">
+												<div class="col-xs-12 d-grid mt-5">
+														<span>✓ {{Translate('To get ChatID just write this command in any chat window in telegram @userinfobot')}}</span>
+														<span>✓ {{Translate('To get messages from the bot, go here https://t.me/GBSMonitor_bot, or')}}</span>
+														<span>✓ {{Translate('Go to Telegram and send a message to @GBSMonitor_bot')}}</span>
+												</div>
+										</div>
+								</div>
+						</div>
+		</div>
+</div>

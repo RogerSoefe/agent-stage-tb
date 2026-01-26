@@ -1,0 +1,121 @@
+﻿<div style="position: absolute; width: 100%; height: 100vh; background: black; opacity: 0.9; z-index: -1; display: none; justify-content: center" id="scrollGif">
+  <div class="align-self-center" style="width: 100px">
+    <img class="img-responsive" alt="gif" src="/admin/assets_core/img/scroll_horizontal.gif" />
+  </div>
+</div>
+<div class="dashbwrapper">
+  <div id="customersDiv" class="allscrll chat-bottom-spacer">
+    <div class="row pt-3 pl-3 title-divider">
+      <div class="col-xs-12 no-padding">
+        <div class="d-flex align-items-center">
+          <a ng-click="toggleBookmark('Campaigns Customers','#/campaignsCustomers')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Campaigns Customers') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+          &nbsp;<h3>{{Translate('Campaigns Customers')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+        </div>
+      </div>
+    </div>
+    <div class="" ng-show="CustomerList.length == 0" ng-bind="">
+      {{Translate('No Customers To Show')}}
+    </div>
+    <div class="row mb-4">
+
+      <div class="col-xs-12">
+        <form class="form-inline mt-5 hidden-print">
+          <div class="form-group" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+            <label for="agentsnList">{{Translate('Search agent:')}}</label>
+            <div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+                 ng-model="$root.selectedAgent" ng-change="refreshData()"
+                 id="agentsnList">
+              <div>
+                <span>{{ t.AgentBind }}</span>
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="searchInput">{{Translate('Search customer:')}}</label>
+            <input type="text" id="searchInput" ng-change="searchData()" ng-focus="setFocus($event)" ng-keypress="keyPress($event)" ng-model="ReportFilters.search" />
+          </div>
+        </form>
+      </div>
+      <div class="col-xs-12 col-lg-12 d-flex justify-content-end">
+        <div class="customer-card m-3 mr-1">
+          <span class="icon-cust-maint text-success"></span>
+          <span class="d-numb mr-2" ng-bind="Players.ActivePlayers"></span>
+          <span class="font-light">{{Translate('Access Enabled')}}</span>
+        </div>
+        <div class="customer-card m-3 mr-1">
+          <span class="icon-cust-maint text-danger"></span>
+          <span class="d-numb mr-2" ng-bind="Players.InactivePlayers"></span>
+          <span class="font-light">{{Translate('Access Disabled')}}</span>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <h3 class="text-danger text-center">{{Translate('Warning: Changes to any of the parameters below are automatically saved.')}}</h3>
+      </div>
+    </div>
+
+    <div class="custom-datatable bg-white">
+
+      <div class="row py-3 d-flex justify-content-center">
+        <div class="customers-left">
+          <div class="bg-white Flipped" style="position: sticky; top:49px; overflow-x: scroll; overflow-y: hidden">
+						<div class="text-white bg-black p-3 customers-left-header Flipped cursor-pointer" style="height: 60px;" ng-click="clickCustIdOrder()">
+							<strong>{{Translate('Customers')}}</strong><i class="fa" ng-class="{'fa-caret-down':ReportFilters.custIdOrder == 0, 'fa-caret-up':ReportFilters.custIdOrder == 1}"></i>
+            </div>
+          </div>
+          <div ng-repeat-start="cL in tableData track by $index" style="height: 60px" class="p-3 bg-black d-flex" ng-show="cL.isTitle">
+
+          </div>
+          <div class="p-3 d-flex" ng-class="{'even' : $index % 2 == 0, 'odd' : $index % 2 != 0}" ng-repeat-end>
+            <a href="#" onclick="return false;" class="customer-table-button"
+               ng-click="ShowCustomerDialog(tableData[$index], 8, cL.CustomerId)">{{AgentAsCustomerInfo.IsAffiliate ? '***' + cL.CustomerId.trim().substring(cL.CustomerId.trim().length - 4, cL.CustomerId.trim().length) : cL.CustomerId}}</a>
+          </div>
+
+        </div>
+        <div class="customers-right">
+          <div style="overflow-x: scroll; position: sticky; top: 49px; z-index: 1" class="syncscroll Flipped" name="customerTable">
+            <div class="d-flex text-white bg-black Flipped customers-right-header">
+              <strong class="m-3 text-center customer-table-column">{{Translate('Campaign ID')}}</strong>
+              <strong class="m-3 text-center customer-table-column">{{Translate('Description')}}</strong>
+              <strong class="m-3 text-center customer-table-column">{{Translate('Clicks')}}</strong>
+              <strong class="m-3 text-center customer-table-column">{{Translate('Registered')}}</strong>
+              <strong class="m-3 text-center customer-table-column">{{Translate('Convertion Rate')}}</strong>
+              <strong class="m-3 text-center customer-table-column">{{Translate('Customer ID')}}</strong>
+              <strong class="m-3 text-center customer-table-column">{{Translate('Customer IP')}}</strong>
+              <strong class="m-3 text-center customer-table-column">{{Translate('First deposit')}}</strong>
+              <strong class="m-3 text-center customer-table-column">{{Translate('Last Deposit')}}</strong>
+              <strong class="m-3 text-center customer-table-column">{{Translate('Action')}}</strong>
+
+            </div>
+          </div>
+          <div style="overflow-x: scroll; overflow-y: hidden" class="syncscroll bg-black hide-scroll" name="customerTable">
+            <div ng-repeat-start="cL in tableData track by $index" class="d-flex justify-content-center bg-black text-white" style="height: 60px" ng-show="cL.isTitle">
+              <b class="align-self-center text-white" ng-bind="cL.Hierarchy.substring(2)"></b>
+            </div>
+            <div style="width: fit-content" class="d-flex" ng-class="{'even' : $index % 2 == 0, 'odd' : $index % 2 != 0}" ng-repeat-end>
+              <span class="m-3 text-center customer-table-column">{{cL.CampaignId}}</span>
+
+              <span class="text-info m-3 text-center customer-table-column" ng-bind="cL.Description"></span>
+              <span class="text-info m-3 text-center customer-table-column" ng-bind="cL.Clicks"></span>
+              <span class="text-info m-3 text-center customer-table-column" ng-bind="cL.Resgistrations"></span>
+              <span class="text-info m-3 text-center customer-table-column" ng-bind="cL.CommissionPercent"></span>
+              <span class="text-info m-3 text-center customer-table-column" ng-bind="cL.CustomerId"></span>
+              <span class="text-info m-3 text-center customer-table-column" ng-bind="cL.CustomerIP"></span>
+              <span class="text-info m-3 text-center customer-table-column" ng-bind="cL.FirstDepositAmount"></span>
+              <span class="text-info m-3 text-center customer-table-column" ng-bind="cL.LastDepositAmount"></span>
+              <input type="button" class="text-info m-3 text-center customer-table-column" ng-bind="'Transactions'">
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 ng-if="LoadingReportData">{{Translate('Loading more...')}}</h2>
+      <div class="d-flex justify-content-center">
+        <button class="btn btn-default m-3" ng-bind="Translate('Load More')" ng-click="loadData()"></button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,544 @@
+﻿<div class="dashbwrapper">
+    <!-- <div class="dashbleft" id="div_dashbox"> -->
+    <div class="" id="div_dashbox">
+        <div class="row pt-3 pl-3 title-divider">
+            <div class="d-flex align-items-center">
+                <h3>
+                    {{Translate('Dashboard')}} <span class="visible-print">{{Translate('for')}}
+                        {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span>
+                </h3>
+            </div>
+        </div>
+
+        <div class="row mb-5" ng-show="gridMode.isGrid && IsMobile">
+            <div class="col-xs-12 d-flex justify-content-center">
+                <div class="mr-4 d-flex">
+                    <b class="align-self-center" ng-bind="Translate('Net') + ':'"></b>&nbsp;
+                    <small class="align-self-center" ng-bind="ThisWeekTotal | formatNumber: false"
+                        ng-class="{'num_neg' : ThisWeekTotal < 0}"></small>
+                </div>
+                <div class="mr-4 d-flex">
+                    <b class="align-self-center" ng-bind="Translate('Pend.') + ':'"></b>&nbsp;
+                    <small class="align-self-center" ng-bind="PendingAmount | formatNumber: false"
+                        ng-class="{'num_neg' : PendingAmount < 0}"></small>
+                </div>
+                <div class="mr-4 d-flex">
+                    <b class="align-self-center" ng-bind="Translate('Vol.') + ':'"></b>&nbsp;
+                    <small class="align-self-center" ng-bind="VolumeAmount | formatNumber: false"
+                        ng-class="{'num_neg' : VolumeAmount < 0}"></small>
+                </div>
+            </div>
+            <div class="col-xs-12 d-flex justify-content-center">
+                <div class="mr-4 d-flex">
+                    <b class="align-self-center" ng-bind="Translate('Head') + ':'"></b>&nbsp;
+                    <small class="align-self-center" ng-bind="TotalPlayers"></small>
+                </div>
+                <div class="mr-4 d-flex" ng-if="!GetAgentRestriction('HIDEDLWGRS')">
+                    <b class="align-self-center" ng-bind="Translate('Del.Wagers') + ':'"></b>&nbsp;
+                    <small class="align-self-center" ng-bind="DeletedWagers"></small>
+                </div>
+            </div>
+            <div class="col-xs-12 d-flex justify-content-center my-5">
+                <div class="d-flex" style="width: 265px;">
+                    <b class="align-self-center" ng-bind="Translate('Imp.Agent') + ':'"></b>&nbsp;
+                    <div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+                        ng-model="ImpAgent" ng-change="ImpersonateAgent(ImpAgent)" id="agentsnList">
+                        <div>
+                            <span>{{ t.AgentBind }}</span>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+                <div class="mr-4 d-flex" ng-if="gridMode.isGrid && ImpersonatedList && ImpersonatedList.length > 0">
+                    <button type="button" ng-click="PreviousImpersonateAgent()"
+                        class="btn btn-success align-self-center ml-5" style="height: 35px;"
+                        ng-bind="Translate('Back to main agent')">
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" ng-show="!gridMode.isGrid">
+
+            <div class="col-xs-12 col-lg-4">
+
+                <div class="data-filters" ng-if="AgentAsCustomerInfo.IsAffiliate == false && IsMobile">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group col-xs-12 no-padding">
+                                <label for="agentsnList">{{Translate('Impersonate Agent:')}}</label>
+                                <div custom-select="t as (t.AgentId ) for t in AllActiveAgentsList | filter : $searchTerm"
+                                    ng-model="ImpAgent" ng-change="ImpersonateAgent(ImpAgent)" id="agentsnList">
+                                    <div>
+                                        <span>{{ t.AgentBind }}</span>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 d-flex justify-content-center mt-4">
+                            <button type="button" ng-click="PreviousImpersonateAgent()"
+                                class="btn btn-success d-inline ml-5"
+                                ng-if="ImpersonatedList && ImpersonatedList.length > 0">
+                                {{Translate('Back to main agent')}}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-component-summary">
+                    <div class="row">
+                        <a href="#/dailyfigures" class="col-xs-12 col-print-3">
+                            <div class="dashboard-card">
+                                <div
+                                    ng-class="{'cust-icon icon-Net_this_week_2 text-danger': ThisWeekTotal < 0, 'cust-icon icon-Net_this_week text-success': ThisWeekTotal >= 0}">
+                                </div>
+                                <p>
+                                    {{Translate('Net')}}&nbsp;{{Week.bind}}
+                                </p>
+                                <h2 ng-bind="ThisWeekTotal | formatNumber: false"
+                                    ng-class="{'num_neg' : ThisWeekTotal < 0}"></h2>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="row">
+                        <a href="#/openbets" class="col-xs-12 col-print-3">
+                            <div class="dashboard-card">
+                                <div
+                                    ng-class="{'cust-icon icon-Net_this_week_2 text-danger': PendingAmount < 0, 'cust-icon icon-Net_this_week text-success': PendingAmount >= 0}">
+                                </div>
+                                <p>
+                                    {{Translate('Pending')}}
+                                </p>
+                                <h2 ng-bind="PendingAmount | formatNumber: false"
+                                    ng-class="{'num_neg' : PendingAmount < 0}"></h2>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="row">
+                        <a href="#/agentposition" class="col-xs-12 col-print-3">
+                            <div class="dashboard-card">
+                                <div class="cust-icon icon-Total_volume" style="font-size: 1.6em;"></div>
+                                <p>{{Translate('Total Volume')}}</p>
+                                <h2 ng-bind="VolumeAmount | formatNumber: false"
+                                    ng-class="{'num_neg' : VolumeAmount < 0}"></h2>
+                                <span class="summary-details"></span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="row">
+                        <a href="#/dailyfigures" class="col-xs-12 col-print-3">
+                            <div class="dashboard-card">
+                                <div class="cust-icon icon-Total_head_count text-success"></div>
+                                <p>{{Translate('Total Head Count')}}</p>
+                                <h2 ng-bind="TotalPlayers"></h2>
+                                <span class="summary-details"></span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="row" ng-if="!GetAgentRestriction('HIDEDLWGRS')">
+                        <a href="#/deletedWagers" class="col-xs-12 col-print-3">
+                            <div class="dashboard-card">
+                                <div class="cust-icon icon-Deleted_wagers"></div>
+                                <p>{{Translate('Deleted Wagers')}}</p>
+                                <h2 ng-bind="DeletedWagers"></h2>
+                                <span class="summary-details"></span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8" ng-show="!IsMobile">
+
+                <div class="data-component data-chart" style="border-radius: 5px;">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <!--h2 class="">Weekly Net Figures Chart</h2-->
+                            <h2 class="">{{Translate(GetPeriod(Week.val))}} {{Translate('Net Figures Chart')}}</h2>
+                            <div>
+                                <span class="chart-winloss">{{Translate('Total Net')}}</span>
+                                <span class="chart-casino">{{Translate('Total Casino Net')}}</span>
+                            </div>
+                            <!--p>Data for this week</p-->
+                        </div>
+                        <div class="col-sm-6 text-right hidden-print">
+                            <form class="form-inline">
+                                <div class="form-group">
+                                    <label for="exampleInputName2">{{Translate('Chart Reporting Period')}}</label>
+                                    <select class="form-control" ng-change="UpdateChart(Week)" ng-model="Week"
+                                        ng-options="w as w.bind for w in WeekArray">
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div id="morris-bar-chart"></div>
+                </div>
+
+                <div class="data-filters" ng-if="AgentAsCustomerInfo.IsAffiliate == false && !IsMobile">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group col-xs-12 no-padding">
+                                <label for="agentsnList">{{Translate('Impersonate Agent:')}}</label>
+                                <div custom-select="t as (t.AgentId ) for t in AllActiveAgentsList | filter : $searchTerm"
+                                    ng-model="ImpAgent" ng-change="ImpersonateAgent(ImpAgent)" id="agentsnList">
+                                    <div>
+                                        <span>{{ t.AgentBind }}</span>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <button type="button" ng-click="PreviousImpersonateAgent()"
+                                    class="btn btn-success d-inline ml-5"
+                                    ng-if="ImpersonatedList && ImpersonatedList.length > 0">
+                                    {{Translate('Back to main agent')}}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12 dashboard-widget" ng-if="gridMode.isGrid">
+                <div class="row-fluid">
+                    <div class="span2">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/dailyfigures">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-df"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Daily Figures')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/openbets">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-open"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Pending Bets')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2">
+                        <div class="dashboard-wid-wrap">
+                        <div class="dashboard-wid-content"> <a href="#/beatTheLine"><div class="align-self-center"><div class="dash-3d dash-maint"></div> <span class="dasboard-icon-title">{{Translate('Beat The Line')}}</span></div> </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2" ng-if="AgentAsCustomerInfo.IsAffiliate == false && !GetAgentRestriction('ADDMI')">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/customers">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-maint"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Customer Maintenance')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2" ng-if="AgentInfo.EnableVigSetupFlag == 'Y'">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/vigLimits">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-maint"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Set Vig Casino limits')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2" ng-if="AgentAsCustomerInfo.IsAffiliate == false">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/customerMessages">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-maint"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Customer Messages')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+
+
+                    <div class="span2">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/agentposition">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-position"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Position by Game')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="span2" ng-if="!GetAgentRestriction('HIDEGRWGRS')">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/gradedWagers">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-scores"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Graded Wagers')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2" ng-if="AgentInfo.ChangeWagerLimitFlag == 'Y'">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/sportslimits">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-sport-settings"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Sport Settings')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2"
+                        ng-if="AgentAsCustomerInfo.IsAffiliate == false && (AgentInfo.EnterTransactionFlag == 'Y' || AgentInfo.EnterBettingAdjustmentFlag == 'Y') && !GetAgentRestriction('AGDISTRIB')">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/insertTransactions">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-trans"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Insert transactions')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/agentExposure">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-expos"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Agent Exposure')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2" ng-if="AgentAsCustomerInfo.IsAffiliate == false">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#" ng-click="OpenLiveTicker()">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-live"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Live Bet Ticker')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/holdPercentage">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-percent"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Hold Percentage')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2" ng-if="!GetAgentRestriction('HIDEDLWGRS')">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/deletedWagers">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-deleted"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Deleted Wagers')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>                   
+
+
+                    <div class="span2">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/sportPerformance">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-sport-perf"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Sport Performance')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2"
+                        ng-if="AgentInfo.ManageLinesFlag == 'Y' && AgentAsCustomerInfo.IsAffiliate == false">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/linesmanager">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-lines"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Lines Manager')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2"
+                        ng-if="AgentAsCustomerInfo.IsAffiliate == false && !GetAgentRestriction('AGDISTRIB')">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/distribution">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-dist"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Agent Distribution')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2"
+                        ng-if="AgentAsCustomerInfo.IsAffiliate == false && !GetAgentRestriction('AGDISTRIB')">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/weeklyBilling">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-billing"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Agent Billing')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/agentAccess">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-manager"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Agents Manager')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2"
+                        ng-if="AgentAsCustomerInfo.IsAffiliate == false && (AgentInfo.EnterTransactionFlag == 'Y' || AgentInfo.EnterBettingAdjustmentFlag=='Y')">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/alltransactions">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-cash"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Cash')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2" ng-if="ShowCashier" ng-show="!GetAgentRestriction('ADCASHIER')">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/intCashier">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-cash"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Cashier')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/customerPerformance">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-vol"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Customer Volume')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2" ng-if="!GetAgentRestriction('AMICCV2')">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/customerCounterClassic">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-counter"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Customer Counter')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2" ng-if="GetAgentRestriction('AMICCV2')">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/customerCounter">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-counter"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Customer Counter')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/performance">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-general-perf"></div> <span
+                                            class="dasboard-icon-title">{{Translate('General Performance')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/scores">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-scores"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Scores')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2"
+                        ng-if="AgentAsCustomerInfo.IsAffiliate == false && !GetAgentRestriction('AGDISTRIB')">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/masterSheet">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-master"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Master Sheet')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/webAccess">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-accesslog"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Access Log')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2" ng-if="!GetAgentRestriction('HDCSTANL')">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/customerAnalytics">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-percent"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Customer Analytics')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+
+                    <div class="span2" ng-if="AgentAsCustomerInfo.IsAffiliate == false && !GetAgentRestriction('DCMI')">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/customerMap">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-maint"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Customer Map Activity')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="span2" ng-if="AgentAsCustomerInfo.IsAffiliate == false">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/ticketWriter">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-ticket-writer"></div> <span
+                                            class="dasboard-icon-title">{{Translate('Ticket Writer')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                    <div class="span2">
+                        <div class="dashboard-wid-wrap">
+                            <div class="dashboard-wid-content"> <a href="#/customerIPGlobalCompare">
+                                    <div class="align-self-center">
+                                        <div class="dash-3d dash-accesslog"></div> <span
+                                            class="dasboard-icon-title">{{Translate('IP Compare')}}</span>
+                                    </div>
+                                </a> </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

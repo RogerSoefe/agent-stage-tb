@@ -1,0 +1,272 @@
+﻿<div ng-controller="agentController">
+
+	<div class="modal-header">
+		<button type="button" class="close" ng-click="CloseDialog()" id="closeButton">&times;</button>
+		<h1 class="modal-title" ng-bind="TitleCustomer()"></h1><br />
+		<ul ng-if="!IsMobile" class="nav nav-pills mt-5">
+			<li ng-class="{active : CustomerOption == 1}"><a class="btn btn-small btn-report-modal" role="pill" data-toggle="pill" ng-click="SetCustomerOption(1)">{{Translate('Settings')}}</a></li>
+			<li ng-class="{active : CustomerOption == 2}" ng-if="AgentInfo.EnterTransactionFlag=='Y'"><a class="btn btn-small btn-report-modal" role="pill" data-toggle="pill" ng-click="SetCustomerOption(2)">{{Translate('Transactions')}}</a></li>
+      <li ng-class="{active : CustomerOption == 4}"><a class="btn btn-small btn-report-modal" role="pill" data-toggle="pill" ng-click="SetCustomerOption(4)">{{Translate('Accounting')}}</a></li>
+      <li ng-class="{active : CustomerOption == 5}"><a class="btn btn-small btn-report-modal" role="pill" data-toggle="pill" ng-click="SetCustomerOption(5)">{{Translate('Notifications')}}</a></li>
+                                                           </ul>
+	</div>
+	<div class="modal-body">
+    <select ng-show="IsMobile" class="form-control" ng-model="CustomerOption" ng-change="SetCustomerOption(CustomerOption)">
+      <option value="1">{{Translate('Settings')}}</option>
+      <option value="2">{{Translate('Transactions')}}</option>
+      <option value="4">{{Translate('Accounting')}}</option>
+      <option value="5">{{Translate('Notifications')}}</option>
+    </select>
+		<div class="cust-content-body">
+			<div class="tab-content" style="width: 100%;">
+				<div role="tabpanel" class="tab-pane" id="modal-pesonal-info" ng-class="{'active' : CustomerOption == 1}">
+					<div class="row">
+						<div class="col-sm-12">
+							<label for="txtCreditLimitAmt">{{Translate('Password Reset:')}} </label>
+							<input type="text" class="form-control form-control-ios-fix" style="width:200px" placeholder="{{Translate('Password can\'t be empty')}}" ng-model="SelectedCustomer.Password" ng-disabled="AgentInfo.AddNewAccountFlag != 'Y' || IsDisabled()" id="password" maxlength="10">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 col-lg-4" style="display: grid">
+							<h3 class="mt-4">{{Translate('Agent Permissions')}}</h3>
+							<label class="mt-5" ng-if="AgentInfo.ChangeCreditLimitFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.ChangeCreditLimitFlagBoolean" name="commissionType"> {{Translate('Change Credit Limit')}}
+							</label>
+							<label ng-if="AgentInfo.SuspendWageringFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.SuspendWageringFlagBoolean" name="commissionType"> {{Translate('Suspend Wagering')}}
+							</label>
+							<label ng-if="AgentInfo.ManageLinesFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.ManageLinesFlagBoolean" name="commissionType"> {{Translate('Manage Lines')}}
+							</label>
+							<label ng-if="AgentInfo.ChangeWagerLimitFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.ChangeWagerLimitFlagBoolean" name="commissionType"> {{Translate('Change Wager Limits')}}
+							</label>
+							<label ng-if="AgentInfo.AddNewAccountFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.AddNewAccountFlagBoolean" name="commissionType"> {{Translate('Add New Accounts')}}
+							</label>
+							<label ng-if="AgentInfo.EnterTransactionFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.EnterTransactionFlagBoolean" name="commissionType"> {{Translate('Enter Deposits/Withdrawals')}}
+							</label>
+							<label ng-if="AgentInfo.ChangeTempCreditFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.ChangeTempCreditFlagBoolean" name="commissionType"> {{Translate('Change Temp Credit Limit')}}
+							</label>
+							<label ng-if="AgentInfo.UpdateCommentsFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.UpdateCommentsFlagBoolean" name="commissionType"> {{Translate('Update Comments')}}
+							</label>
+							<label ng-if="AgentInfo.ChangeSettleFigureFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.ChangeSettleFigureFlagBoolean" name="commissionType"> {{Translate('Change Settle Figure')}}
+							</label>
+							<label ng-if="AgentInfo.SetMinimumBetAmountFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.SetMinimumBetAmountFlagBoolean" name="commissionType"> {{Translate('Set Minimun Bet Amt')}}
+							</label>
+							<label ng-if="AgentInfo.EnterBettingAdjustmentFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.EnterBettingAdjustmentFlagBoolean" name="commissionType"> {{Translate('Enter Betting Adjs')}}
+							</label>
+							<label ng-if="AgentInfo.AddFreePlaysFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.AddFreePlaysFlagBoolean" name="commissionType"> {{Translate('Add free play')}}
+							</label>
+							<label ng-if="AgentInfo.EnableOfferingGlobalFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.EnableOfferingGlobalFlagBoolean" name="commissionType"> {{Translate('Global Offering')}}
+							</label>
+							<label ng-if="AgentInfo.EnableOfferingBuySellPointsFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.EnableOfferingBuySellPointsFlagBoolean" name="commissionType"> {{Translate('Buy/Sell points')}}
+							</label>
+							<label ng-if="AgentInfo.EnableEditAccountsFlag == 'Y'">
+								<input type="checkbox" ng-model="SelectedCustomer.EnableEditAccountsFlagBoolean" name="commissionType"> {{Translate('Edit accounts')}}
+							</label>
+							<label>
+								<input type="checkbox" ng-model="SelectedCustomer.RoundDecimalsFlagBoolean" name="commissionType"> {{Translate('Round decimals')}}
+							</label>
+							<label ng-bind="Translate('Place Bets')" ng-if="AgentInfo.PlaceBets != 0"></label>
+							<select class="form-control custom-dropdown" ng-model="SelectedCustomer.PlaceBets" style="width:150px" ng-if="AgentInfo.PlaceBets != 0">
+								<option value="0">{{Translate('No')}}</option>
+								<option value="1">{{Translate('Late')}}</option>
+								<option value="2">{{Translate('Always')}}</option>
+							</select>
+							<label ng-bind="Translate('Delete Bets')" ng-if="AgentInfo.DeleteBets != 0"></label>
+							<select class="form-control custom-dropdown" ng-model="SelectedCustomer.DeleteBets" style="width:150px" ng-if="AgentInfo.DeleteBets != 0">
+								<option value="0">{{Translate('No')}}</option>
+								<option value="2">{{Translate('Always')}}</option>
+								<option value="1">{{Translate('Before game')}}</option>
+							</select>
+						</div>
+						<div class="col-xs-12 col-lg-4">
+							<h3 class="mt-4">{{Translate('Commission Type')}}</h3>
+							<div class="row mt-5" id="commissionDiv">
+								<div class="col-xs-6 d-grid">
+									<b>{{Translate('Af')}}</b>
+									<label>
+										<input type="radio" name="commissionType" ng-model="SelectedCustomer.CommissionType" value="Q"> {{Translate('Affiliate Weekly Profit')}}
+									</label>
+									<label>
+										<input type="radio" name="commissionType" ng-model="SelectedCustomer.CommissionType" value="A"> {{Translate('Affiliate Split')}}
+									</label>
+									<label>
+										<input type="radio" name="commissionType" ng-model="SelectedCustomer.CommissionType" value="T">{{Translate('Affiliate Red Figure')}}
+									</label>
+								</div>
+								<div class="col-xs-6 d-grid">
+									<b>{{Translate('Ag')}}</b>
+									<label>
+										<input type="radio" name="commissionType" ng-model="SelectedCustomer.CommissionType" value="P"> {{Translate('Agent Weekly Profit')}}
+									</label>
+									<label>
+										<input type="radio" name="commissionType" ng-model="SelectedCustomer.CommissionType" value="S"> {{Translate('Agent Split')}}
+									</label>
+									<label>
+										<input type="radio" name="commissionType" ng-model="SelectedCustomer.CommissionType" value="R"> {{Translate('Agent Red Figure')}}
+									</label>
+								</div>
+								<label class="col-xs-12 mt-3">
+									{{Translate('Affiliate Commission %')}} <input type="text" style="width:100px" ng-model="SelectedCustomer.CommissionPercent" only-digits>
+								</label>
+							</div>
+						</div>
+
+						<div class="col-xs-12 col-lg-4">
+							<h3 class="mt-4 mb-5">{{Translate('Head Count Rate')}}</h3>
+							<div class="col-xs-12 col-lg-6 d-grid">
+								<label>
+									{{Translate('Call Unit')}} <br /> <input style="width:100px" type="text" ng-model="SelectedCustomer.HeadCountRate" only-digits>
+								</label>
+								<label>
+									{{Translate('Casino')}} <br /><input type="text" style="width:100px" ng-model="SelectedCustomer.CasinoHeadCountRate" only-digits>
+								</label>
+								<label>
+									{{Translate('Live Casino')}} <br /> <input type="text" style="width:100px" ng-model="SelectedCustomer.LiveCasinoCountRate" only-digits>
+								</label>
+								<label>
+									{{Translate('Other')}}<br /> <input type="text" style="width:100px" ng-model="SelectedCustomer.OtherCountRate" only-digits>
+								</label>
+							</div>
+							<div class="col-xs-12 col-lg-6 d-grid">
+								<label>
+									{{Translate('Internet Only')}} <br /> <input type="text" style="width:100px" ng-model="SelectedCustomer.InetHeadCountRate" only-digits>
+								</label>
+								<label>
+									{{Translate('Live Betting')}} <br /> <input type="text" style="width:100px" ng-model="SelectedCustomer.LiveBettingCountRate" only-digits>
+								</label>
+								<label>
+									{{Translate('Horse Racing')}} <br /> <input type="text" style="width:100px" ng-model="SelectedCustomer.HorseRacingSlotCountRate" only-digits>
+								</label>
+								<label>
+									{{Translate('SMS Rate')}} <br /> <input type="text" style="width:100px" ng-model="SelectedCustomer.SMSRate" only-digits>
+								</label>
+								<label>
+									{{Translate('Props Builder')}} <br /> <input type="text" style="width:100px" ng-model="SelectedCustomer.PropsBuilderCountRate" only-digits>
+								</label>
+							</div>
+						</div>
+
+
+					</div>
+					<div class="row mt-5">
+						<div class="form-group col-xs-12">
+							<input type="button" class="btn btn-primary" value="{{Translate('Submit')}}" ng-click="UpdateCustomerInfo()" ng-disabled="IsDisabled()"><strong ng-if="ErrorMessage != ''" ng-bind="ErrorMessage"></strong>
+						</div>
+					</div>
+
+					<h4 class="mt-5" ng-bind="confirmationMsg"></h4>
+
+				</div>
+				<div role="tabpanel" class="tab-pane" id="modal-actions" ng-class="{'active' : CustomerOption == 2}">
+					<h3 ng-bind="Translate('Account Actions for ') + (SelectedCustomer.CustomerId | FormatCustomer)"></h3>
+					<div class="cust_dropdown">
+						<span ng-bind="Translate('Current balance: ')"></span><strong ng-bind="SelectedCustomer.CurrentBalance | formatNumber"></strong>
+						<span ng-bind="Translate('Available balance: ')"></span><strong ng-bind="CustomerBalance.AvailableBalance | formatNumber"></strong>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+              <cust-actions customer="SelectedCustomer" agent-info="AgentInfo" ng-if="CustomerOption == 2"
+										  update-customer-balance="UpdateCustomerBalance(customerId, currentBalance)"
+                            update-customer-password="UpdateCustomer(customer)" format-date-time="FormatDateTime"></cust-actions>
+						</div>
+					</div>
+					<hr />
+				</div>
+
+        <div role="tabpanel" class="tab-pane" id="modal-all-transactions" ng-class="{'active' : CustomerOption == 4}">
+
+          <div class="col-xs-12 col-lg-6">
+            <h3 class="mt-4">{{Translate('Commission Type')}}</h3>
+            <div class="row mt-5" id="commissionDiv">
+              <!--div class="col-xs-6 d-grid">
+              <b>{{Translate('Af')}}</b>
+              <label>
+                <input type="radio" name="commissionType" ng-model="SelectedCustomer.CommissionType" value="Q"> {{Translate('Affiliate Weekly Profit')}}
+              </label>
+              <label>
+                <input type="radio" name="commissionType" ng-model="SelectedCustomer.CommissionType" value="A"> {{Translate('Affiliate Split')}}
+              </label>
+              <label>
+                <input type="radio" name="commissionType" ng-model="SelectedCustomer.CommissionType" value="T">{{Translate('Affiliate Red Figure')}}
+              </label>
+            </div-->
+              <div class="col-xs-6 d-grid">
+                <b>{{Translate('Commition Type')}}</b>
+                <select ng-model="SelectedCustomer.CommissionType">
+                  <option value="P">{{Translate('Agent Weekly Profit')}}</option>
+                  <option value="S">{{Translate('Agent Split')}}</option>
+                  <option value="R">{{Translate('Agent Red Figure')}}</option>
+                </select>
+              </div>
+              <label class="col-xs-12 mt-3">
+                {{Translate('Commission %')}} <input type="text" style="width:100px" ng-model="SelectedCustomer.CommissionPercent" only-digits>
+              </label>
+            </div>
+          </div>
+
+          <div class="col-xs-12 col-lg-6">
+            <h3 class="mt-4 mb-5">{{Translate('Per Head Weekly Fees')}}</h3>
+            <div class="col-xs-12 col-lg-6 d-grid">
+              <label>
+                {{Translate('Call Center')}} <br /> <input style="width:100px" type="text" ng-model="SelectedCustomer.HeadCountRate" only-digits>
+              </label>
+              <label>
+                {{Translate('Internet Only')}} <br /> <input type="text" style="width:100px" ng-model="SelectedCustomer.InetHeadCountRate" only-digits>
+              </label>
+              <label>
+                {{Translate('Virtual Casino')}} <br /><input type="text" style="width:100px" ng-model="SelectedCustomer.CasinoHeadCountRate" only-digits>
+              </label>
+              <label>
+                {{Translate('Live Casino')}} <br /> <input type="text" style="width:100px" ng-model="SelectedCustomer.LiveCasinoCountRate" only-digits>
+              </label>
+              <label>
+                {{Translate('Props Builder')}} <br /> <input type="text" style="width:100px" ng-model="SelectedCustomer.PropsBuilderCountRate" only-digits>
+              </label>
+              <label>
+                {{Translate('Other')}}<br /> <input type="text" style="width:100px" ng-model="SelectedCustomer.OtherCountRate" only-digits>
+              </label>
+              <label>
+                {{Translate('Horse Racing')}} <br /> <input type="text" style="width:100px" ng-model="SelectedCustomer.HorseRacingSlotCountRate" only-digits>
+              </label>
+            </div>
+            <div class="col-xs-12 col-lg-6 d-grid">
+              <label>
+                {{Translate('Live Betting')}} <br /> <input type="text" style="width:100px" ng-model="SelectedCustomer.LiveBettingCountRate" only-digits>
+              </label>
+              <label>
+                {{Translate('SMS Rate')}} <br /> <input type="text" style="width:100px" ng-model="SelectedCustomer.SMSRate" only-digits>
+              </label>
+            </div>
+          </div>
+
+
+          <div class="row mt-5">
+            <div class="form-group col-xs-12">
+              <input type="button" class="btn btn-primary" value="{{Translate('Submit')}}" ng-click="UpdateCustomerInfo()" ng-disabled="IsDisabled()"><strong ng-if="ErrorMessage != ''" ng-bind="ErrorMessage"></strong>
+            </div>
+          </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane" id="modal-all-transactions" ng-include="notificationsTemplate" ng-class="{'active' : CustomerOption == 5}"></div>
+
+        <div role="tabpanel" class="tab-pane" id="permissions" ng-include="permissionsTemplate" ng-class="{'active' : CustomerOption == 6}"></div>
+
+        <div role="tabpanel" class="tab-pane" id="moveCustomers" ng-include="moveCustomersTemplate" ng-class="{'active' : CustomerOption == 7}"></div>
+
+        <div role="tabpanel" class="tab-pane" id="general" ng-include="generalTemplate" ng-class="{'active' : CustomerOption == 8}"></div>
+      </div>
+			</div>
+		</div>
+	</div>

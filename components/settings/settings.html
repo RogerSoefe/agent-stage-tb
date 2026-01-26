@@ -1,0 +1,45 @@
+﻿
+
+<div class="modal-header">
+    <b class="modal-title float-left" ng-bind="Translate('Settings')"></b>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <span aria-hidden="true">×</span>
+</button>
+</div>
+<div class="modal-body" style="height: 400px">
+    <div class="row">
+        <div class="mr-4 float-right p-5">
+            <b class="align-self-center" ng-bind="Translate('Desktop Mode')"></b>&nbsp;
+            <label class="switch align-self-center">
+                <input type="checkbox" ng-change="toggleViewportMode()" ng-model="viewportMode.isDesktop">
+                <span class="slider round"></span>
+            </label>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="mr-4 float-right p-5">
+            <b class="align-self-center" ng-bind="Translate('Grid Mode')"></b>&nbsp;
+            <label class="switch align-self-center">
+                <input type="checkbox" ng-change="toggleGridMode()" ng-model="gridMode.isGrid">
+                <span class="slider round"></span>
+            </label>
+        </div>
+
+    </div>
+    <div class="row p-5">
+        <div class="dropdown align-self-center mr-4">
+            <div class="float-right" role="button" aria-haspopup="true" aria-expanded="true" data-toggle="dropdown">
+                <i class="cust-icon icon-Lenguage mr-1 text-secondary-color"></i><span class="align-self-center text-secondary-color" ng-bind="Translate(selectedLanguage)"></span>
+            </div>
+            <div class="dropdown-menu" style="right: 65px;">
+                <span class="dropdown-item cursor-pointer" ng-repeat="l in langList" ng-click="ChangeLanguage(l.Code)">{{Translate(l.Name)}}</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div ng-if="TextLearningModeOn">
+        <button ng-click="SaveLearnedTexts()">Save Learned texts</button><br />
+    </div>
+</div>

@@ -1,0 +1,26 @@
+﻿<div ng-show="Report.OpenBets != null">
+    <div class="row">
+        <div class="col-sm-12 no-padding-print">
+            <div onclick="window.print();" class="print-action hidden-print">
+                <h3>{{Translate('Print this')}}</h3>
+                <div class="print-custom-icon fa-2x">
+                    <i class="fas fa-print"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+  <h3 class="text-center" ng-if="Report.OpenBets.length == 0">{{Translate('No pending bets')}}</h3>
+    <open-bets source="Report.OpenBets" ng-if="Report.OpenBets.length > 0"
+               show-header="false"
+               get-agent-parent="getAgentParent"
+               format-customer="formatCustomer"
+               format-date-time="FormatDateTime"
+               display-time-from-date="DisplayTimeFromDate"
+               is-mobile="IsMobile"
+               raw-agents-list="rawAgentsList"
+               add-session-data="addSessionData"
+               get-session-data="getSessionData"
+               customer-title="customerTitle"></open-bets>
+
+
+</div>

@@ -1,0 +1,80 @@
+﻿<div class="dashbwrapper">
+	<div class="allscrll chat-bottom-spacer" id="scrollBox">
+		<div class="row pt-3 pl-3 title-divider">
+			<div class="d-flex align-items-center">
+				<a ng-click="toggleBookmark('Sport Performance','#/sportPerformance')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Sport Performance') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+				&nbsp;<h3>{{Translate('Sport Performance')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+			</div>
+		</div>
+		<div class="data-filters hidden-print">
+			<div class="row">
+				<div class="col-xs-12">
+					<form class="form-inline">
+						<div class="form-group">
+							<div class="no-padding" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+								<label for="agentsnList">{{Translate('Choose an account:')}}</label>
+								<div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+									 ng-model="$root.selectedAgent" ng-change="ImpersonateAgent(ImpAgent)"
+									 id="agentsnList">
+									<div>
+										<span>{{ t.AgentBind }}</span>
+									</div>
+									<div class="clearfix"></div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-6">
+					<form class="form-inline">
+						<div class="form-group">
+							<label class="" for="ddSport">Sport</label>
+							<select id="ddSport" class="form-control custom-dropdown"
+									ng-options="sport.SportType for sport in Sports"
+									ng-model="SelectedSport"
+									ng-change="sportChanged()">
+							</select>
+						</div>
+					</form>
+				</div>
+				<div class="col-xs-6">
+					<form class="form-inline">
+						<div class="form-group">
+							<label class="" for="ddSport">Sub Sport</label>
+							<select id="ddSport" class="form-control custom-dropdown"
+									ng-options="subSport.SportSubType for subSport in subSports"
+									ng-model="selectedSubSport"
+									ng-change="getData()">
+							</select>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<div class="row">
+				<div style="margin: 0 auto">
+					<div class="customer-card performance-ranges p-0 m-0 justify-content-center">
+						<span ng-bind="Translate('Daily')" ng-class="{active : PeriodRange == 'D'}"
+							  ng-click="PeriodRange = 'D';getData()"></span>
+						<span ng-bind="Translate('Weekly')" ng-class="{active : PeriodRange == 'W'}"
+							  ng-click="PeriodRange = 'W';getData()"></span>
+						<span ng-bind="Translate('Monthly')" ng-class="{active : PeriodRange == 'M'}"
+							  ng-click="PeriodRange = 'M';getData()"></span>
+						<span ng-bind="Translate('Yearly')" ng-class="{active : PeriodRange == 'Y'}"
+							  ng-click="PeriodRange = 'Y';getData()"></span>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="table-wrapper table-responsive">
+						<table datatable dt-instance="vm.dtInstance" dt-options="vm.dtOptions" dt-column-defs="vm.dtColumnDefs" class="custom-datatable">
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

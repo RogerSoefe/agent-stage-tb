@@ -1,0 +1,83 @@
+﻿<div class="dashbwrapper">
+  <div class="allscrll chat-bottom-spacer" id="scrollBox">
+    <div class="row pt-3 pl-3 title-divider">
+      <div class="d-flex align-items-center">
+        <a ng-click="toggleBookmark('Customers Performance','#/sportPerformance')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Customers Performance') == -1}" href=""><span class="fa fa-bookmark"></span></a>
+        &nbsp;<h3>{{Translate('Customers Performance')}}</h3>
+      </div>
+    </div>
+
+    <div class="row my-3">
+      <div class="col-xs-12">
+        <form class="form-inline">
+          <div class="form-group">
+            <div class="no-padding" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+              <label for="agentsnList">{{Translate('Choose an account:')}}</label>
+              <div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+                   ng-model="$root.selectedAgent" ng-change="agentChanged()"
+                   id="agentsnList">
+                <div>
+                  <span>{{ t.AgentBind }}</span>
+                </div>
+                <div class="clearfix"></div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="data-filters hidden-print">
+      <div class="row">
+        <div class="col-xs-12">
+          <form class="form-inline">
+            <div class="form-group">
+              <label class="" for="ddSport">Sport</label>
+              <select id="ddSport" class="form-control custom-dropdown"
+                      ng-options="sport.SportType for sport in Sports"
+                      ng-model="SelectedSport"
+                      ng-change="sportChanged()">
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="col-xs-12 mt-3">
+          <form class="form-inline">
+            <div class="form-group">
+              <label class="" for="ddSport">Sub Sport</label>
+              <select id="ddSport" class="form-control custom-dropdown"
+                      ng-options="subSport.SportSubType for subSport in subSports"
+                      ng-model="selectedSubSport"
+                      ng-change="getData()">
+              </select>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-inline">
+          <div class="form-group mr-4">
+            <label for="startDateInput" class="mt-4 mr-3">{{Translate('Start Date')}}</label>
+            <div class="date-picker">
+              <input id="startDateInput" type="text" class="form-control form-control-ios-fix" ng-model="Filters.startDate" name="filterDate" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="endDateInput" class="mt-4 mr-3">{{Translate('End Date')}}</label>
+            <div class="date-picker">
+              <input id="endDateInput" type="text" class="form-control form-control-ios-fix" ng-model="Filters.endDate" name="filterDate" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="table-wrapper table-responsive">
+          <table datatable dt-instance="vm.dtInstance" dt-options="vm.dtOptions" dt-column-defs="vm.dtColumnDefs" class="custom-datatable">
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

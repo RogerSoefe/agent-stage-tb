@@ -1,0 +1,60 @@
+﻿<div class="col-xs-12 mt-5">
+  <div class="row">
+    <div class="col-xs-3 bg-black text-white pr-0 d-flex justify-content-center" style="height: 40px">
+      <strong class="align-self-center" ng-bind="Translate('Grand Totals')"></strong>
+    </div>
+    <div class="col-xs-3 px-0" style="height: 40px">
+      <div class="row bg-black text-white d-flex">
+        <div class="col-xs-2 p-0 d-flex cursor-pointer"
+             ng-click="ReportTotals.WeekData.currentDayIndex = ReportTotals.WeekData.currentDayIndex == 0 ? 6 : ReportTotals.WeekData.currentDayIndex - 1">
+          <i class="fa fa-caret-left px-2 cursor-pointer align-self-center"></i>
+        </div>
+        <div class="col-xs-8 text-align-center" ng-bind-html="ReportTotals.WeekData.weekList[ReportTotals.WeekData.currentDayIndex]"></div>
+        <div class="col-xs-2 p-0 d-flex justify-content-end cursor-pointer" ng-click="ReportTotals.WeekData.currentDayIndex = ReportTotals.WeekData.currentDayIndex < 6 ? ReportTotals.WeekData.currentDayIndex + 1 : 0">
+          <i class="fa fa-caret-right px-2 align-self-center"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-3 bg-black text-white px-0 d-flex justify-content-center" style="height: 40px">
+      <strong class="align-self-center" ng-bind="Translate('Week')"></strong>
+    </div>
+    <div class="col-xs-3 bg-black text-white pl-0 d-flex justify-content-center" style="height: 40px">
+
+      <div class="row bg-black text-white d-flex">
+        <div class="col-xs-2 p-0 d-flex cursor-pointer"
+             ng-click="ReportTotals.showTran = ReportTotals.showTran == 0 ? 2 : ReportTotals.showTran - 1">
+          <i class="fa fa-caret-left px-2 cursor-pointer align-self-center"></i>
+        </div>
+        <div class="col-xs-8 text-align-center d-flex px-0" ng-if="ReportTotals.showTran == 0">
+          <strong class="align-self-center" ng-bind="Translate('Overall')"></strong>
+        </div>
+        <div class="col-xs-8 text-align-center d-flex px-0" ng-if="ReportTotals.showTran == 1">
+          <strong class="align-self-center" ng-bind="Translate('Pending')"></strong>
+        </div>
+        <div class="col-xs-8 text-align-center d-flex px-0" ng-if="ReportTotals.showTran == 2">
+          <strong class="align-self-center" ng-bind="Translate('Payment')"></strong>
+        </div>
+        <div class="col-xs-2 p-0 d-flex justify-content-end cursor-pointer" ng-click="ReportTotals.showTran = ReportTotals.showTran == 2 ? 0 : ReportTotals.showTran + 1">
+          <i class="fa fa-caret-right px-2 align-self-center"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row bg-white">
+    <div class="col-xs-3 d-flex justify-content-center p-2">
+      <strong class="align-self-center" ng-bind="Translate('Total')"></strong>
+    </div>
+    <div class="col-xs-3 d-flex justify-content-center p-2">
+      <span ng-bind="ReportTotals[GetWeekDayName(ReportTotals.WeekData.currentDayIndex)] | formatNumber" ng-class="{'num_pos' : ReportTotals[GetWeekDayName(ReportTotals.WeekData.currentDayIndex)] == 0, 'num_neg' : ReportTotals[GetWeekDayName(ReportTotals.WeekData.currentDayIndex)] < 0, 'num_pos' : ReportTotals[GetWeekDayName(ReportTotals.WeekData.currentDayIndex)] > 0}"></span>
+    </div>
+    <div class="col-xs-3 d-flex justify-content-center p-2">
+      <span ng-bind="ReportTotals.Week | formatNumber" ng-class="{'num_pos' : ReportTotals.Week == 0, 'num_neg' : ReportTotals.Week < 0, 'num_pos' : ReportTotals.Week > 0}"></span>
+    </div>
+    <div class="col-xs-3 d-flex justify-content-center p-2">
+      <span ng-if="ReportTotals.showTran == 0" ng-bind="WeekNumber.Index == 0 ? ReportTotals.CurrentBalance : ReportTotals.OverAllFigure | formatNumber"
+            ng-class="{'num_pos' : (WeekNumber.Index == 0 ? ReportTotals.CurrentBalance : ReportTotals.OverAllFigure) == 0, 'num_neg' : (WeekNumber.Index == 0 ? ReportTotals.CurrentBalance : ReportTotals.OverAllFigure) < 0, 'num_pos' : (WeekNumber.Index == 0 ? ReportTotals.CurrentBalance : ReportTotals.OverAllFigure) > 0}"></span>
+      <span ng-if="ReportTotals.showTran == 1" ng-bind="ReportTotals.PendingTotal | formatNumber" ng-class="{'num_pos' : ReportTotals.PendingTotal == 0, 'num_neg' : ReportTotals.PendingTotal < 0, 'num_pos' : ReportTotals.PendingTotal > 0}"></span>
+      <span ng-if="ReportTotals.showTran == 2" ng-bind="ReportTotals.OtherTran | formatNumber : false" ng-class="{'num_pos' : ReportTotals.OtherTran == 0, 'num_neg' : ReportTotals.OtherTran < 0, 'num_pos' : ReportTotals.OtherTran > 0}"></span>
+    </div>
+  </div>
+</div>

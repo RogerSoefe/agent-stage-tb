@@ -1,0 +1,251 @@
+﻿<div id="agentListDiv" class="data-component" ng-repeat="aF in CustomersDailyFigures track by $index">
+  <div class="row mt-5 p-0" ng-if="AgentAsCustomerInfo.IsAffiliate == false">
+    <div class="dropdown align-self-center p-3 bg-gray" ng-if="hierarchy.mode == 0">
+      <div class="d-flex" role="button" aria-haspopup="true" aria-expanded="true" data-toggle="dropdown">
+        <strong class="text-white" ng-bind="formatCustomer(aF.AgentId)"></strong>&nbsp;<span class="text-white" ng-bind="Translate('Click here to see hierarchy')"></span>
+      </div>
+      <div class="dropdown-menu">
+        <strong class="text-black p-3" ng-bind="(aF.CustomerDailyFigures[0].Hierarchy != '' ? aF.CustomerDailyFigures[0].Hierarchy.substring(2): formatCustomer(aF.AgentId))"></strong>
+      </div>
+    </div>
+    <div class="align-self-center p-3 bg-gray" ng-if="hierarchy.mode == 1">
+      <div class="d-flex" role="button" aria-haspopup="true" aria-expanded="true" data-toggle="dropdown">
+        <strong class="text-white p-3" ng-bind="(aF.CustomerDailyFigures[0].Hierarchy != '' ? aF.CustomerDailyFigures[0].Hierarchy.substring(2): formatCustomer(aF.AgentId))"></strong>
+      </div>
+    </div>
+  </div>
+  <div class="custom-datatable bg-white">
+
+    <div class="row py-3 d-flex justify-content-center">
+      <div class="customers-left">
+        <div class="bg-white Flipped" style="position: sticky; top: 48px; overflow-x: scroll; overflow-y: hidden">
+          <div class="text-white bg-black p-3 customers-left-header Flipped" style="height: 60px;">
+            <strong>{{Translate('Id')}}</strong>
+          </div>
+        </div>
+        <div ng-repeat-start="dF in aF.CustomerDailyFigures  track by $index" style="height: 60px" class="p-3 bg-black d-flex" ng-show="cL.isTitle">
+          <b class="align-self-center text-white" ng-bind="cL.Hierarchy.substring(2)"></b>
+        </div>
+        <div class="p-3 d-flex" ng-class="{'even' : $index % 2 == 0, 'odd' : $index % 2 != 0}" ng-repeat-end>
+          <a href="#" onclick="return false;" class="customer-table-button"
+             ng-click="ShowCustMaint(dF.CustomerId, 8)"><p class="m-0 text-align-left" ng-class="{'bigger-font': fontMode.size == 2}">{{formatCustomer(dF.CustomerId)}}</p><p class="m-0">({{formatCustomer(dF.Password)}})</p></a>
+        </div>
+        <div class="p-3 d-flex odd">
+          <span>{{Translate('Total')}}</span>
+        </div>
+
+      </div>
+      <div class="customers-right">
+        <div style="overflow-x: scroll; position: sticky; top: 48px; z-index: 1" class="syncscroll Flipped" name="customerTable">
+          <div class="d-flex text-white bg-black Flipped customers-right-header">
+            <strong class="m-3 text-center customer-table-column">{{Translate('Begining Of The Week')}}</strong>
+            <strong class="m-3 text-center customer-table-column">{{Translate('Full Name')}}</strong>
+            <strong class="m-3 text-center customer-table-column">{{Translate('Password')}}</strong>
+            <strong class="m-3 text-center customer-table-column">{{Translate('Carry')}}</strong>
+            <strong class="m-3 text-center customer-table-column">
+              <span ng-bind="GetWeekDayName(1)"></span>
+              <br />
+              <span ng-bind="GetDate(1)"></span>
+            </strong><strong class="m-3 text-center customer-table-column">
+              <span ng-bind="GetWeekDayName(2)"></span>
+              <br />
+              <span ng-bind="GetDate(2)"></span>
+            </strong><strong class="m-3 text-center customer-table-column">
+              <span ng-bind="GetWeekDayName(3)"></span>
+              <br />
+              <span ng-bind="GetDate(3)"></span>
+            </strong><strong class="m-3 text-center customer-table-column">
+              <span ng-bind="GetWeekDayName(4)"></span>
+              <br />
+              <span ng-bind="GetDate(4)"></span>
+            </strong><strong class="m-3 text-center customer-table-column">
+              <span ng-bind="GetWeekDayName(5)"></span>
+              <br />
+              <span ng-bind="GetDate(5)"></span>
+            </strong><strong class="m-3 text-center customer-table-column">
+              <span ng-bind="GetWeekDayName(6)"></span>
+              <br />
+              <span ng-bind="GetDate(6)"></span>
+            </strong>
+            <strong class="m-3 text-center customer-table-column">
+              <span ng-bind="GetWeekDayName(0)"></span>
+              <br />
+              <span ng-bind="GetDate(0)"></span>
+            </strong>
+            <strong class="m-3 text-center customer-table-column">{{Translate('This Week')}}</strong>
+            <strong class="m-3 text-center customer-table-column">{{Translate('Payments')}}</strong>
+            <strong class="m-3 text-center customer-table-column">{{Translate('Pending Bets')}}</strong>
+            <strong class="m-3 text-center customer-table-column">{{Translate('Overall Figure')}}</strong>
+          </div>
+        </div>
+        <div style="overflow-x: scroll; overflow-y: hidden" class="syncscroll bg-black hide-scroll" name="customerTable">
+          <div ng-repeat-start="dF in aF.CustomerDailyFigures  track by $index" class="d-flex bg-black text-white" style="height: 60px" ng-show="cL.isTitle">
+          </div>
+          <div style="width: fit-content" class="d-flex" ng-class="{'even' : $index % 2 == 0, 'odd' : $index % 2 != 0}" ng-repeat-end>
+              <span class="m-3 text-center customer-table-column text-elipsis d-flex justify-content-center" ng-bind="GetDate(1)" ng-class="{'bigger-font': fontMode.size == 2}"></span>
+              <span ng-if="AgentAsCustomerInfo.IsAffiliate == false" class="m-3 text-center customer-table-column text-elipsis d-flex justify-content-center" style="max-width: 100px" title="{{dF.FullName}}" ng-bind="dF.FullName" ng-class="{'bigger-font': fontMode.size == 2}"></span>
+              <span class="m-3 text-center customer-table-column d-flex justify-content-center" ng-bind="dF.Password" ng-class="{'bigger-font': fontMode.size == 2}"></span>
+              <span class="m-3 text-center customer-table-column num_bold d-flex justify-content-center" ng-bind="dF.PrevBal | formatNumber" ng-class="{'num_zero' : dF.PrevBal == 0, 'num_neg' : dF.PrevBal < 0, 'num_pos' : dF.PrevBal > 0}" ng-class="{'bigger-font': fontMode.size == 2}"></span>
+              <div class="m-3 text-center customer-table-column d-flex justify-content-center" ng-if="AgentInfo.CloseDayOfWeek == 2" ng-class="{'bigger-font': fontMode.size == 2}" id="{{GetDate(1)}}">
+              <a href="#" data-toggle="modal" data-target="#ModalDailyFig" ng-click="ShowMoreDetails(dF, 1, !ReportFilters.BreakoutSportsAndCasinos)" onclick="return false" ng-class="{'num_zero' : dF.PlaysCountMonday == 0, 'num_neg' : dF.dFData1 < 0, 'num_pos' : dF.dFData1 > 0}"><span ng-bind="dF.dFData1 | formatNumber"></span></a>
+              <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+                <span ng-bind="GetCasinoFigure(dF, 1, false) | formatNumber"></span>
+              </span>
+            </div>
+              <div class="m-3 text-center customer-table-column d-flex justify-content-center" ng-class="{'bigger-font': fontMode.size == 2}" id="{{GetDate(2)}}">
+              <a href="#" data-toggle="modal" data-target="#ModalDailyFig" ng-click="ShowMoreDetails(dF, AgentInfo.CloseDayOfWeek == 2 ? 2 : 1, !ReportFilters.BreakoutSportsAndCasinos)" onclick="return false" ng-class="{'num_zero' : dF.PlaysCountTuesday == 0, 'num_neg' : dF.dFData2 < 0, 'num_pos' : dF.dFData2 > 0}"><span ng-bind="dF.dFData2 | formatNumber"></span></a>
+              <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+                <span ng-bind="GetCasinoFigure(dF, 2, false) | formatNumber"></span>
+              </span>
+            </div>
+              <div class="m-3 text-center customer-table-column d-flex justify-content-center" ng-class="{'bigger-font': fontMode.size == 2}" id="{{GetDate(3)}}">
+              <a href="#" data-toggle="modal" data-target="#ModalDailyFig" ng-click="ShowMoreDetails(dF, AgentInfo.CloseDayOfWeek == 2 ? 3 : 2, !ReportFilters.BreakoutSportsAndCasinos)" onclick="return false" ng-class="{'num_zero' : dF.PlaysCountWednesday == 0, 'num_neg' : dF.dFData3 < 0, 'num_pos' : dF.dFData3 > 0}"><span ng-bind="dF.dFData3 | formatNumber"></span></a>
+              <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+                <span ng-bind="GetCasinoFigure(dF, 3, false) | formatNumber"></span>
+              </span>
+            </div>
+              <div class="m-3 text-center customer-table-column d-flex justify-content-center" ng-class="{'bigger-font': fontMode.size == 2}" id="{{GetDate(4)}}">
+              <a href="#" data-toggle="modal" data-target="#ModalDailyFig" ng-click="ShowMoreDetails(dF, AgentInfo.CloseDayOfWeek == 2 ? 4 : 3, !ReportFilters.BreakoutSportsAndCasinos)" onclick="return false" ng-class="{'num_zero' : dF.PlaysCountThursday == 0, 'num_neg' : dF.dFData4 < 0, 'num_pos' : dF.dFData4 > 0}"><span ng-bind="dF.dFData4 | formatNumber"></span></a>
+              <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+                <span ng-bind="GetCasinoFigure(dF, 4, false) | formatNumber"></span>
+              </span>
+            </div>
+              <div class="m-3 text-center customer-table-column d-flex justify-content-center" ng-class="{'bigger-font': fontMode.size == 2}" id="{{GetDate(5)}}">
+              <a href="#" data-toggle="modal" data-target="#ModalDailyFig" ng-click="ShowMoreDetails(dF, AgentInfo.CloseDayOfWeek == 2 ? 5 : 4, !ReportFilters.BreakoutSportsAndCasinos)" onclick="return false" ng-class="{'num_zero' : dF.PlaysCountFriday == 0, 'num_neg' : dF.dFData5 < 0, 'num_pos' : dF.dFData5 > 0}"><span ng-bind="dF.dFData5 | formatNumber"></span></a>
+              <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+                <span ng-bind="GetCasinoFigure(dF, 5, false) | formatNumber"></span>
+              </span>
+            </div>
+              <div class="m-3 text-center customer-table-column d-flex justify-content-center" ng-class="{'bigger-font': fontMode.size == 2}" id="{{GetDate(6)}}">
+              <a href="#" data-toggle="modal" data-target="#ModalDailyFig" ng-click="ShowMoreDetails(dF, AgentInfo.CloseDayOfWeek == 2 ? 6 : 5, !ReportFilters.BreakoutSportsAndCasinos)" onclick="return false" ng-class="{'num_zero' : dF.PlaysCountSaturday == 0, 'num_neg' : dF.dFData6 < 0, 'num_pos' : dF.dFData6 > 0}"><span ng-bind="dF.dFData6 | formatNumber"></span></a>
+              <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+                <span ng-bind="GetCasinoFigure(dF, 6, false) | formatNumber"></span>
+              </span>
+            </div>
+              <div class="m-3 text-center customer-table-column d-flex justify-content-center" ng-class="{'bigger-font': fontMode.size == 2}" id="{{GetDate(0)}}">
+              <a href="#" data-toggle="modal" data-target="#ModalDailyFig" ng-click="ShowMoreDetails(dF, AgentInfo.CloseDayOfWeek == 2 ? 0 : 6, !ReportFilters.BreakoutSportsAndCasinos)" onclick="return false" ng-class="{'num_zero' : dF.PlaysCountSunday == 0, 'num_neg' : dF.dFData0 < 0, 'num_pos' : dF.dFData0 > 0}"><span ng-bind="dF.dFData0 | formatNumber"></span></a>
+              <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+                <span ng-bind="GetCasinoFigure(dF, 0, false) | formatNumber"></span>
+              </span>
+            </div>
+              <div class="m-3 text-center customer-table-column d-flex justify-content-center" ng-if="AgentInfo.CloseDayOfWeek == 3" ng-class="{'bigger-font': fontMode.size == 2}" id="{{GetDate(1)}}">
+              <a href="#" data-toggle="modal" data-target="#ModalDailyFig" ng-click="ShowMoreDetails(dF, 0, !ReportFilters.BreakoutSportsAndCasinos)" onclick="return false" ng-class="{'num_zero' : dF.PlaysCountMonday == 0, 'num_neg' : dF.dFData1 < 0, 'num_pos' : dF.dFData1 > 0}"><span ng-bind="dF.dFData1 | formatNumber"></span></a>
+              <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+                <span ng-bind="GetCasinoFigure(dF, 1, false) | formatNumber"></span>
+              </span>
+            </div>
+              <div class="m-3 text-center customer-table-column d-flex justify-content-center" ng-class="{'bigger-font': fontMode.size == 2}">
+              <span data-toggle="modal" data-target="#ModalDailyFig" class="num_bold cursor-pointer" ng-click="ShowWeekDetails(dF, !ReportFilters.BreakoutSportsAndCasinos)" ng-bind="GetWeekFigure(dF, false) | formatNumber" ng-class="{'num_zero' : GetWeekFigure(dF, false) == 0, 'num_neg' : GetWeekFigure(dF, false) < 0, 'num_pos' : GetWeekFigure(dF, false) > 0}"></span>
+              <span ng-if="ReportFilters.BreakoutSportsAndCasinos" class="breakoutcasino">
+                <span ng-bind="GetCasinoWeekFigure(dF, false) | formatNumber"></span>
+              </span>
+            </div>
+              <div class="m-3 text-center customer-table-column hidden-print d-flex justify-content-center" ng-class="{'bigger-font': fontMode.size == 2}">
+              <a href="" ng-click="ShowCustMaint(dF.CustomerId, 2)" ng-class="{'num_zero' : dF.OtherTran == 0, 'customer-table-button' : dF.OtherTran > 0, 'num_neg' : dF.OtherTran < 0}">
+                <span ng-bind="dF.OtherTran | formatNumber"></span>
+              </a>
+            </div>
+              <div class="m-3 text-center customer-table-column hidden-print d-flex justify-content-center" ng-class="{'bigger-font': fontMode.size == 2}">
+              <a href="" ng-click="ShowPendingBets(dF.CustomerId)" ng-class="{'num_zero' : dF.PendingTotal == 0}">
+                <span ng-class="{'num_zero' : dF.PendingTotal == 0, 'num_pos' : dF.PendingTotal > 0}" ng-bind="dF.PendingTotal | formatNumber"></span>
+              </a>
+            </div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center"><span ng-bind="dF.CurrentBalance | formatNumber" ng-class="{'num_zero' : dF.CurrentBalance == 0, 'num_neg' : dF.CurrentBalance < 0, 'num_pos' : dF.CurrentBalance > 0}"></span></div>
+
+
+
+          </div>
+            <div style="width: fit-content" class="d-flex odd" ng-class="{'bigger-font': fontMode.size == 2}">
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center"><div class="df-actives align-self-center">{{aF.TotalActive}}</div></div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center"></div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center"></div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center">
+              <span ng-bind="aF.PrevBalance | formatNumber" ng-class="{'num_zero' : aF.PrevBalance == 0, 'num_neg' : aF.PrevBalance < 0, 'num_pos' : aF.PrevBalance > 0}"></span>
+            </div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center" ng-if="AgentInfo.CloseDayOfWeek == 2"><span ng-bind="aF.Mon | formatNumber" ng-class="{'num_zero' : aF.Mon == 0, 'num_neg' : aF.Mon < 0, 'num_pos' : aF.Mon > 0}"></span></div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center"><span ng-bind="aF.Tue | formatNumber" ng-class="{'num_zero' : aF.Tue == 0, 'num_neg' : aF.Tue < 0, 'num_pos' : aF.Tue > 0}"></span></div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center"><span ng-bind="aF.Wed | formatNumber" ng-class="{'num_zero' : aF.Wed == 0, 'num_neg' : aF.Wed < 0, 'num_pos' : aF.Wed > 0}"></span></div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center"><span ng-bind="aF.Thu | formatNumber" ng-class="{'num_zero' : aF.Thu == 0, 'num_neg' : aF.Thu < 0, 'num_pos' : aF.Thu > 0}"></span></div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center"><span ng-bind="aF.Fri | formatNumber" ng-class="{'num_zero' : aF.Fri == 0, 'num_neg' : aF.Fri < 0, 'num_pos' : aF.Fri > 0}"></span></div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center"><span ng-bind="aF.Sat | formatNumber" ng-class="{'num_zero' : aF.Sat == 0, 'num_neg' : aF.Sat < 0, 'num_pos' : aF.Sat > 0}"></span></div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center"><span ng-bind="aF.Sun | formatNumber" ng-class="{'num_zero' : aF.Sun == 0, 'num_neg' : aF.Sun < 0, 'num_pos' : aF.Sun > 0}"></span></div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center" ng-if="AgentInfo.CloseDayOfWeek == 3"><span ng-bind="aF.Mon | formatNumber" ng-class="{'num_zero' : aF.Mon == 0, 'num_neg' : aF.Mon < 0, 'num_pos' : aF.Mon > 0}"></span></div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center"><span ng-bind="aF.Week | formatNumber" ng-class="{'num_zero' : aF.Week == 0, 'num_neg' : aF.Week < 0, 'num_pos' : aF.Week > 0}"></span></div>
+              <div class="m-3 text-center customer-table-column d-flex justify-content-center"><span ng-bind="aF.OtherTran | formatNumber" ng-class="{'num_zero' : aF.OtherTran == 0, 'num_neg' : aF.OtherTran < 0,  'num_pos' : aF.OtherTran > 0}"></span></div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center"><span ng-bind="aF.PendingTotal | formatNumber" ng-class="{'num_zero' : aF.PendingTotal == 0, 'num_pos' : aF.PendingTotal > 0}"></span></div>
+            <div class="m-3 text-center customer-table-column d-flex justify-content-center"><span ng-bind="aF.Overall | formatNumber" ng-class="{'num_zero' : aF.Overall == 0, 'num_neg' : aF.Overall < 0, 'num_pos' : aF.Overall > 0}"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+    <!-- Modal -->
+    <div class="modal fade printable" id="ModalCust_req">
+      <div class="modal-dialog">
+
+        <div class="modal-content">
+
+          <!-- Modal DISABLE ALL -->
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h1 class="modal-title">{{Translate('Customer Settings')}}</h1>
+          </div>
+          <div ng-if="ReportFilters.CustomerStatus != 'X'">
+            <div class="modal-body">
+              <h3>{{Translate('Change accounts status disable')}}</h3>
+              <br />
+              <p>{{Translate('Change the filter to -ALL- to change staus')}}</p>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">
+                {{Translate('OK')}}
+              </button>
+            </div>
+          </div>
+          <div ng-if="ReportFilters.CustomerStatus == 'X'">
+            <div class="modal-body">
+              <h3>{{Translate('Disable All Accounts')}}</h3>
+              <br />
+              <p>
+                {{Translate('Do you want to')}} {{Status}} {{Translate('all accounts for')}}
+                {{RestricionName}}
+              </p>
+            </div>
+            <div class="modal-footer">
+              <confirm ng-if="Status == 'disable'">
+
+                <button type="button" class="btn btn-default" data-dismiss="mosdal">
+                  {{Translate('No')}}
+                </button>
+                <button type="button" class="btn btn-primary"
+                        ng-click="UpdateAllCustomersAccess(false)" data-dismiss="modal">
+                  {{Translate('Yes')}}
+                </button>
+              </confirm>
+              <confirm ng-if="Status == 'enable'">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                  {{Translate('No')}}
+                </button>
+                <button type="button" class="btn btn-primary"
+                        ng-click="UpdateAllCustomersAccess(false)" data-dismiss="modal">
+                  {{Status}}
+                  {{Translate('all accounts')}}
+                </button>
+                <button type="button" class="btn btn-primary"
+                        ng-click="UpdateAllCustomersAccess(true)" data-dismiss="modal">
+                  {{Translate('previous state')}}
+                </button>
+              </confirm>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
