@@ -1,4 +1,4 @@
-﻿var appModule = angular.module("mainModule", ['ngRoute', 'angular-loading-bar', 'ngAnimate', 'darthwade.loading', 'AxelSoft', 'ui.tree', 'datatables', 'datatables.buttons', 'ngDragDrop', 'angularjs-dropdown-multiselect']);
+var appModule = angular.module("mainModule", ['ngRoute', 'angular-loading-bar', 'ngAnimate', 'darthwade.loading', 'AxelSoft', 'ui.tree', 'datatables', 'datatables.buttons', 'ngDragDrop', 'angularjs-dropdown-multiselect']);
 var appVersion = '20231109-68';
 
 appModule.Root = "/admin";
@@ -124,6 +124,319 @@ appModule.factory('$recursionHelper', ['$compile', function ($compile) {
     }
   };
 }]);
+
+
+appModule
+  /**
+   * Generic Search Directive
+   * Encapsulates all search logic and UI
+   */
+  .directive('genericSearchSheet', [function() {
+    return {
+      restrict: 'E',
+      scope: true,
+      templateUrl: function() {
+        return appModule.Root + '/app/components/directives/generic-search-bottomsheet.html?v=' + (window.appVersion || '');
+      },
+      link: function(scope, element, attrs) {
+        // Initialize search state (dot rule pattern)
+        scope.searchState = { term: '' };
+        
+        // Get display text for an item
+        scope.getDisplayText = function(item) {
+          if (!item) return '';
+          
+          var config = scope.data && scope.data.searchConfig;
+          if (!config) {
+            console.warn('genericSearchSheet: searchConfig not found in scope.data');
+            return '';
+          }
+          
+          var displayField = config.displayField;
+          if (!displayField) {
+            console.warn('genericSearchSheet: displayField not configured');
+            return '';
+          }
+          
+          // If displayField is a function, call it
+          if (typeof displayField === 'function') {
+            return displayField(item);
+          }
+          
+          // If displayField is a string, get that property
+          var result = item[displayField];
+          if (!result) {
+            console.log('genericSearchSheet: item[' + displayField + '] is empty, item:', item);
+          }
+          return result || '';
+        };
+        
+        // Select an item and close the sheet
+        scope.selectItem = function(item) {
+          scope.close(item);
+        };
+        
+        // Clear search term
+        scope.clearSearch = function() {
+          scope.searchState.term = '';
+        };
+      }
+    };
+  }])
+
+  /**
+   * Generic Search Service
+   * Provides a reusable search interface that can be used across different data types
+   */
+  .factory('genericSearchService', ['bottomSheet', '$q', function (bottomSheet, $q) {
+    return {
+      open: function(config) {
+        if (!config || !config.items) {
+          console.error('genericSearchService: items array is required');
+          return $q.reject('Items array is required');
+        }
+
+        if (!config.displayField) {
+          console.error('genericSearchService: displayField is required');
+          return $q.reject('displayField is required');
+        }
+
+        // Pre-calculate data if provided
+        if (config.preCalculate && typeof config.preCalculate === 'function') {
+          config.preCalculate();
+        }
+
+        // Create parent scope if provided
+        var parentScope = config.parentScope;
+        
+        return bottomSheet.open({
+          parentScope: parentScope,
+          template: '<generic-search-sheet></generic-search-sheet>',
+          size: 'full',
+          disableHandle: true,
+          autoExpandFull: true,
+          data: {
+            searchConfig: config
+          },
+          onBeforeClose: function(sheetScope, result) {
+            // Call onSelect callback if provided and result exists
+            if (result && config.onSelect && typeof config.onSelect === 'function') {
+              config.onSelect(result);
+            }
+          }
+        });
+      }
+    };
+  }])
+
+  .factory('bottomSheet', ['$rootScope', '$compile', '$timeout', '$q', '$http', '$templateCache', function ($rootScope, $compile, $timeout, $q, $http, $templateCache) {
+    var current = null;
+
+    return {
+      open: function (config) {
+        var deferred = $q.defer();
+        if (current) current.remove();
+
+        // Permitir heredar scope si se pasa parentScope (acceso a funciones/controladores existentes)
+        var scope = config && config.parentScope ? config.parentScope.$new() : $rootScope.$new(true);
+        // Direct assignment instead of copy to support functions and complex objects
+        scope.data = config.data || {};
+
+        // Carga templateUrl o usa inline
+        var templatePromise = config.templateUrl ? $http.get(config.templateUrl, { cache: $templateCache }) : $q.when({ data: config.template || '' });
+
+        templatePromise.then(function (resp) {
+          var templateHtml = resp.data;
+          var content = $compile(templateHtml)(scope);
+
+          var overlay = jQuery(
+            '<div class="bottom-sheet-overlay">' +
+            '<div class="bottom-sheet normal">' +
+            (config && config.disableHandle ? '' : '<div class="sheet-handle" aria-label="Drag to expand"><span class="expand-icon"><i class="fas fa-chevron-up"></i></span></div>') +
+            '<div class="sheet-body"></div>' +
+            (config.actions ? '<div class="sheet-actions"></div>' : '') +
+            '</div>' +
+            '</div>'
+          );
+
+          overlay.find('.sheet-body').append(content);
+
+          var sheet = overlay.find('.bottom-sheet');
+
+          // Resolve initial height (config.initialHeight or config.size mapping)
+          var resolvedHeight = '40vh'; // default fallback
+          if (config) {
+            if (config.initialHeight) {
+              resolvedHeight = config.initialHeight;
+            } else if (config.size) {
+              switch (config.size) {
+                case 'compact': resolvedHeight = '20vh'; break; // reduced per UX feedback
+                case 'medium': resolvedHeight = '55vh'; break;
+                case 'large': resolvedHeight = '80vh'; break;
+                case 'full': resolvedHeight = '100vh'; break;
+              }
+            }
+          }
+          sheet.css('--bs-initial-height', resolvedHeight);
+
+          // Override header offset variable per open if provided (dynamic gap at top)
+          if (config && config.headerOffset) {
+            document.documentElement.style.setProperty('--bs-header-offset', config.headerOffset);
+          }
+
+          // Define closeSheet inside this closure so scope.close can access sheet/current
+          function closeSheet(result) {
+            // Broadcast collapse to show chat again
+            try { $rootScope.$broadcast('fab:collapsed'); } catch (e) { }
+            // Custom bottom sheet closed event
+            try { $rootScope.$broadcast('bottomSheet:closed', { result: result }); } catch (e2) { }
+            sheet.css('transform', 'translateY(100%)');
+            $timeout(function () { if (current) current.remove(); deferred.resolve(result); }, 400);
+          }
+          // Listen for programmatic expand requests (e.g., search focus) and apply native expansion
+          var expandOff = $rootScope.$on('bottomSheet:expandRequested', function () {
+            // If already expanded do nothing
+            if (sheet.hasClass('full-height')) return;
+            // Clear any inline height so class rule takes effect
+            sheet[0].style.removeProperty('height');
+            sheet.addClass('full-height');
+          });
+          // Listen for programmatic collapse requests (e.g., clear search) and revert to initial height
+          var collapseOff = $rootScope.$on('bottomSheet:collapseRequested', function () {
+            if (!sheet.hasClass('full-height')) return; // Not expanded
+            sheet.removeClass('full-height');
+            sheet[0].style.removeProperty('height');
+            try { $rootScope.$broadcast('bottomSheet:collapsed'); } catch (e) { }
+          });
+          // Expose close on scope after closeSheet defined
+          scope.close = function (result) {
+            if (config && config.onBeforeClose) { config.onBeforeClose(scope, result); }
+            closeSheet(result);
+          };
+
+          if (config.actions) {
+            config.actions.forEach(function (a) {
+              var clase = a.primary ? 'filled' : 'text';
+              var btn = jQuery('<button class="action-btn ' + clase + '">' + a.label + '</button>');
+              btn.on('click', function () { scope.$apply(function () { scope.close(a.value); }); });
+              overlay.find('.sheet-actions').append(btn);
+            });
+          }
+          jQuery('body').append(overlay).addClass('bottom-sheet-open');
+          // Broadcast expand to hide chat (reuse existing listener)
+          try { $rootScope.$broadcast('fab:expanded'); } catch (e) { }
+          // Custom bottom sheet opened event
+          try { $rootScope.$broadcast('bottomSheet:opened', { config: config }); } catch (e2) { }
+          $timeout(function () { sheet.css('transform', 'translateY(0)'); }, 50);
+
+          // Auto expand to full-height if requested and not already full
+          if (config && config.autoExpandFull) {
+            $timeout(function () {
+              if (!sheet.hasClass('full-height')) {
+                sheet[0].style.removeProperty('height');
+                sheet.addClass('full-height');
+              }
+            }, 120);
+          }
+
+          // Drag simplificado: sólo dos estados (compacto y expandido)
+          var startY = 0, dragging = false, totalDelta = 0;
+          var headerOffset = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--bs-header-offset')) || 60;
+          var compactTarget = parseFloat(resolvedHeight); // normalmente 20
+          var expandHeight = 'full-height';
+          var thresholdExpand = 40; // px hacia arriba para expandir
+          var thresholdCollapse = -40; // px hacia abajo para colapsar desde expandido
+          var thresholdClose = -60; // px hacia abajo para cerrar si ya está compacto
+          overlay.find('.sheet-handle')
+            .on('mousedown touchstart', function (e) {
+              dragging = true;
+              startY = e.pageY || e.originalEvent.touches[0].pageY;
+              sheet.addClass('dragging');
+              e.preventDefault();
+            });
+
+          jQuery(document)
+            .on('mousemove.bottomsheet touchmove.bottomsheet', function (e) {
+              if (!dragging) return;
+              var pageY = e.pageY || e.originalEvent.touches[0].pageY;
+              var delta = startY - pageY; // positivo: arrastre hacia arriba, negativo: hacia abajo
+              totalDelta = delta;
+              // No cambiamos la altura en movimiento para evitar estados intermedios
+            })
+            .on('mouseup.bottomsheet touchend.bottomsheet', function () {
+              if (!dragging) return;
+              dragging = false;
+              sheet.removeClass('dragging');
+              var expanded = sheet.hasClass('full-height');
+              // Si está expandido y se arrastra hacia abajo lo suficiente -> colapsar
+              if (expanded && totalDelta < thresholdCollapse) {
+                sheet.removeClass('full-height');
+                // Remove any inline height so the original CSS var (--bs-initial-height) applies uniformly
+                sheet[0].style.removeProperty('height');
+                sheet.css('border-radius', 'var(--md-sys-shape-corner-extra-large,28px) var(--md-sys-shape-corner-extra-large,28px) 0 0');
+                return;
+              }
+              // Si está compacto y se arrastra hacia arriba lo suficiente -> expandir
+              if (!expanded && totalDelta > thresholdExpand) {
+                // Expand: rely on full-height class; clear inline height in case estaba seteada
+                sheet[0].style.removeProperty('height');
+                sheet.addClass('full-height');
+                return;
+              }
+              // Si está compacto y se arrastra hacia abajo fuerte -> cerrar
+              if (!expanded && totalDelta < thresholdClose) {
+                scope.$apply(function () { scope.close('drag-close'); });
+                return;
+              }
+              // Sin cambio si no supera umbrales
+            });
+
+          overlay.on('click', function (e) { if (e.target === overlay[0]) scope.close('backdrop'); });
+
+          // Escape key para cerrar
+          jQuery(document).on('keyup.bottomsheet', function (e) { if (e.key === 'Escape') { scope.$apply(function () { scope.close('escape'); }); } });
+
+          // Enfoque inicial si existe input
+          $timeout(function () {
+            var firstInput = overlay.find('input, select, textarea').first();
+            if (firstInput && firstInput.length) { firstInput.focus(); }
+          }, 150);
+
+          current = {
+            remove: function () {
+              jQuery('body').removeClass('bottom-sheet-open');
+              overlay.remove();
+              scope.$destroy();
+              jQuery(document).off('.bottomsheet');
+              try { expandOff && expandOff(); } catch (e) { }
+              try { collapseOff && collapseOff(); } catch (e) { }
+              current = null;
+            }
+          };
+        });
+
+        return deferred.promise;
+      }
+    };
+  }]);
+
+angular.module('myApp', ['cr.bottomSheet'])
+  .controller('DemoCtrl', ['$scope', 'bottomSheet', function ($scope, bottomSheet) {
+    $scope.abrirEditar = function () {
+      bottomSheet.open({
+        templateUrl: 'templates/editarCliente.html',   // ← Aquí carga el archivo externo
+        data: { cliente: { nombre: 'Roger Rojas', telefono: '87307957', email: 'rogerrojasramirez@gmail.com' } },
+        actions: [
+          { label: 'Cancelar', value: 'cancel' },
+          { label: 'Guardar', value: 'save', primary: true }
+        ]
+      }).then(res => console.log('Resultado:', res));
+    };
+
+    $scope.abrirConfirm = () => bottomSheet.open({ templateUrl: 'templates/confirm-delete.html', actions: [{ label: 'No' }, { label: 'Sí, eliminar', primary: true, value: 'ok' }] });
+    $scope.abrirLista = () => bottomSheet.open({ templateUrl: 'templates/lista-productos.html' });
+  }]);
+
 
 appModule.config(['$routeProvider',
   function ($routeProvider) {
