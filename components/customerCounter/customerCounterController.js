@@ -4,6 +4,21 @@ appModule.controller("customerCounterController", [
     // Expose fabService to the scope for view binding
     $scope.fabService = fabService;
 
+    function initializeFAB() {
+        // No crear el FAB si UseOldViews está activo
+        if ($rootScope.UseOldViews) {
+          return;
+        }
+        
+        // Only show FAB if we're on the /customerCounter route
+        if ($location.path() === '/customerCounter') {
+          fabService.setButtons([
+            { icon: 'fas fa-print', action: $scope.openExportOptions, visible: true }
+          ]);
+          fabService.show();
+        }
+      }    
+
     // Monitor route changes to hide FAB when leaving this view
     const routeChangeHandler = $rootScope.$on('$routeChangeStart', function (event, next, current) {
       // Hide FAB and reset filters when navigating away from /customerCounter
@@ -399,6 +414,9 @@ appModule.controller("customerCounterController", [
         $scope.counterLoaded = true;
         $scope.hideLoadingGif('loadingCustomerCounter');
       });
+
+        
+
     }
 
     Init();
