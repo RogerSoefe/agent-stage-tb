@@ -53,7 +53,11 @@ appModule.controller("customerCounterController", [
       endDate: moment().format('MM/DD/YYYY')
     }
 
-    async function Init() {
+    let isInitialized = false; // Flag para prevenir re-inicialización
+
+    function Init() {
+      if (isInitialized) return; // Prevenir múltiples inicializaciones
+
       jQuery('input[name="filterDate"]').daterangepicker({
         locale: {
           firstDay: 1
@@ -64,24 +68,85 @@ appModule.controller("customerCounterController", [
         dateFormat: 'mm/dd/yyyy'
       });
       if ($agentService.AgentAsCustomerInfo) {
+        $scope.selectedAgent = $scope.AllAgentsList ? $scope.AllAgentsList[0] : null;
+        $rootScope.selectedAgent = $scope.selectedAgent; // Sync with rootScope
+        $scope.AllAgentsListOriginal = $scope.AllAgentsList ? angular.copy($scope.AllAgentsList) : [];
         $scope.WeeksRange = $agentService.GetWeeksRange();
         $scope.selectedWeek = $scope.WeeksRange[0];
+        isInitialized = true;
+
+        // Initialize FAB after all functions are ready
+        initializeFAB();
 
         $scope.getData();
       } else {
-        $rootScope.$on('AgentAsCustomerInfoReady', function () {
+        // Guardar el deregistrar para limpiar el listener
+        const deregister = $rootScope.$on('AgentAsCustomerInfoReady', function () {
+          if (isInitialized) return; // Prevenir ejecución múltiple
+
           $scope.selectedAgent = $scope.AllAgentsList ? $scope.AllAgentsList[0] : null;
+          $rootScope.selectedAgent = $scope.selectedAgent; // Sync with rootScope
+          // Crear una copia inmutable de AllAgentsList para búsquedas
+          $scope.AllAgentsListOriginal = $scope.AllAgentsList ? angular.copy($scope.AllAgentsList) : [];
           $scope.WeeksRange = $agentService.GetWeeksRange();
           $scope.selectedWeek = $scope.WeeksRange[0];
+          isInitialized = true;
+
+          // Initialize FAB after all functions are ready
+          initializeFAB();
 
           $scope.getData();
+
+          // Destruir el listener después de la primera ejecución
+          deregister();
         });
       }
-    };
+
+      // Initialize drag to dismiss after DOM is ready
+      $timeout(function () {
+        $scope.initDragToDismiss();
+      }, 500);
+    }
 
     $scope.tableTab = {
       selected: 1
     }
+
+        // Theme mode - 'light' or 'dark'
+    $scope.themeMode = 'light'; // Default to light mode
+
+    // Breadcrumbs feature flag and state
+    $scope.usarBreadcrumbs = false;
+    $scope.breadcrumbs = [];
+    $scope.filteredByAgent = null;
+
+    $rootScope.UseOldViews = SETTINGS.UseOldViews || false;
+
+    let isLoadingData = false; // Flag para prevenir llamadas simultáneas
+
+    // Handle week change - receives the updated value as parameter
+    $scope.onWeekChange = function(newWeek) {
+      console.log('onWeekChange called with:', newWeek);
+      console.log('Current $scope.selectedWeek:', $scope.selectedWeek);
+      
+      // If newWeek is passed, use it; otherwise fall back to $scope.selectedWeek
+      var weekToUse = newWeek || $scope.selectedWeek;
+      
+      // Update $scope.selectedWeek to ensure it's in sync
+      if (newWeek && newWeek !== $scope.selectedWeek) {
+        $scope.selectedWeek = newWeek;
+      }
+      
+      console.log('Updated $scope.selectedWeek:', $scope.selectedWeek);
+      
+      // Pass the week to getData() instead of relying on $scope.selectedWeek
+      $scope.getData(weekToUse);
+      
+      // Close bottom sheet if it's open
+      if ($scope.close) {
+        $scope.close('period');
+      }
+    };
 
     $scope.getData = function () {
       $scope.counterLoaded = false;
