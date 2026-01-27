@@ -1,5 +1,52 @@
 appModule.controller("customerCounterController", [
-  '$rootScope', '$scope', '$agentService', '$compile', '$rootScope', 'DTOptionsBuilder', 'DTColumnDefBuilder', function ($rootScope, $scope, $agentService, $compile, $rootScope, DTOptionsBuilder, DTColumnDefBuilder) {
+  '$rootScope', '$scope', '$agentService', '$compile', '$timeout', 'DTOptionsBuilder', 'DTColumnDefBuilder', 'fabService', 'bottomSheet', 'genericSearchService', '$location', function ($rootScope, $scope, $agentService, $compile, $timeout, DTOptionsBuilder, DTColumnDefBuilder, fabService, bottomSheet, genericSearchService, $location) {
+
+    // Expose fabService to the scope for view binding
+    $scope.fabService = fabService;
+
+    // Monitor route changes to hide FAB when leaving this view
+    const routeChangeHandler = $rootScope.$on('$routeChangeStart', function (event, next, current) {
+      // Hide FAB and reset filters when navigating away from /customerCounter
+      if (current && current.$$route && current.$$route.originalPath === '/customerCounter') {
+        fabService.reset();
+        // Reset breadcrumbs and filtered agent state
+        $scope.filteredByAgent = null;
+        $scope.breadcrumbs = [];
+        // Clear tableData and fullTreeNodes to ensure clean state
+        $scope.tableData = [];
+        $scope.fullTreeNodes = null;
+        $scope.fullTreeNodesOriginal = null;
+      }
+      
+      // Reset filters and reload data when entering /customerCounter
+      if (next && next.$$route && next.$$route.originalPath === '/customerCounter') {
+        // Ensure filters are reset when entering the route
+        $timeout(function() {
+          $scope.filteredByAgent = null;
+          $scope.breadcrumbs = [];
+          // Clear data before reload
+          $scope.tableData = [];
+          $scope.fullTreeNodes = null;
+          // Reload data to ensure we start with full unfiltered view
+          if (isInitialized && $scope.getData) {
+            $scope.getData();
+          }
+        }, 0);
+      }
+    });
+
+    // Clean up on controller destruction
+    $scope.$on('$destroy', function () {
+      routeChangeHandler(); // Unregister route change listener
+      fabService.reset(); // Clean up FAB when scope is destroyed
+      // Reset breadcrumbs and filtered agent state
+      $scope.filteredByAgent = null;
+      $scope.breadcrumbs = [];
+      // Clear all data
+      $scope.tableData = [];
+      $scope.fullTreeNodes = null;
+      $scope.fullTreeNodesOriginal = null;
+    });
 
     $scope.Filter = {
       startDate: (moment().subtract(7, "days")).format('MM/DD/YYYY'),

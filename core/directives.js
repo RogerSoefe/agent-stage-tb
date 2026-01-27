@@ -1,4 +1,4 @@
-﻿/* angular functions */
+/* angular functions */
 
 appModule.directive("keepFocus", ['$timeout', function ($timeout) {
   /*
@@ -449,3 +449,138 @@ function GetTableParent(el) {
   if (el.is("table")) return GetTableParent(el.parent());
   return el;
 }
+
+// FAB Service - Global Floating Action Button State Management
+appModule.factory('fabService', function () {
+  var service = {
+    buttons: [],
+    isVisible: false,
+
+    // Set the buttons array for the FAB
+    setButtons: function (buttons) {
+      service.buttons = buttons;
+    },
+
+    // Show the FAB
+    show: function () {
+      service.isVisible = true;
+    },
+
+    // Hide the FAB
+    hide: function () {
+      service.isVisible = false;
+    },
+
+    // Reset the FAB state (call on $destroy)
+    reset: function () {
+      service.buttons = [];
+      service.isVisible = false;
+    },
+
+    // Add a single button
+    addButton: function (button) {
+      service.buttons.push(button);
+    },
+
+    // Remove button by index
+    removeButton: function (index) {
+      service.buttons.splice(index, 1);
+    },
+
+    // Clear all buttons
+    clearButtons: function () {
+      service.buttons = [];
+    }
+  };
+
+  return service;
+});
+
+// FAB Button - Global Floating Action Button Directive
+appModule.directive('fabButton', ['$timeout', function ($timeout) {
+  return {
+    restrict: 'E',
+    templateUrl: appModule.Root + '/app/components/directives/fabButton.html',
+    scope: {
+      isLoaded: '=',
+      buttons: '=' // Array of button objects: [{ icon: 'fa-sync-alt', action: function, visible: true }]
+    },
+    link: function (scope, element, attrs) {
+      // Initialize buttons array if not provided
+      if (!scope.buttons || !Array.isArray(scope.buttons)) {
+        scope.buttons = [];
+      }
+
+      // FAB expanded state
+      scope.fabExpanded = false;
+
+      // Toggle FAB function
+      scope.toggleFAB = function () {
+        // Si solo hay un botón, ejecutar su acción directamente
+        if (scope.buttons && scope.buttons.length === 1 && scope.buttons[0].visible !== false) {
+          scope.executeAction(scope.buttons[0].action);
+          return;
+        }
+
+        // Si hay múltiples botones, expandir/contraer normalmente
+        scope.fabExpanded = !scope.fabExpanded;
+        console.log('FAB toggled:', scope.fabExpanded ? 'EXPANDED' : 'COLLAPSED');
+
+        // Broadcast FAB state change
+        if (scope.fabExpanded) {
+          scope.$root.$broadcast('fab:expanded');
+        } else {
+          scope.$root.$broadcast('fab:collapsed');
+        }
+      };
+
+      // Execute action and collapse FAB
+      scope.executeAction = function (action) {
+        if (action && typeof action === 'function') {
+          action();
+        }
+        scope.fabExpanded = false;
+        console.log('Action executed - FAB COLLAPSED');
+        scope.$root.$broadcast('fab:collapsed');
+      };
+
+      // Watch for backdrop clicks
+      scope.$watch('isLoaded', function (newValue) {
+        if (newValue === true) {
+          $timeout(function () {
+            var fabBackdrop = element[0].querySelector('.fab-backdrop');
+            if (fabBackdrop) {
+              fabBackdrop.addEventListener('click', function () {
+                scope.fabExpanded = false;
+                scope.$apply();
+                console.log('Backdrop clicked - FAB COLLAPSED');
+                scope.$root.$broadcast('fab:collapsed');
+              });
+            }
+          }, 100);
+        }
+      });
+
+      // Load the FAB CSS with cache busting
+      if (!document.getElementById('fab-button-styles')) {
+        var link = document.createElement('link');
+        link.id = 'fab-button-styles';
+        link.rel = 'stylesheet';
+        link.href = appModule.Root + '/app/components/directives/fabButton.css?v=' + Date.now();
+        document.head.appendChild(link);
+      }
+    }
+  };
+}]);
+
+
+// 1. La directiva (una sola vez en toda la app)
+appModule.directive('clienteSearchSheet', function () {
+  return {
+    restrict: 'E',
+    // Agregamos cache busting para evitar que se cargue una versión vieja del template en primer carga
+    templateUrl: appModule.Root + '/app/components/directives/cliente-search-sheet.html?v=' + (window.appVersion || Date.now()),
+    transclude: true,
+    scope: false // hereda directamente del padre
+  };
+});
