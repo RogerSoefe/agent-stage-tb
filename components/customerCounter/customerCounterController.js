@@ -4,6 +4,7 @@ appModule.controller("customerCounterController", [
     // Expose fabService to the scope for view binding
     $scope.fabService = fabService;
 
+     // Initialize FAB - must be called after all functions are defined
     function initializeFAB() {
         // No crear el FAB si UseOldViews está activo
         if ($rootScope.UseOldViews) {
