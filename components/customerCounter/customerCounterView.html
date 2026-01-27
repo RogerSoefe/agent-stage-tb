@@ -1,50 +1,966 @@
-﻿<div style="position: absolute; width: 100%; height: 100vh; background: black; opacity: 0.9; z-index: -1; display: none; justify-content: center" id="loadingCustomerCounter">
+﻿<div
+  style="
+    position: absolute;
+    width: 100%;
+    height: 100vh;
+    background: black;
+    opacity: 0.9;
+    z-index: -1;
+    display: none;
+    justify-content: center;
+  "
+  id="loadingCustomerCounter"
+>
   <div class="align-self-center" style="width: 100px">
-    <img class="img-responsive" alt="gif" src="/admin/assets_core/img/loading.gif" />
+    <img
+      class="img-responsive"
+      alt="gif"
+      src="/admin/assets_core/img/loading.gif"
+    />
   </div>
 </div>
-<div class="dashbwrapper">
+<div class="dashbwrapper customer-counter-view" ng-class="['theme-' + themeMode,'use-new-views-' + !UseOldViews]">
   <div class="allscrll chat-bottom-spacer" id="scrollBox">
     <div class="row pt-3 pl-3 title-divider hidden-print">
-      <div class="d-flex align-items-center">
-        <a ng-click="toggleBookmark('Customer Counter','#/customerCounter')" class="bookmark" ng-class="{'bookmark-disabled':getBookmarkIndex('Customer Counter') == -1}" href=""><span class="fa fa-bookmark"></span></a>
-        &nbsp;<h3>{{Translate('Customer Counter')}} <span class="visible-print">{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID | FormatCustomer}}</span></h3>
+      <div class="d-flex align-items-center" style="width: 100%; flex-wrap: wrap; gap: 12px;">
+        <a
+          ng-click="toggleBookmark('Customer Counter','#/customerCounter')"
+          class="bookmark"
+          ng-class="{'bookmark-disabled':getBookmarkIndex('Customer Counter') == -1}"
+          href=""
+          ><span class="fa fa-bookmark"></span
+        ></a>
+        &nbsp;
+        <h3 style="margin: 0; flex: 1;">
+          {{Translate('Customer Counter')}}
+          <span class="visible-print"
+            >{{Translate('for')}} {{AgentAsCustomerInfo.CustomerID |
+            FormatCustomer}}</span
+          >
+        </h3>
+        
+        <!-- Active Filters Chips -->
+         <div class="d-flex justify-content-around w-100" ng-if="!UseOldViews && IsMobile">
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;" ng-if="counterLoaded">
+            <!-- Week Filter Chip -->
+            <div class="selectedWeek" ng-if="selectedWeek" ng-click="toggleFilters()">
+              <i class="fas fa-calendar-week" style="font-size: 12px;"></i>
+              <span>{{getWeekDisplayText(selectedWeek)}}</span>
+            </div>
+            
+            <!-- Agent Filter Chip -->
+            <div ng-if="selectedAgent && (filteredByAgent || selectedAgent.AgentId !== AgentAsCustomerInfo.AgentID)" 
+                ng-click="openAgentSearchSheet()"
+                class="agent-filter-badge"
+                style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              padding: 6px 12px;
+              background: var(--md-sys-color-tertiary-container, #FFD8E4);
+              color: var(--md-sys-color-on-tertiary-container, #31111D);
+              border-radius: 16px;
+              font-size: 13px;
+              font-weight: 500;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              user-select: none;
+              -webkit-tap-highlight-color: transparent;
+              outline: none;
+            "
+            onmouseover=" this.style.transform='translateY(-1px)'"
+            onmouseout=" this.style.transform='translateY(0)'"
+            onmousedown=""
+            onmouseup="">
+              <i class="fas fa-user" style="font-size: 12px;"></i>
+              <span>{{filteredByAgent || selectedAgent.AgentId}}</span>
+            </div>
+          </div>
+          
+          <button 
+            ng-click="getData()" 
+            class="btn btn-sm"
+            style="
+              background: var(--md-sys-color-primary, #1976d2);
+              color: var(--md-sys-color-on-primary, white);
+              border: none;
+              padding: 8px 16px;
+              border-radius: 20px;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              transition: all 0.2s ease;
+              box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.30), 0px 1px 3px rgba(0, 0, 0, 0.15);
+            "
+            onmouseover="this.style.background='var(--md-sys-color-primary-container, #E3F2FD)'; this.style.color='var(--md-sys-color-on-primary-container, #01579B)'; this.style.transform='scale(1.05)';"
+            onmouseout="this.style.background='var(--md-sys-color-primary, #1976d2)'; this.style.color='var(--md-sys-color-on-primary, white)'; this.style.transform='scale(1)';"
+            title="{{Translate('Refresh Data')}}"
+          >
+            <i class="fas fa-sync-alt"></i>
+            <span class="hidden-xs">{{Translate('Refresh')}}</span>
+          </button>
+        </div>
+
+
+
       </div>
     </div>
-    <div class="data-filters hidden-print">
+
+    <!-- Filters Backdrop -->
+    <div class="modal-backdrop" id="filtersBackdrop" ng-click="toggleFilters()"></div>
+
+    <div class="data-filters hidden-print" id="dataFiltersPanel" ng-if="UseOldViews || !IsMobile">
+      <div class="filter-close-btn" ng-click="toggleFilters()">
+        <i class="fas fa-times"></i>
+      </div>
       <div class="row">
         <div class="col-sm-6">
-          <form class="form-inline">
+          <div class="form-inline">
             <div class="form-group">
-              <label for="PeriodsInput">{{Translate('Reporting Period')}}</label>
-              <select id="PeriodsInput" class="form-control" ng-model="selectedWeek" ng-change="getData()" ng-options="wR.DateRange for wR in WeeksRange"></select>
+              <label for="PeriodsInput"
+                >{{Translate('Reporting Period .')}}</label
+              >
+              <select
+                id="PeriodsInput"
+                class="form-control custom-dropdown"
+                ng-model="selectedWeek"
+                ng-change="onWeekChange(selectedWeek); toggleFilters()"
+                ng-options="wR as wR.DateRange for wR in WeeksRange track by wR.Index"
+              ></select>
             </div>
-          </form>
+          </div>
         </div>
         <div class="col-sm-6">
-          <form class="form-inline" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+          <div class="form-inline" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
             <div class="form-group">
-              <label for="agentsnList">{{Translate('Choose an account:')}}</label>
-              <div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
-                   ng-model="$root.selectedAgent" ng-change="getData()"
-                   id="agentsnList">
+              <label for="agentsnList"
+                >{{Translate('Choose an account:')}}</label
+              >
+              <div
+                custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm"
+                ng-model="$root.selectedAgent"
+                ng-change="getData(); toggleFilters()"
+                id="agentsnList"
+              >
                 <div>
                   <span>{{ t.AgentBind }}</span>
                 </div>
                 <div class="clearfix"></div>
               </div>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
-		<div class="row my-5">
-			<div class="col-xs-12" style="margin-bottom: 200px">
 
-        <customer-counter table-data="tableData" totals="totals" ng-if="counterLoaded" ng-show="tableTab.selected == 1"></customer-counter>
-        <div class="table-wrapper table-responsive" ng-show="tableTab.selected == 2">
+    <!-- Breadcrumbs Navigation -->
+    <div class="row breadcrumbs-container" ng-if="usarBreadcrumbs && breadcrumbs.length > 0">
+      <div class="col-xs-12">
+        <nav class="breadcrumbs-nav" aria-label="Breadcrumb">
+          <ol class="breadcrumbs-list">
+            <li class="breadcrumb-item">
+              <a ng-click="clearFilter()" class="breadcrumb-link">
+                <i class="fas fa-home"></i>
+                <span>{{Translate('All')}}</span>
+              </a>
+            </li>
+            <li class="breadcrumb-item" ng-repeat="crumb in breadcrumbs" ng-class="{'active': $last}">
+              <i class="fas fa-chevron-right breadcrumb-separator"></i>
+              <a ng-if="!$last" ng-click="navigateToBreadcrumb($index)" class="breadcrumb-link">
+                {{crumb.AgentID}}
+              </a>
+              <span ng-if="$last" class="breadcrumb-current">
+                {{crumb.AgentID}}
+              </span>
+            </li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-12 p-0">
+        <customer-counter
+          table-data="tableData"
+          totals="totals"
+          ng-if="counterLoaded"
+          ng-show="tableTab.selected == 1"
+        ></customer-counter>
+        <div
+          class="table-wrapper table-responsive"
+          ng-show="tableTab.selected == 2"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Columns Settings Backdrop -->
+    <div class="modal-backdrop" id="columnsBackdrop" ng-click="toggleColumnsSettings()"></div>
+
+    <!-- Columns Settings Panel (Mobile Only) -->
+    <div class="columns-settings hidden-print" id="columnsSettingsPanel">
+      <div class="settings-close-btn" ng-click="toggleColumnsSettings()">
+        <i class="fas fa-times"></i>
+      </div>
+      <h4 style="margin-top: 0; margin-bottom: 15px; font-weight: bold;">{{Translate('Columns')}}</h4>
+      
+      <!-- Quick Action Buttons -->
+      <div class="quick-actions-row">
+        <button class="show-only-active-btn" ng-click="showOnlyActivePlayers()">
+          <i class="fas fa-user-check"></i>
+          <span>{{Translate('Only Active')}}</span>
+        </button>
+        <button class="show-all-columns-btn" ng-click="showAllColumns()">
+          <i class="fas fa-eye"></i>
+          <span>{{Translate('Show All')}}</span>
+        </button>
+      </div>
+
+      <div class="columns-list">
+        <div class="column-toggle" ng-class="{'active': !column.hidden}" ng-repeat="column in totals" ng-click="toggleColumn(column)">
+          <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+            <span class="column-name">{{Translate(column.system)}}</span>
+            <span class="column-total-badge" ng-if="column.count > 0" style="
+              background: var(--md-sys-color-primary-container, #D0E4FF);
+              color: var(--md-sys-color-on-primary-container, #001D36);
+              padding: 2px 8px;
+              border-radius: 12px;
+              font-size: 11px;
+              font-weight: 600;
+              min-width: 20px;
+              text-align: center;
+            ">{{column.count}}</span>
+          </div>
+          <span class="md3-checkbox" ng-class="{'checked': !column.hidden}">
+            <svg class="checkbox-icon" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+              <rect class="checkbox-background" x="1" y="1" width="16" height="16" rx="2" />
+              <path class="checkbox-checkmark" d="M4 9 L7.5 12.5 L14 5" />
+            </svg>
+          </span>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+
+
+
+  
+
+
+  .dashbwrapper.use-new-views-true .custom-dropdown {
+    width: 160px;
+  }
+  /* Material Design 3 tokens moved to core-style.css for global use */
+
+  /* Selected Week Filter Chip */
+  .dashbwrapper.use-new-views-true .selectedWeek {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--md-sys-color-secondary-container, #E8DEF8);
+    color: var(--md-sys-color-on-secondary-container, #1D192B);
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .dashbwrapper.use-new-views-true .selectedWeek:hover {
+    transform: translateY(-1px);
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .dashbwrapper.use-new-views-true .selectedWeek:active {
+    transform: translateY(0);
+  }
+  
+  /* Modal Backdrop - Customer Counter Only */
+  .customer-counter-view .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.32);
+    z-index: 2000000002 !important;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+  }
+
+  .dashbwrapper.use-new-views-true .customer-counter-view .modal-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  @media (min-width: 768px) {
+    .customer-counter-view .modal-backdrop {
+      display: none !important;
+    }
+  }
+
+  /* Mobile Filters Panel - Material Design 3 Bottom Sheet */
+
+  /* Removed fixed width media query - now using dynamic width via ng-style */
+
+  @media (max-width: 1024px) {
+     #containerFluid{
+      height: calc(100vh - 55px)!important;
+    }
+
+    .dashbwrapper.use-new-views-true .customer-counter-view .data-filters {
+      background: var(--md-sys-color-brand-primary);
+      color: var(--md-sys-color-brand-on-primary);
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 2000000004 !important;
+      padding: 20px;
+      padding-top: 28px;
+      padding-bottom: 30px;
+      border-radius: var(--md-sys-shape-corner-extra-large) var(--md-sys-shape-corner-extra-large) 0 0;
+      box-shadow: 
+        0px -1px 2px rgba(0, 0, 0, 0.30),
+        0px -2px 6px rgba(0, 0, 0, 0.15);
+      transform: translateY(calc(100% + 20px));
+      transition: transform var(--md-sys-motion-duration-long) var(--md-sys-motion-easing-emphasized);
+      max-height: 85vh;
+      overflow-y: auto;
+      height: auto;
+      touch-action: pan-y;
+      user-select: none;
+      will-change: transform;
+    }
+
+    /* Drag handle - MD3 Bottom Sheet indicator */
+   .dashbwrapper.use-new-views-true .customer-counter-view .data-filters::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 32px;
+      height: 4px;
+      background: var(--md-sys-color-brand-on-primary);
+      border-radius: var(--md-sys-shape-corner-full);
+      opacity: 0.4;
+      cursor: grab;
+    }
+
+    .dashbwrapper.use-new-views-true .customer-counter-view .data-filters:active::before {
+      cursor: grabbing;
+    }
+
+    .dashbwrapper.use-new-views-true .customer-counter-view .data-filters label,
+    .dashbwrapper.use-new-views-true .customer-counter-view .data-filters .form-control {
+      color: var(--md-sys-color-brand-on-primary);
+    }
+
+    .dashbwrapper.use-new-views-true .customer-counter-view .data-filters .form-control {
+      background-color: black;
+      color: white;
+      border-color: var(--md-sys-color-brand-container);
+      border-radius: var(--md-sys-shape-corner-small);
+    }
+
+    .dashbwrapper.use-new-views-true .customer-counter-view .data-filters .col-sm-6:first-child .form-group {
+      display: flex;
+      align-items: center;
+    }
+
+    .dashbwrapper.use-new-views-true .customer-counter-view .data-filters .dropdown-menu,
+    .dashbwrapper.use-new-views-true .dashbwrapper.use-new-views-true .customer-counter-view .data-filters [custom-select] > div[role="menu"] {
+      position: relative !important;
+      width: 100% !important;
+      left: 0 !important;
+      top: 0 !important;
+      margin-top: 5px !important;
+      float: none !important;
+      background: black !important;
+    }
+
+    .dashbwrapper.use-new-views-true .customer-counter-view .data-filters .dropdown-menu ul,
+    .dashbwrapper.use-new-views-true .customer-counter-view .data-filters [custom-select] ul[role="menu"] {
+      max-height: 200px !important;
+      overflow-y: auto !important;
+      background: black !important;
+      border: 1px solid #fbc024;
+      color: white;
+    }
+
+    .dashbwrapper.use-new-views-true .customer-counter-view .data-filters [custom-select] input {
+      background: black !important;
+      color: white !important;
+      border: none !important;
+    }
+
+    .dashbwrapper.use-new-views-true .customer-counter-view .data-filters [custom-select] input:focus {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    .dashbwrapper.use-new-views-true .customer-counter-view .data-filters .custom-select > .dropdown-menu > .custom-select-search:after {
+      color: #fbc024 !important;
+    }
+
+    .dashbwrapper.use-new-views-true .customer-counter-view .data-filters [custom-select] ul[role="menu"] li {
+      color: white !important;
+    }
+
+    .dashbwrapper.use-new-views-true  .customer-counter-view .data-filters [custom-select] ul[role="menu"] li:hover {
+      background: #d97706 !important;
+    }
+
+    .dashbwrapper.use-new-views-true .customer-counter-view .data-filters.show {
+      transform: translateY(0);
+    }
+
+    /* Close button with MD3 styling */
+    .dashbwrapper.use-new-views-true .customer-counter-view .filter-close-btn {
+      display: block;
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      background: var(--md-sys-color-brand-on-primary);
+      color: var(--md-sys-color-brand-primary);
+      border-radius: var(--md-sys-shape-corner-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      z-index: 10;
+      border: none;
+      box-shadow: 
+        0px 1px 2px rgba(0, 0, 0, 0.30),
+        0px 1px 3px rgba(0, 0, 0, 0.15);
+      transition: all var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+    }
+
+    .customer-counter-view .filter-close-btn:hover {
+      background: var(--md-sys-color-brand-on-primary);
+      color: var(--md-sys-color-brand-primary);
+      box-shadow: 
+        0px 4px 8px rgba(0, 0, 0, 0.30),
+        0px 6px 10px rgba(0, 0, 0, 0.15);
+      transform: scale(1.05);
+    }
+
+    .customer-counter-view .filter-close-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Columns Settings Panel (Mobile Only) - Material Design 3 Bottom Sheet */
+    .customer-counter-view .columns-settings {
+      background: var(--md-sys-color-brand-primary);
+      color: var(--md-sys-color-brand-on-primary);
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 2000000004 !important;
+      padding: 20px;
+      padding-top: 28px;
+      padding-bottom: 30px;
+      border-radius: var(--md-sys-shape-corner-extra-large) var(--md-sys-shape-corner-extra-large) 0 0;
+      box-shadow: 
+        0px -1px 2px rgba(0, 0, 0, 0.30),
+        0px -2px 6px rgba(0, 0, 0, 0.15);
+      transform: translateY(calc(100% + 20px));
+      transition: transform var(--md-sys-motion-duration-long) var(--md-sys-motion-easing-emphasized);
+      max-height: 85vh;
+      overflow-y: auto;
+      height: auto;
+      touch-action: pan-y;
+      user-select: none;
+      will-change: transform;
+    }
+
+    /* Drag handle - MD3 Bottom Sheet indicator */
+    .customer-counter-view .columns-settings::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 32px;
+      height: 4px;
+      background: var(--md-sys-color-brand-on-primary);
+      border-radius: var(--md-sys-shape-corner-full);
+      opacity: 0.4;
+      cursor: grab;
+    }
+
+    .customer-counter-view .columns-settings:active::before {
+      cursor: grabbing;
+    }
+
+    .customer-counter-view .columns-settings.show {
+      transform: translateY(0);
+    }
+
+    .customer-counter-view .settings-close-btn {
+      display: block;
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      background: var(--md-sys-color-brand-on-primary);
+      color: var(--md-sys-color-brand-primary);
+      border-radius: var(--md-sys-shape-corner-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      z-index: 10;
+      border: none;
+      box-shadow: 
+        0px 1px 2px rgba(0, 0, 0, 0.30),
+        0px 1px 3px rgba(0, 0, 0, 0.15);
+      transition: all var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+    }
+
+    .customer-counter-view .settings-close-btn:hover {
+      background: var(--md-sys-color-brand-on-primary);
+      color: var(--md-sys-color-brand-primary);
+      box-shadow: 
+        0px 4px 8px rgba(0, 0, 0, 0.30),
+        0px 6px 10px rgba(0, 0, 0, 0.15);
+      transform: scale(1.05);
+    }
+
+    .customer-counter-view .settings-close-btn:active {
+      transform: scale(0.95);
+    }
+
+    .customer-counter-view .columns-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .customer-counter-view .quick-actions-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    /* Action buttons with MD3 styling */
+    .customer-counter-view .show-only-active-btn,
+    .customer-counter-view .show-all-columns-btn {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: var(--md-sys-shape-corner-full);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: 0.10px;
+      cursor: pointer;
+      transition: all var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 
+        0px 1px 2px rgba(0, 0, 0, 0.30),
+        0px 1px 3px rgba(0, 0, 0, 0.15);
+    }
+
+    .customer-counter-view .show-only-active-btn {
+      background: var(--md-sys-color-brand-primary);
+      color: var(--md-sys-color-brand-on-primary);
+    }
+
+    /* State layer for active button */
+    .customer-counter-view .show-only-active-btn::before,
+    .customer-counter-view .show-all-columns-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: currentColor;
+      opacity: 0;
+      transition: opacity var(--md-sys-motion-duration-short);
+    }
+
+    .customer-counter-view .show-only-active-btn:hover::before {
+      opacity: 0.08;
+    }
+
+    .customer-counter-view .show-only-active-btn:hover {
+      box-shadow: 
+        0px 4px 8px rgba(0, 0, 0, 0.30),
+        0px 6px 10px rgba(0, 0, 0, 0.15);
+      transform: scale(1.02);
+    }
+
+    .customer-counter-view .show-only-active-btn:active {
+      transform: scale(0.98);
+    }
+
+    .customer-counter-view .show-only-active-btn i {
+      font-size: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .customer-counter-view .show-all-columns-btn {
+      background: #10b981;
+      color: white;
+    }
+
+    .customer-counter-view .show-all-columns-btn:hover::before {
+      opacity: 0.08;
+    }
+
+    .customer-counter-view .show-all-columns-btn:hover {
+      box-shadow: 
+        0px 4px 8px rgba(0, 0, 0, 0.30),
+        0px 6px 10px rgba(0, 0, 0, 0.15);
+      transform: scale(1.02);
+    }
+
+    .customer-counter-view .show-all-columns-btn:active {
+      transform: scale(0.98);
+    }
+
+    .customer-counter-view .show-all-columns-btn i {
+      font-size: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Column toggle with MD3 styling */
+    .customer-counter-view .column-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--md-sys-color-brand-on-primary);
+      border-radius: var(--md-sys-shape-corner-full);
+      cursor: pointer;
+      transition: all var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .customer-counter-view .column-toggle::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: white;
+      opacity: 0;
+      transition: opacity var(--md-sys-motion-duration-short);
+    }
+
+    .customer-counter-view .column-toggle:hover::before {
+      opacity: 0.08;
+    }
+
+    .customer-counter-view .column-toggle:active {
+      transform: scale(0.95);
+    }
+
+    .customer-counter-view .column-name {
+      color: white;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: 0.25px;
+      white-space: nowrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* MD3 Checkbox styling */
+    .customer-counter-view .md3-checkbox {
+      position: relative;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .customer-counter-view .checkbox-icon {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    .customer-counter-view .checkbox-background {
+      fill: transparent !important;
+      stroke: transparent !important;
+      stroke-width: 0;
+      transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+
+    .customer-counter-view .md3-checkbox.checked .checkbox-background {
+      fill: transparent !important;
+      stroke: transparent !important;
+      stroke-width: 0;
+    }
+
+    .customer-counter-view .checkbox-checkmark {
+      stroke: transparent !important;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none !important;
+      stroke-dasharray: 16;
+      stroke-dashoffset: 16;
+      opacity: 0;
+      transition: stroke-dashoffset 0.2s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.2s, stroke 0.2s;
+    }
+
+    .customer-counter-view .md3-checkbox.checked .checkbox-checkmark {
+      stroke: #33618D !important;
+      stroke-dashoffset: 0 !important;
+      opacity: 1;
+    }
+
+    /* Ensure bottom-sheet checkboxes work */
+    .bottom-sheet .customer-counter-view .checkbox-background,
+    .bottom-sheet .checkbox-background {
+      fill: transparent !important;
+      stroke: transparent !important;
+      stroke-width: 0;
+    }
+
+    .bottom-sheet .customer-counter-view .md3-checkbox.checked .checkbox-background,
+    .bottom-sheet .md3-checkbox.checked .checkbox-background {
+      fill: transparent !important;
+      stroke: transparent !important;
+      stroke-width: 0;
+    }
+
+    .bottom-sheet .customer-counter-view .checkbox-checkmark,
+    .bottom-sheet .checkbox-checkmark {
+      stroke: transparent !important;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none !important;
+      stroke-dasharray: 16;
+      stroke-dashoffset: 16;
+      opacity: 0;
+    }
+
+    .bottom-sheet .customer-counter-view .md3-checkbox.checked .checkbox-checkmark,
+    .bottom-sheet .md3-checkbox.checked .checkbox-checkmark {
+      stroke: #33618D !important;
+      stroke-dashoffset: 0 !important;
+      opacity: 1;
+    }
+
+    /* Hover state for checkbox */
+    .customer-counter-view .column-toggle:hover .md3-checkbox::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      background: var(--md-sys-color-brand-primary);
+      opacity: 0.08;
+      border-radius: var(--md-sys-shape-corner-full);
+      pointer-events: none;
+    }
+  }
+
+
+
+  @media (min-width: 768px) {
+   
+
+    .customer-counter-view .filter-close-btn {
+      display: none;
+    }
+
+    .customer-counter-view .columns-settings {
+      display: none !important;
+    }
+  }
+
+  /* ========================================
+     TABLE DATA COLORS - Material Design 3
+     ======================================== */
+  
+  /* DARK MODE (Default) */
+  .customer-counter-view.theme-dark .color-2-counter {
+    background-color: var(--md-sys-color-primary) !important;
+    color: var(--md-sys-color-on-primary) !important;
+  }
+
+  .customer-counter-view.theme-dark .color-1-counter {
+    background-color: var(--md-sys-color-primary-container) !important;
+    color: var(--md-sys-color-on-primary-container) !important;
+  }
+
+  .customer-counter-view.theme-dark .color-3-counter {
+    background-color: var(--md-sys-color-secondary-container) !important;
+    color: var(--md-sys-color-on-secondary-container) !important;
+  }
+
+  .customer-counter-view.theme-dark .color-4-counter {
+    background-color: var(--md-sys-color-tertiary-container) !important;
+    color: var(--md-sys-color-on-tertiary-container) !important;
+  }
+
+  .customer-counter-view.theme-dark .color-5-counter {
+    background-color: var(--md-sys-color-surface-variant) !important;
+    color: var(--md-sys-color-on-surface-variant) !important;
+  }
+
+  .customer-counter-view.theme-dark .cust-counter .odd {
+    background-color: var(--md-sys-color-surface) !important;
+    color: var(--md-sys-color-on-surface) !important;
+  }
+
+  .customer-counter-view.theme-dark .cust-counter .even {
+    background-color: var(--md-sys-color-surface-container) !important;
+    color: var(--md-sys-color-on-surface) !important;
+  }
+
+  /* LIGHT MODE */
+  .customer-counter-view.theme-light .color-2-counter {
+    background-color: rgb(51, 97, 141) !important; /* Primary from light theme */
+    color: rgb(255, 255, 255) !important;
+  }
+
+  .customer-counter-view.theme-light .color-1-counter {
+    background-color: rgb(208, 224, 239) !important; /* Primary container light */
+    color: rgb(8, 44, 77) !important;
+  }
+
+  .customer-counter-view.theme-light .color-3-counter {
+    background-color: rgb(227, 223, 250) !important; /* Secondary container light */
+    color: rgb(39, 35, 72) !important;
+  }
+
+  .customer-counter-view.theme-light .color-4-counter {
+    background-color: rgb(248, 217, 227) !important; /* Tertiary container light */
+    color: rgb(65, 15, 35) !important;
+  }
+
+  .customer-counter-view.theme-light .color-5-counter {
+    background-color: rgb(228, 226, 234) !important; /* Surface variant light */
+    color: rgb(70, 70, 79) !important;
+  }
+
+  .customer-counter-view.theme-light .cust-counter .odd {
+    background-color: rgb(252, 248, 253) !important; /* Surface light */
+    color: rgb(27, 27, 31) !important;
+  }
+
+  .customer-counter-view.theme-light .cust-counter .even {
+    background-color: rgb(245, 242, 247) !important; /* Surface container low light */
+    color: rgb(27, 27, 31) !important;
+  }
+
+  /* Borders and shadows for light mode */
+  .customer-counter-view.theme-light .cust-counter .data-row {
+    border-bottom-color: rgb(200, 198, 206) !important;
+  }
+</style>
+
+<style>
+  
+/*
+Fix for dashboard scroll issues on tablets and smaller screens
+*/
+  @media (max-width: 1024px){
+   .dashbwrapper.use-new-views-true  .allscrll{
+      overflow-y: initial;
+    }
+    
+   .dashbwrapper.use-new-views-true  .dashbwrapper {
+      overflow-y: hidden !important;
+    }
+
+    .dashbwrapper.use-new-views-true .allscrll{
+      overflow-y: auto;
+    }
+    .dashbwrapper.use-new-views-true  #containerFluid{
+      height: auto!important;
+    }
+
+    .dashbwrapper.use-new-views-true #page-content-wrapper{
+      overflow: inherit!important;
+    }
+
+    /* .dashbwrapper.use-new-views-true .header-content{
+      position: fixed;
+      top: 0;
+      z-index: 2;
+      width: 100%;
+    }  */
+
+    /* .title-divider{
+      position: fixed;
+      top:65px;
+      width: 100%;
+      z-index: 3;
+    } */
+
+    .dashbwrapper.use-new-views-true  #wrapper{
+      padding-top: 65px!important;
+    }
+
+    .dashbwrapper.use-new-views-true .syncscroll{
+      top:91px
+    }
+
+   .dashbwrapper.use-new-views-true  .customers-left-header{
+      height: 58px!important;
+    }
+
+    /* .dashbwrapper.use-new-views-true  .customers-left{
+      margin-top: 91px!important;
+    }
+
+    .dashbwrapper.use-new-views-true .cust-counter .customers-right{
+       margin-top: 91px!important;
+    } */
+
+    /* .dashbwrapper.use-new-views-true .customers-left .syncscroll{
+      position: fixed;
+      top: 155px!important;
+      overflow-x: scroll;
+      overflow-y: hidden;
+      width: 100%;
+    } */
+
+    /* .syncscroll{
+      position: fixed;
+      top:100px;
+      z-index: 2;
+      width: 100%;
+    } */
+
+
+
+}
+
+ /* @media (max-width: 768px){
+  .title-divider{
+    position: fixed;
+     top:65px;
+  }
+  } */
+</style>
