@@ -419,6 +419,82 @@ appModule.controller("customerCounterController", [
 
     }
 
+    // Drag to dismiss functionality for modals
+    $scope.initDragToDismiss = function () {
+      const modals = [
+        { panel: 'dataFiltersPanel', backdrop: 'filtersBackdrop' },
+        { panel: 'columnsSettingsPanel', backdrop: 'columnsBackdrop' }
+      ];
+
+      modals.forEach(function (modal) {
+        const panel = document.getElementById(modal.panel);
+        if (!panel) return;
+
+        let startY = 0;
+        let currentY = 0;
+        let isDragging = false;
+        let initialTransform = 0;
+
+        const onTouchStart = function (e) {
+          const touch = e.touches[0];
+          startY = touch.clientY;
+          isDragging = true;
+
+          // Get current transform value
+          const transform = window.getComputedStyle(panel).transform;
+          if (transform !== 'none') {
+            const matrix = new DOMMatrix(transform);
+            initialTransform = matrix.m42; // translateY value
+          } else {
+            initialTransform = 0;
+          }
+
+          panel.style.transition = 'none';
+        };
+
+        const onTouchMove = function (e) {
+          if (!isDragging) return;
+
+          const touch = e.touches[0];
+          currentY = touch.clientY;
+          const deltaY = currentY - startY;
+
+          // Only allow dragging down
+          if (deltaY > 0) {
+            panel.style.transform = 'translateY(' + deltaY + 'px)';
+          }
+        };
+
+        const onTouchEnd = function (e) {
+          if (!isDragging) return;
+          isDragging = false;
+
+          const deltaY = currentY - startY;
+          const threshold = 100; // pixels to drag before dismissing
+
+          panel.style.transition = '';
+
+          if (deltaY > threshold) {
+            // Close the modal
+            panel.classList.remove('show');
+            const backdrop = document.getElementById(modal.backdrop);
+            if (backdrop) {
+              backdrop.classList.remove('show');
+            }
+            panel.style.transform = '';
+          } else {
+            // Snap back to original position
+            panel.style.transform = '';
+          }
+        };
+
+        // Add event listeners
+        panel.addEventListener('touchstart', onTouchStart, { passive: true });
+        panel.addEventListener('touchmove', onTouchMove, { passive: true });
+        panel.addEventListener('touchend', onTouchEnd, { passive: true });
+      });
+    };
+
     Init();
 
   }]);
