@@ -135,9 +135,96 @@ appModule
     return {
       restrict: 'E',
       scope: true,
-      templateUrl: function() {
-        return appModule.Root + '/app/components/directives/generic-search-bottomsheet.html?v=' + (window.appVersion || '');
-      },
+      // templateUrl: function() {
+      //   return appModule.Root + '/app/components/directives/generic-search-bottomsheet.html?v=' + (window.appVersion || '');
+      // },
+      template: `
+      <div class="generic-search-sheet">
+  <!-- <div class="generic-search-header"> -->
+    <!-- <h4 class="generic-search-title">{{data.searchConfig.title || Translate('Search')}}</h4> -->
+    <!-- <button type="button" class="generic-search-close" ng-click="close()" aria-label="{{Translate('Close')}}">✕</button> -->
+  <!-- </div> -->
+   <div class="d-flex">
+   
+    <div class="generic-search-input-row">
+        <button type="button" class="generic-search-close" ng-click="close()" aria-label="{{Translate('Close')}}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" id="back-arrow">
+                <path fill="none" d="M0 0h24v24H0V0z" opacity=".87"></path>
+                <path d="M16.62 2.99c-.49-.49-1.28-.49-1.77 0L6.54 11.3c-.39.39-.39 1.02 0 1.41l8.31 8.31c.49.49 1.28.49 1.77 0s.49-1.28 0-1.77L9.38 12l7.25-7.25c.48-.48.48-1.28-.01-1.76z"></path>
+            </svg>
+        </button>
+        <input type="text" 
+            class="generic-search-input" 
+            ng-model="searchState.term" 
+            placeholder="{{data.searchConfig.placeholder || Translate('Type to filter')}}" 
+            aria-label="{{data.searchConfig.placeholder || Translate('Type to filter')}}" 
+            autofocus />
+        <button type="button" 
+                class="generic-search-clear" 
+                ng-show="searchState.term" 
+                ng-click="clearSearch()" 
+                aria-label="{{Translate('Clear')}}">✕</button>
+    </div>
+  </div>
+  <div class="generic-search-results" ng-if="searchState.term">
+    <ul class="generic-search-list">
+      <li class="generic-search-item" 
+          ng-repeat="item in data.searchConfig.items | filter:searchState.term | filter:data.searchConfig.filterFn" 
+          ng-class="data.searchConfig.itemClass ? data.searchConfig.itemClass(item) : ''"
+          ng-click="selectItem(item)">
+        <span class="generic-search-bind" ng-bind="getDisplayText(item)"></span>
+        <span class="generic-search-badge" ng-if="data.searchConfig.badge && data.searchConfig.badge(item)" ng-bind="data.searchConfig.badge(item)"></span>
+      </li>
+      <li class="generic-search-empty" ng-if="(data.searchConfig.items | filter:searchState.term | filter:data.searchConfig.filterFn).length===0">
+        {{data.searchConfig.emptyMessage || Translate('No results')}}
+      </li>
+    </ul>
+  </div>
+  <div class="generic-search-hint" ng-if="!searchState.term">
+    <small>{{data.searchConfig.hint || Translate('Start typing to search')}}</small>
+  </div>
+</div>
+<style>
+.generic-search-sheet { padding:4px 4px 12px; }
+.generic-search-header { display:flex; align-items:center; justify-content:space-between; padding:4px 8px 8px; }
+.generic-search-title { margin:0; font-size:15px; font-weight:600; }
+.generic-search-close { 
+    background:none; 
+    border:none; 
+    cursor:pointer; 
+    font-size:18px; 
+    color:var(--md-sys-color-brand-on-primary,#FFF); 
+    display: flex;
+}
+.generic-search-input-row { 
+    display: flex;
+    align-items: center;
+    border-radius: 9999px;
+    background: #f5f5f5;
+    position:relative; 
+    padding: 8px 24px 8px 0px;
+    flex-grow: 1;
+}
+/* .generic-search-input { width:100%; border:none; border-bottom:1px solid var(--md-sys-color-brand-on-primary,#FFF); background:transparent; padding:10px 30px 6px 0; font-size:14px; color:var(--md-sys-color-brand-on-primary,#FFF); } */
+.generic-search-input { width:100%; border:none; background:transparent; padding:4px; font-size:16px; color:var(--md-sys-color-brand-on-primary,#FFF); }
+.generic-search-input:focus { outline:none; border-bottom-color:var(--md-sys-color-brand-on-primary,#FFF); }
+.generic-search-clear { position:absolute; right:12px; top:8px; background:none; border:none; cursor:pointer; font-size:16px; color:var(--md-sys-color-brand-on-primary,#FFF); z-index:10; padding:4px; }
+.generic-search-results { overflow-y:auto; padding:4px 4px 0; }
+.generic-search-list { list-style:none; margin:0; padding:0; }
+.generic-search-item { display:flex; justify-content:space-between; align-items:center; padding:8px 10px; cursor:pointer; border-radius:10px; background:rgba(255,255,255,0.12); margin-bottom:6px; font-size:13px; }
+.generic-search-item:hover { background:rgba(255,255,255,0.25); }
+.generic-search-bind { font-weight:500; flex:1; }
+.generic-search-badge { font-size:10px; opacity:0.7; padding:2px 6px; background:rgba(255,255,255,0.2); border-radius:8px; margin-left:8px; }
+.generic-search-empty { padding:10px; text-align:center; opacity:0.85; font-size:13px; }
+.generic-search-hint { padding:6px 12px; opacity:0.85; }
+@media (prefers-color-scheme: light){
+  .generic-search-item { background:rgba(255,255,255,0.85); color:var(--md-sys-color-brand-primary,#33618D); }
+  .generic-search-item:hover { background:rgba(255,255,255,1); }
+  .generic-search-input { border-bottom:1px solid var(--md-sys-color-brand-on-primary,#FFF); color:var(--md-sys-color-brand-on-primary,#FFF); }
+}
+</style>
+
+      `,
       link: function(scope, element, attrs) {
         // Initialize search state (dot rule pattern)
         scope.searchState = { term: '' };
