@@ -1,0 +1,47 @@
+<div class="agent-search-sheet">
+  <div class="agent-search-header">
+    <h4 class="agent-search-title">{{Translate('Search account')}}</h4>
+    <button type="button" class="agent-search-close" ng-click="close(); (openFiltersBottomSheet && openFiltersBottomSheet())" aria-label="{{Translate('Close')}}">✕</button>
+  </div>
+  <div class="agent-search-input-row">
+    <input type="text" class="agent-search-input" ng-model="agentSearch.term" placeholder="{{Translate('Type to filter')}}" aria-label="{{Translate('Type to filter')}}" autofocus />
+    <button type="button" class="agent-search-clear" ng-show="agentSearch.term" ng-click="clearSearchTerm()" aria-label="{{Translate('Clear')}}">✕</button>
+  </div>
+  <div class="agent-search-results" ng-if="agentSearch.term">
+    <ul class="agent-search-list">
+      <li class="agent-search-item" 
+          ng-repeat="a in (AllAgentsListOriginal || AllAgentsList) | filter:agentSearch.term | filter:filterWithData" 
+          ng-click="selectAgentFromSearch(a); close('agent-selected')">
+        <span class="agent-bind">{{a.AgentBind}}</span>
+      </li>
+      <li class="agent-search-empty" ng-if="((AllAgentsListOriginal || AllAgentsList) | filter:agentSearch.term | filter:filterWithData).length===0">
+        {{Translate('No results')}}
+      </li>
+    </ul>
+  </div>
+  <div class="agent-search-hint" ng-if="!agentSearch.term">
+    <small>{{Translate('Start typing to search accounts')}}</small>
+  </div>
+</div>
+<style>
+.agent-search-sheet { padding:4px 4px 12px; }
+.agent-search-header { display:flex; align-items:center; justify-content:space-between; padding:4px 8px 8px; }
+.agent-search-title { margin:0; font-size:15px; font-weight:600; }
+.agent-search-close { background:none; border:none; cursor:pointer; font-size:18px; color:var(--md-sys-color-brand-on-primary,#FFF); }
+.agent-search-input-row { position:relative; padding:0 8px 6px; }
+.agent-search-input { width:100%; border:none; border-bottom:1px solid var(--md-sys-color-brand-on-primary,#FFF); background:transparent; padding:10px 30px 6px 0; font-size:14px; color:var(--md-sys-color-brand-on-primary,#FFF); }
+.agent-search-input:focus { outline:none; border-bottom-color:var(--md-sys-color-brand-on-primary,#FFF); }
+.agent-search-clear { position:absolute; right:12px; top:8px; background:none; border:none; cursor:pointer; font-size:16px; color:var(--md-sys-color-brand-on-primary,#FFF); z-index:10; padding:4px; }
+.agent-search-results { overflow-y:auto; padding:4px 4px 0; }
+.agent-search-list { list-style:none; margin:0; padding:0; }
+.agent-search-item { display:flex; justify-content:space-between; align-items:center; padding:8px 10px; cursor:pointer; border-radius:10px; background:rgba(255,255,255,0.12); margin-bottom:6px; font-size:13px; }
+.agent-search-item:hover { background:rgba(255,255,255,0.25); }
+.agent-bind { font-weight:500; }
+.agent-search-empty { padding:10px; text-align:center; opacity:0.85; font-size:13px; }
+.agent-search-hint { padding:6px 12px; opacity:0.85; }
+@media (prefers-color-scheme: light){
+  .agent-search-item { background:rgba(255,255,255,0.85); color:var(--md-sys-color-brand-primary,#33618D); }
+  .agent-search-item:hover { background:rgba(255,255,255,1); }
+  .agent-search-input { border-bottom:1px solid var(--md-sys-color-brand-on-primary,#FFF); color:var(--md-sys-color-brand-on-primary,#FFF); }
+}
+</style>

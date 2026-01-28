@@ -1,0 +1,273 @@
+/* ========================================
+   FAB BUTTON - GLOBAL DIRECTIVE STYLES
+   Material Design 3 Floating Action Button
+   ======================================== */
+
+/* Backdrop for click-outside-to-close */
+.fab-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: 998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.fab-backdrop-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.fab-wrapper {
+    position: fixed;
+    bottom: 6px;
+    left: 4px;
+    z-index: 999;
+}
+
+.fab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: var(--md-sys-color-brand-primary);
+    border-radius: 50%;
+    box-shadow:
+        0px 1px 2px rgba(0, 0, 0, 0.30),
+        0px 2px 6px rgba(0, 0, 0, 0.15);
+    transition: all var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+    cursor: pointer;
+    border: none;
+    margin: 10px;
+    z-index: 1001;
+    overflow: hidden;
+    pointer-events: auto;
+}
+
+.fab::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    border-radius: inherit;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: opacity var(--md-sys-motion-duration-short);
+}
+
+.fab-expanded .fab::before {
+    width: 90%;
+    height: 90%;
+    left: 5%;
+    top: 5%;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.fab:hover {
+    box-shadow:
+        0px 4px 8px rgba(0, 0, 0, 0.30),
+        0px 6px 10px rgba(0, 0, 0, 0.15);
+    transform: scale(1.05);
+}
+
+.fab:hover::before {
+    opacity: 1.2;
+}
+
+.fab:focus-visible {
+    outline: 3px solid var(--md-sys-color-brand-primary);
+    outline-offset: 2px;
+}
+
+.fab:active {
+    transform: scale(0.98);
+}
+
+/* High contrast mode support for FAB */
+@media (prefers-contrast: high) {
+    .fab {
+        border: 2px solid var(--md-sys-color-brand-on-primary);
+    }
+}
+
+.fab-dots {
+    position: absolute;
+    height: 8px;
+    width: 8px;
+    background-color: #1f2937;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 1;
+    animation: blink 3s ease infinite;
+    transition: all 0.3s ease;
+}
+
+.fab-dots-1 {
+    left: 15px;
+    animation-delay: 0s;
+}
+
+.fab-dots-2 {
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: 0.4s;
+}
+
+.fab-dots-3 {
+    right: 15px;
+    animation-delay: 0.8s;
+}
+
+.fab-expanded .fab .fab-dots {
+    height: 6px;
+    animation: none;
+}
+
+.fab-expanded .fab .fab-dots-1 {
+    width: 32px;
+    border-radius: 10px;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.fab-expanded .fab .fab-dots-2 {
+    opacity: 0;
+}
+
+.fab-expanded .fab .fab-dots-3 {
+    width: 32px;
+    border-radius: 10px;
+    right: 50%;
+    transform: translate(50%, -50%) rotate(-45deg);
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.25;
+    }
+}
+
+.fab-wheel {
+    position: absolute;
+    bottom: 14px;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 80px;
+    transition: all var(--md-sys-motion-duration-long) var(--md-sys-motion-easing-emphasized);
+    transform-origin: bottom left;
+    transform: scale(0);
+    pointer-events: none;
+    z-index: 1001;
+}
+
+.fab-expanded .fab-wheel {
+    transform: scale(1) !important;
+    pointer-events: auto !important;
+}
+
+/* FAB Actions - Material Design 3 */
+.fab-action {
+    position: relative;
+    background: var(--md-sys-color-brand-primary);
+    color: var(--md-sys-color-brand-on-primary);
+    width: 56px;
+    height: 56px;
+    border-radius: var(--md-sys-shape-corner-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    box-shadow:
+        0px 1px 2px rgba(0, 0, 0, 0.30),
+        0px 2px 6px rgba(0, 0, 0, 0.15);
+    transition: all var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+    cursor: pointer;
+    text-decoration: none;
+    overflow: hidden;
+}
+
+/* State layer for FAB actions */
+.fab-action::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--md-sys-color-brand-on-primary);
+    opacity: 0;
+    transition: opacity var(--md-sys-motion-duration-short);
+    border-radius: inherit;
+}
+
+.fab-action:hover::before {
+    opacity: 0.08;
+}
+
+.fab-action:focus::before {
+    opacity: 0.12;
+}
+
+.fab-action:focus-visible {
+    outline: 3px solid var(--md-sys-color-brand-primary);
+    outline-offset: 2px;
+}
+
+.fab-action:active::before {
+    opacity: 0.12;
+}
+
+.fab-action:hover {
+    box-shadow:
+        0px 4px 8px rgba(0, 0, 0, 0.30),
+        0px 6px 10px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.fab-action:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* Ripple effect on click */
+.fab-action::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle,
+            var(--md-sys-color-brand-on-primary) 10%,
+            transparent 10.01%);
+    transform: scale(10);
+    opacity: 0;
+    transition: transform 0.5s, opacity 1s;
+}
+
+.fab-action:active::after {
+    transform: scale(0);
+    opacity: 0.3;
+    transition: 0s;
+}
+
+/* High contrast mode support for FAB actions */
+@media (prefers-contrast: high) {
+    .fab-action {
+        border: 2px solid var(--md-sys-color-brand-on-primary);
+    }
+}
+
+.fab-expanded .fab-wheel .fab-action {
+    opacity: 1 !important;
+}
+
+.fab-action:hover {
+    transform: scale(1.15);
+    color: #1f2937;
+}

@@ -1,0 +1,149 @@
+<!-- 2. templates/cliente-search-sheet.html (el template de la directiva) -->
+<div class="sheet-with-search">
+  <!-- Barra de búsqueda + resultados (siempre arriba) -->
+  <div class="search-header"> 
+
+    <!-- <div class="search-header"> -->
+    <!-- <div class="search-input-container">
+      <input type="text" placeholder="Search Customers..." 
+             ng-model="query" ng-change="filtrar()" autofocus>
+      <button class="clear-btn" ng-click="query=''; filtrar()" ng-show="query">✕</button>
+    </div> -->
+    <!-- <button class="back-btn" ng-click="close()">←</button> -->
+  <!-- </div> -->
+
+  <!-- 2. Resultados del search (se expande) -->
+  <!-- <div class="search-results" ng-show="query.length >= 2">
+    <div class="result-item" ng-repeat="item in resultados" ng-click="seleccionar(item)">
+      <strong>{{item.nombre}}</strong> – {{item.telefono}}
+    </div>
+    <div class="no-results" ng-if="resultados.length === 0">
+      No hay coincidencias
+    </div>
+  </div> -->
+
+ 
+ 
+    <!-- <div class="col-sm-6" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+        <div class="form-inline">
+            <div class="form-group d-flex justify-content-between">
+                <label for="agentsnList">{{Translate('Choose an account:')}} </label>
+                <div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm" 
+                     mobile-inline-select
+                     ng-model="$root.selectedAgent" 
+                     ng-change="getData(); (close && close('agentSelected'))" 
+                     id="agentsnList">
+                  <div><span>{{ t.AgentBind }}</span></div>
+                  <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                <div class="col-sm-6" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+                    <div class="form-inline">
+                      <div class="form-group">
+                        <label for="agentsnList">{{Translate('Choose an account:')}}</label>
+                        <div custom-select="t as (t.AgentId ) for t in AllAgentsList | filter : $searchTerm" ng-model="$root.selectedAgent" ng-change="getData();" id="agentsnList">
+                          <div><span>{{ t.AgentBind }}</span></div>
+                          <div class="clearfix"></div>
+                        </div>
+                      </div>
+                    </div>
+                </div> -->
+
+                <!-- Simplified header: show selected agent and search icon to open search bottom sheet -->
+                <div class="agent-search-trigger" ng-if="AgentAsCustomerInfo.AgentType == 'M'">
+                  <div class="current-agent-label">
+                    <span class="agent-name" ng-bind="$root.selectedAgent && $root.selectedAgent.AgentBind || Translate('Select account')"></span>
+                    <button type="button" class="open-search-btn" ng-click="openAgentSearchSheet()" aria-label="{{Translate('Search account')}}">
+                      <i class="fas fa-search"></i>
+                    </button>
+                  </div>
+                </div>
+
+
+  </div>
+  <!-- <div class="search-results" ng-show="true"> ... </div> -->
+
+  <!-- Aquí va TODO tu otro contenido (formulario, lista, etc.) -->
+   <!-- <div class="main-content" ng-show="!query || query.length < 2 || resultados.length === 0"></div> -->
+  <!-- <div class="main-content" ng-show="!query || query.length < 2 || resultados.length === 0"> -->
+    <div class="main-content">
+    <ng-transclude></ng-transclude>   <!-- ← esto inserta lo que pongas al llamar la directiva -->
+  </div>
+</div>
+<style>
+    sheet-with-search { display:flex; flex-direction:column; height:100%; }
+
+.search-header {
+  /* position:sticky;  */
+  /* top:0;  */
+  z-index:10;
+  padding:16px 16px 8px; 
+  /* background:var(--md-sys-color-surface); */
+  border-bottom:1px solid var(--md-sys-color-outline-variant);
+}
+
+.search-input-container {
+  position:relative; 
+  /* background:var(--md-sys-color-surface-container); */
+  border-radius:28px; 
+  padding:0 16px; 
+  display:flex; 
+  align-items:center;
+}
+
+.search-input-container input {
+  width:100%; padding:14px 0; border:none; 
+  background:transparent; font-size:17px;
+}
+
+.clear-btn {
+  background:none; border:none; font-size:20px; cursor:pointer; color:var(--md-sys-color-on-surface-variant);
+}
+
+.back-btn {
+  position:absolute; left:8px; top:50%; transform:translateY(-50%);
+  background:none; border:none; font-size:28px; color:var(--md-sys-color-primary);
+}
+
+.search-results {
+  flex:1; overflow-y:auto; padding:0 16px;
+}
+
+.result-item {
+  padding:16px 0; border-bottom:1px solid var(--md-sys-color-outline-variant);
+  cursor:pointer;
+}
+
+.result-item:hover { background:var(--md-sys-color-surface-container-highest); }
+
+.main-content {
+  flex:1; overflow-y:auto; padding:0 24px 100px;
+}
+
+.form-group {
+  margin:20px 0;
+}
+
+.form-group label {
+  display:block; margin-bottom:8px; font-weight:500;
+}
+
+.form-group input {
+  width:100%; padding:12px; border-radius:12px;
+  border:1px solid var(--md-sys-color-outline-variant);
+  background:var(--md-sys-color-surface-container);
+}
+/* Agent search trigger styles */
+.agent-search-trigger { margin:12px 0 8px; }
+.current-agent-label { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border:1px solid var(--md-sys-color-outline-variant); border-radius:12px; 
+    /* background:var(--md-sys-color-surface-container); */
+ }
+.current-agent-label .agent-name { font-weight:500; font-size:14px; }
+.open-search-btn { background:none; border:none; cursor:pointer; 
+    /* color:var(--md-sys-color-on-surface-variant); */
+     font-size:18px; display:flex; align-items:center; }
+.open-search-btn:active { transform:scale(.9); }
+</style>
